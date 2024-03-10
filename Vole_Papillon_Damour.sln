@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VPD.Api", "VPD.Api\VPD.Api.csproj", "{FF5079DB-FC48-4BD2-9122-F7BD2AB338CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Template.CQRS.Api", "Web.Template.CQRS.Api\Web.Template.CQRS.Api.csproj", "{FF5079DB-FC48-4BD2-9122-F7BD2AB338CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VPD.Application", "VPD.Application\VPD.Application.csproj", "{DC174C7C-F213-49DE-BC8A-F37419CB7E08}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Template.CQRS.Application", "Web.Template.CQRS.Application\Web.Template.CQRS.Application.csproj", "{DC174C7C-F213-49DE-BC8A-F37419CB7E08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VPD.Contracts", "VPD.Contracts\VPD.Contracts.csproj", "{97D3EBCD-6C21-40CB-B382-3A837C57FC51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Template.CQRS.Contracts", "Web.Template.CQRS.Contracts\Web.Template.CQRS.Contracts.csproj", "{97D3EBCD-6C21-40CB-B382-3A837C57FC51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VPD.Domain", "VPD.Domain\VPD.Domain.csproj", "{D81C7FD1-34FE-40A8-8E3D-385D7A55810D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Template.CQRS.Domain", "Web.Template.CQRS.Domain\Web.Template.CQRS.Domain.csproj", "{D81C7FD1-34FE-40A8-8E3D-385D7A55810D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VPD.Infrastructure", "VPD.Infrastructure\VPD.Infrastructure.csproj", "{1F0AAC1A-B6B1-4B8F-88CB-11F7A8171632}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Template.CQRS.Infrastructure", "Web.Template.CQRS.Infrastructure\Web.Template.CQRS.Infrastructure.csproj", "{1F0AAC1A-B6B1-4B8F-88CB-11F7A8171632}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

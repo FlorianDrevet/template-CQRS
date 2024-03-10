@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Florian Drevet",
+  "classifications": [
+    "Web"
+  ],
+  "name": "Web template using CQRS",
+  "description": "This template creates a new web application using CQRS",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "shortName": "templatewebcqrs",
+  "sourceName": "Web.Template.CQRS",
+  "preferNameDirectory": true
+}

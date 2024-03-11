@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.RateLimiting;
 using Web.Template.CQRS.Api;
 using Web.Template.CQRS.Api.Common.RateLimiting;
 using Web.Template.CQRS.Api.Controllers;

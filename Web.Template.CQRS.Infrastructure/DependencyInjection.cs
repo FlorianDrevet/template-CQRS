@@ -21,7 +21,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager builderConfiguration)
     {
-        var connectionString = builderConfiguration.GetConnectionString("MariageDatabase");
+        var connectionString = builderConfiguration.GetConnectionString("ProjectDatabase");
             
         services
             .AddAuth(builderConfiguration)

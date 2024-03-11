@@ -12,5 +12,6 @@
   },
   "shortName": "templatewebcqrs",
   "sourceName": "Web.Template.CQRS",
+  "identity": "Web.Template.CQRS",
   "preferNameDirectory": true
 }

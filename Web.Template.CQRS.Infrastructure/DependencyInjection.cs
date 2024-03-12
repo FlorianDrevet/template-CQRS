@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -28,6 +29,7 @@ public static class DependencyInjection
             .AddDbContext<ProjectDbContext>(options =>
                 options.UseSqlServer(connectionString)
                 )
+            .AddAzureServices(builderConfiguration)
             .AddRepositories();
         
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
@@ -39,6 +41,19 @@ public static class DependencyInjection
         this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        return services;
+    }
+
+    private static IServiceCollection AddAzureServices(
+        this IServiceCollection services,
+        ConfigurationManager builderConfiguration)
+    {
+        services.AddAzureClients(clientBuilder =>
+        {
+            // Blob Service
+            string connectionString = builderConfiguration.GetConnectionString("AzureBlobStorageConnectionString") ?? string.Empty;
+            clientBuilder.AddBlobServiceClient(connectionString); 
+        });
         return services;
     }
     

@@ -11,11 +11,10 @@ public class BlobService
     private readonly BlobContainerClient _blobContainerClient;
 
     public BlobService(
-        IAzureClientFactory<BlobServiceClient> clientFactory,
+        BlobServiceClient blobServiceClient,
         IOptions<BlobSettings> blobStorageSettings)
     {
-        var client = clientFactory.CreateClient(blobStorageSettings.Value.StorageAccountName);
-        _blobContainerClient = client.GetBlobContainerClient(blobStorageSettings.Value.ContainerName);
+        _blobContainerClient = blobServiceClient.GetBlobContainerClient(blobStorageSettings.Value.ContainerName);
     }
     
     public async Task<Uri> UploadFileAsync(IFormFile formFile)

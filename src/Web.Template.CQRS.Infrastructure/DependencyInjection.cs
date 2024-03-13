@@ -1,4 +1,5 @@
 using System.Text;
+using Mariage.Infrastructure.Services.BlobService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
@@ -13,6 +14,7 @@ using Web.Template.CQRS.Infrastructure.Authentication;
 using Web.Template.CQRS.Infrastructure.Persistence;
 using Web.Template.CQRS.Infrastructure.Persistence.Repositories;
 using Web.Template.CQRS.Infrastructure.Services;
+using Web.Template.CQRS.Infrastructure.Services.BlobService;
 
 namespace Web.Template.CQRS.Infrastructure;
 
@@ -30,6 +32,7 @@ public static class DependencyInjection
                 options.UseSqlServer(connectionString)
                 )
             .AddAzureServices(builderConfiguration)
+            .AddBlob(builderConfiguration)
             .AddRepositories();
         
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
@@ -56,6 +59,20 @@ public static class DependencyInjection
         });
         return services;
     }
+    
+    private static IServiceCollection AddBlob(
+        this IServiceCollection services,
+        ConfigurationManager builderConfiguration)
+    {
+        var blobSettings = new BlobSettings();
+        builderConfiguration.Bind(BlobSettings.SectionName, blobSettings);
+
+        services.AddSingleton(Options.Create(blobSettings));
+        services.AddSingleton<IBlobService, BlobService>();
+        return services;
+    }
+
+
     
     private static IServiceCollection AddAuth(
         this IServiceCollection services,

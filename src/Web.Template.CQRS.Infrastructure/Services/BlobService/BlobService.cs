@@ -1,11 +1,11 @@
 using Azure.Storage.Blobs;
 using Mariage.Infrastructure.Services.BlobService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 using Web.Template.CQRS.Application.Common.Interfaces.Services;
 
 namespace Web.Template.CQRS.Infrastructure.Services.BlobService;
-
 public class BlobService
     : IBlobService
 {
@@ -19,11 +19,14 @@ public class BlobService
         _blobContainerClient = client.GetBlobContainerClient(blobStorageSettings.Value.ContainerName);
     }
     
-    public async Task<string> UploadFileAsync(Stream fileStream, string fileName)
+    public async Task<Uri> UploadFileAsync(IFormFile formFile)
     {
+        var fileName = Path.GetFileName(formFile.FileName);
+        await using var stream = formFile.OpenReadStream();
+        
         var blobClient = _blobContainerClient.GetBlobClient(fileName);
-        await blobClient.UploadAsync(fileStream, true);
-        return blobClient.Uri.ToString();
+        await blobClient.UploadAsync(stream, true);
+        return blobClient.Uri;
     }
 
     public Task<string> DeleteFileAsync(string fileName)

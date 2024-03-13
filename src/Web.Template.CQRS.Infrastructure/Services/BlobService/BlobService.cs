@@ -1,5 +1,4 @@
 using Azure.Storage.Blobs;
-using Mariage.Infrastructure.Services.BlobService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
@@ -15,7 +14,7 @@ public class BlobService
         IAzureClientFactory<BlobServiceClient> clientFactory,
         IOptions<BlobSettings> blobStorageSettings)
     {
-        var client = clientFactory.CreateClient(blobStorageSettings.Value.TableStorageAccount);
+        var client = clientFactory.CreateClient(blobStorageSettings.Value.StorageAccountName);
         _blobContainerClient = client.GetBlobContainerClient(blobStorageSettings.Value.ContainerName);
     }
     

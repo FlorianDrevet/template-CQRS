@@ -13,7 +13,7 @@ public class LoginQueryHandler(IJwtGenerator jwtGenerator, IUserRepository userR
 {
     public async Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery query, CancellationToken cancellationToken)
     {
-        if (userRepository.GetUserByEmail(query.Email) is not User user)
+        if (await userRepository.GetUserByEmailAsync(query.Email) is not User user)
         {
             return Errors.Authentication.InvalidUsername();
         }

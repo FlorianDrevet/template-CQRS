@@ -3,11 +3,7 @@ using Web.Template.CQRS.Domain.UserAggregate.ValueObjects;
 
 namespace Web.Template.CQRS.Application.Common.Interfaces.Persistence;
 
-public interface IUserRepository
+public interface IUserRepository: IRepository<User>
 {
-    User? GetUserByEmail(string email);
-    void AddUser(User user);
-    User? GetUserById(UserId requestUserId);
-    void UpdateUser(User user);
-    List<User> GetAllUsers();
+    Task<User?> GetUserByEmailAsync(string email);
 }

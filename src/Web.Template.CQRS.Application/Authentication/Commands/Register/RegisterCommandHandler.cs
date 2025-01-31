@@ -16,7 +16,7 @@ public class RegisterCommandHandler(
 {
     public async Task<ErrorOr<AuthenticationResult>> Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
-        if (userRepository.GetUserByEmail(command.Email) is not null)
+        if (await userRepository.GetUserByEmailAsync(command.Email) is not null)
         {
             return Errors.User.DuplicateEmailError();
         }
@@ -24,7 +24,7 @@ public class RegisterCommandHandler(
         var hashedPassword = hashPassword.GetHashedPassword(command.Password);
         var user = User
             .Create(command.Email, hashedPassword.Item2, new Name(command.Firstname, command.Lastname),hashedPassword.Item1);
-        userRepository.AddUser(user);
+        await userRepository.AddAsync(user);
         
         var token = jwtGenerator.GenerateToken(user);
         return new AuthenticationResult(user, token);

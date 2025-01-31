@@ -9,7 +9,7 @@ dotnet new list
 En étant à la racine du répositoire, exécutez la commande suivante :
 
 ```bash
-dotnet new ./
+dotnet new install ./
 ```
 
 # Utilisation

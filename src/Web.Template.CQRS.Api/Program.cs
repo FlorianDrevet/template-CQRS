@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using Web.Template.CQRS.Api;
 using Web.Template.CQRS.Api.Common.RateLimiting;
 using Web.Template.CQRS.Api.Controllers;
@@ -8,7 +9,6 @@ using Web.Template.CQRS.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
@@ -34,8 +34,13 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.AddDocuments("v1");
+        options.Layout = ScalarLayout.Classic;
+    });
 }
 
 //Middleware

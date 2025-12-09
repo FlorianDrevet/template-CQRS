@@ -1,14 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Web.Template.CQRS.Domain</RootNamespace>
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="ErrorOr" Version="1.3.0" />
+        <PackageReference Include="ErrorOr" />
     </ItemGroup>
     
     <ItemGroup>

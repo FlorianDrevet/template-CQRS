@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Web.Template.CQRS.Application</RootNamespace>
@@ -12,10 +12,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluentValidation" Version="11.9.0" />
-      <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-      <PackageReference Include="MediatR" Version="12.2.0" />
-      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
+      <PackageReference Include="FluentValidation" />
+      <PackageReference Include="FluentValidation.AspNetCore" />
+      <PackageReference Include="MediatR" />
+      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
     </ItemGroup>
 
 </Project>

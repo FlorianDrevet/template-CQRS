@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/SolutionFolder/">
+    <File Path=".gitignore" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/Web.Template.CQRS.Api/Web.Template.CQRS.Api.csproj" />
+  <Project Path="src/Web.Template.CQRS.Application/Web.Template.CQRS.Application.csproj" />
+  <Project Path="src/Web.Template.CQRS.Contracts/Web.Template.CQRS.Contracts.csproj" />
+  <Project Path="src/Web.Template.CQRS.Domain/Web.Template.CQRS.Domain.csproj" />
+  <Project Path="src/Web.Template.CQRS.Infrastructure/Web.Template.CQRS.Infrastructure.csproj" />
+</Solution>

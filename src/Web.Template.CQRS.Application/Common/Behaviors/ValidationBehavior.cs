@@ -1,36 +1,31 @@
-using ErrorOr;
 using FluentValidation;
-using MediatR;
+using Mediator;
 
 namespace Web.Template.CQRS.Application.Common.Behaviors;
 
-public class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? validator = null) :
-    IPipelineBehavior<TRequest, TResponse>
-    where TRequest: IRequest<TResponse>
-    where TResponse: IErrorOr
+public sealed class ValidationBehavior<TMessage, TResponse>(
+    IEnumerable<IValidator<TMessage>> validators)
+    : IPipelineBehavior<TMessage, TResponse>
+    where TMessage : IMessage
 {
-    public async Task<TResponse> Handle(
-        TRequest request,
-        RequestHandlerDelegate<TResponse> next,
+    public async ValueTask<TResponse> Handle(
+        TMessage message,
+        MessageHandlerDelegate<TMessage, TResponse> next,
         CancellationToken cancellationToken)
     {
-        if (validator is null)
-        {
-            return await next();
-        }
-        
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        var failures = new List<FluentValidation.Results.ValidationFailure>();
 
-        if (validationResult.IsValid)
+        foreach (var validator in validators)
         {
-            return await next();
+            var result = await validator.ValidateAsync(message, cancellationToken);
+            failures.AddRange(result.Errors);
         }
 
-        var errors = validationResult.Errors
-            .ConvertAll(validationError => Error.Validation(
-                validationError.PropertyName,
-                validationError.ErrorMessage));
-        
-        return (dynamic)errors;
+        if (failures.Count > 0)
+        {
+            throw new ValidationException(failures);
+        }
+
+        return await next(message, cancellationToken);
     }
 }

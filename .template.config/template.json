@@ -13,5 +13,54 @@
   "shortName": "templatewebcqrs",
   "sourceName": "Web.Template.CQRS",
   "identity": "Web.Template.CQRS",
-  "preferNameDirectory": true
+  "preferNameDirectory": true,
+  "symbols": {
+    "EnableAspire": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Ajoute Aspire, l'observabilité OpenTelemetry et les services locaux SQL Server, Azurite et Keycloak."
+    },
+    "EnableRateLimiting": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Ajoute les politiques de limitation de débit de l'API."
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "modifiers": [
+        {
+          "condition": "(!EnableAspire)",
+          "exclude": [
+            "src/Web.Template.CQRS.AppHost/**",
+            "src/Web.Template.CQRS.ServiceDefaults/**",
+            "Web.Template.CQRS.slnx"
+          ],
+          "rename": {
+            "Web.Template.CQRS.Core.slnx": "Web.Template.CQRS.slnx"
+          }
+        },
+        {
+          "condition": "(EnableAspire)",
+          "exclude": [
+            "Web.Template.CQRS.Core.slnx"
+          ]
+        },
+        {
+          "condition": "(!EnableRateLimiting)",
+          "exclude": [
+            "src/Web.Template.CQRS.Api/Common/RateLimiting/**"
+          ]
+        }
+      ]
+    }
+  ],
+  "guids": [
+    "bdab3963-4400-4b37-9c1d-7148b0a3a96c",
+    "fc205b91-e44d-4eb0-a0dd-8ad940659771"
+  ]
 }

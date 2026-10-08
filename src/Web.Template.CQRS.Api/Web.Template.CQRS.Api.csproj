@@ -5,28 +5,23 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-      <UserSecretsId>3af4547e-7898-4c08-bcb0-8f452e799be0</UserSecretsId>
+      <UserSecretsId>bdab3963-4400-4b37-9c1d-7148b0a3a96c</UserSecretsId>
       <RootNamespace>Web.Template.CQRS.Api</RootNamespace>
   </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Mapster" />
-        <PackageReference Include="Mapster.DependencyInjection" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+        <PackageReference Include="Microsoft.Identity.Web" />
+        <PackageReference Include="Microsoft.OpenApi" />
         <PackageReference Include="Scalar.AspNetCore" />
+        <PackageReference Include="FluentValidation" />
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
+        <!--#if (EnableAspire) -->
+        <ProjectReference Include="..\Web.Template.CQRS.ServiceDefaults\Web.Template.CQRS.ServiceDefaults.csproj" />
+        <!--#endif -->
         <ProjectReference Include="..\Web.Template.CQRS.Contracts\Web.Template.CQRS.Contracts.csproj" />
         <ProjectReference Include="..\Web.Template.CQRS.Application\Web.Template.CQRS.Application.csproj" />
         <ProjectReference Include="..\Web.Template.CQRS.Infrastructure\Web.Template.CQRS.Infrastructure.csproj" />

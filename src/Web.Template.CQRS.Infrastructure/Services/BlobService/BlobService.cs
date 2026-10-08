@@ -1,6 +1,6 @@
+using Azure.Storage;
 using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Azure;
+using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Options;
 using Web.Template.CQRS.Application.Common.Interfaces.Services;
 
@@ -17,18 +17,34 @@ public class BlobService
         _blobContainerClient = blobServiceClient.GetBlobContainerClient(blobStorageSettings.Value.ContainerName);
     }
     
-    public async Task<Uri> UploadFileAsync(IFormFile formFile)
+    public async Task<Uri> UploadFileAsync(Stream content, string fileName, string? contentType = null)
     {
-        var fileName = Path.GetFileName(formFile.FileName);
-        await using var stream = formFile.OpenReadStream();
-        
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+
+        await _blobContainerClient.CreateIfNotExistsAsync();
+
         var blobClient = _blobContainerClient.GetBlobClient(fileName);
-        await blobClient.UploadAsync(stream, true);
+        var headers = string.IsNullOrWhiteSpace(contentType)
+            ? null
+            : new BlobHttpHeaders { ContentType = contentType };
+        await blobClient.UploadAsync(content, new BlobUploadOptions
+        {
+            HttpHeaders = headers,
+            TransferOptions = new StorageTransferOptions
+            {
+                InitialTransferSize = 4 * 1024 * 1024,
+                MaximumTransferSize = 4 * 1024 * 1024
+            }
+        });
         return blobClient.Uri;
     }
 
-    public Task<string> DeleteFileAsync(string fileName)
+    public async Task<bool> DeleteFileAsync(string fileName)
     {
-        throw new NotImplementedException();
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        await _blobContainerClient.CreateIfNotExistsAsync();
+        var response = await _blobContainerClient.DeleteBlobIfExistsAsync(fileName);
+        return response.Value;
     }
 }

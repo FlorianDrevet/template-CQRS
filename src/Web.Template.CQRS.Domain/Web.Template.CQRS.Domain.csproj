@@ -6,13 +6,4 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Web.Template.CQRS.Domain</RootNamespace>
     </PropertyGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="ErrorOr" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="UserAggregate\Entities\" />
-    </ItemGroup>
-
 </Project>

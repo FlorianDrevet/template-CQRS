@@ -5,8 +5,6 @@
     <File Path="global.json" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj" />
-  <Project Path="src/Web.Template.CQRS.ServiceDefaults/Web.Template.CQRS.ServiceDefaults.csproj" />
   <Project Path="src/Web.Template.CQRS.Api/Web.Template.CQRS.Api.csproj" />
   <Project Path="src/Web.Template.CQRS.Application/Web.Template.CQRS.Application.csproj" />
   <Project Path="src/Web.Template.CQRS.Contracts/Web.Template.CQRS.Contracts.csproj" />

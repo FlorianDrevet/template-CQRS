@@ -1,0 +1,11 @@
+@ApiBaseUrl = http://localhost:5257
+@AccessToken = paste-an-access-token-here
+
+GET {{ApiBaseUrl}}/openapi/v1.json
+Accept: application/json
+
+###
+
+GET {{ApiBaseUrl}}/me
+Authorization: Bearer {{AccessToken}}
+Accept: application/json

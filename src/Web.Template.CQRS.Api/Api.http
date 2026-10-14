@@ -1,11 +1,31 @@
 @ApiBaseUrl = http://localhost:5257
+@KeycloakUrl = http://localhost:8080
+# Local Keycloak only: paste the output of `./scripts/get-token.ps1 -Persona admin` or `./scripts/get-token.sh admin`,
+# or copy access_token from the token request below.
 @AccessToken = paste-an-access-token-here
 
+### Token for the admin persona (local Keycloak, password grant on the template-cli client)
+POST {{KeycloakUrl}}/realms/template/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=template-cli&username=admin%40local.test&password=Passw0rd%21&scope=openid
+
+### Token for the standard user persona
+POST {{KeycloakUrl}}/realms/template/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=template-cli&username=user%40local.test&password=Passw0rd%21&scope=openid
+
+###
 GET {{ApiBaseUrl}}/openapi/v1.json
 Accept: application/json
 
-###
-
+### Current user: identity, roles and groups carried by the token
 GET {{ApiBaseUrl}}/me
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+### Admin only (available when AuthorizationModel is not Authenticated): 200 for admin, 403 for user
+GET {{ApiBaseUrl}}/admin/ping
 Authorization: Bearer {{AccessToken}}
 Accept: application/json

@@ -2,6 +2,44 @@
   "realm": "template",
   "enabled": true,
   "displayName": "Template local development",
+  "roles": {
+    "realm": [
+      { "name": "Admin", "description": "Mirrors the Entra app role Admin." },
+      { "name": "User", "description": "Mirrors the Entra app role User." }
+    ]
+  },
+  "groups": [
+    {
+      "name": "Administrators",
+      "path": "/Administrators",
+      "attributes": {
+        "objectId": [ "6f1c2a4e-0d3b-4c1e-9a57-2b8f0e6d4c11" ]
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin@local.test",
+      "email": "admin@local.test",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Alice",
+      "lastName": "Admin",
+      "credentials": [ { "type": "password", "value": "Passw0rd!", "temporary": false } ],
+      "realmRoles": [ "Admin" ],
+      "groups": [ "/Administrators" ]
+    },
+    {
+      "username": "user@local.test",
+      "email": "user@local.test",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Bob",
+      "lastName": "User",
+      "credentials": [ { "type": "password", "value": "Passw0rd!", "temporary": false } ],
+      "realmRoles": [ "User" ]
+    }
+  ],
   "clients": [
     {
       "clientId": "template-api",
@@ -21,43 +59,76 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "attributes": {
-        "pkce.code.challenge.method": "S256"
-      },
-      "redirectUris": [
-        "http://localhost:5257/*",
-        "https://localhost:7246/*"
-      ],
-      "webOrigins": [
-        "http://localhost:5257",
-        "https://localhost:7246"
-      ],
-      "defaultClientScopes": [
-        "web-origins",
-        "acr",
-        "profile",
-        "roles",
-        "email",
-        "template-api-audience"
-      ]
-    }
-  ],
-  "clientScopes": [
-    {
-      "name": "template-api-audience",
-      "description": "Adds the API audience to access tokens issued for local development.",
-      "protocol": "openid-connect",
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "redirectUris": [ "http://localhost:5257/*", "https://localhost:7246/*" ],
+      "webOrigins": [ "http://localhost:5257", "https://localhost:7246" ],
       "protocolMappers": [
         {
           "name": "template-api-audience",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
-          "config": {
-            "included.client.audience": "template-api",
-            "id.token.claim": "false",
-            "access.token.claim": "true"
-          }
+          "config": { "included.client.audience": "template-api", "id.token.claim": "false", "access.token.claim": "true", "introspection.token.claim": "true" }
+        },
+        {
+          "name": "entra-oid",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "id", "claim.name": "oid", "jsonType.label": "String", "id.token.claim": "false", "access.token.claim": "true", "userinfo.token.claim": "false", "introspection.token.claim": "true" }
+        },
+        {
+          "name": "entra-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": { "claim.name": "roles", "multivalued": "true", "jsonType.label": "String", "id.token.claim": "false", "access.token.claim": "true", "userinfo.token.claim": "false", "introspection.token.claim": "true" }
+        },
+        {
+          "name": "entra-groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "objectId", "claim.name": "groups", "multivalued": "true", "aggregate.attrs": "true", "jsonType.label": "String", "id.token.claim": "false", "access.token.claim": "true", "userinfo.token.claim": "false", "introspection.token.claim": "true" }
+        }
+      ]
+    },
+    {
+      "clientId": "template-cli",
+      "name": "Template local CLI (password grant, local development only)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "template-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": { "included.client.audience": "template-api", "id.token.claim": "false", "access.token.claim": "true", "introspection.token.claim": "true" }
+        },
+        {
+          "name": "entra-oid",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "id", "claim.name": "oid", "jsonType.label": "String", "id.token.claim": "false", "access.token.claim": "true", "userinfo.token.claim": "false", "introspection.token.claim": "true" }
+        },
+        {
+          "name": "entra-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": { "claim.name": "roles", "multivalued": "true", "jsonType.label": "String", "id.token.claim": "false", "access.token.claim": "true", "userinfo.token.claim": "false", "introspection.token.claim": "true" }
+        },
+        {
+          "name": "entra-groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "objectId", "claim.name": "groups", "multivalued": "true", "aggregate.attrs": "true", "jsonType.label": "String", "id.token.claim": "false", "access.token.claim": "true", "userinfo.token.claim": "false", "introspection.token.claim": "true" }
         }
       ]
     }

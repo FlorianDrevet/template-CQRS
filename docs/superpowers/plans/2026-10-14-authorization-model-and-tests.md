@@ -23,7 +23,7 @@
 - Le realm ne déclare aucun tableau `clientScopes` ; les mappers sont dans `protocolMappers` des clients ; les clients n'énumèrent pas `defaultClientScopes`.
 - Versions : `xunit.v3` 4.0.2, `Microsoft.AspNetCore.Mvc.Testing` 10.0.11, `Microsoft.EntityFrameworkCore.InMemory` 10.0.11.
 - `global.json` déclare `"test": { "runner": "Microsoft.Testing.Platform" }` (obligatoire pour xUnit v3 4.x avec le SDK .NET 10).
-- Exclus de toute génération : `.idea/**`, `eng/**`, `docs/**`, `.github/workflows/template-ci.yml`, `Directory.Build.props`.
+- Exclus de toute génération : `.idea/**`, `.superpowers/**`, `eng/**`, `docs/**`, `.github/workflows/template-ci.yml`, `Directory.Build.props`.
 - Style C# du dépôt : namespaces file-scoped, constructeurs primaires, `sealed`, pas de commentaires XML, `TypedResults`, endpoints regroupés dans des classes statiques `*Controller` avec méthode `Map*Endpoints`.
 
 ## Review Focus
@@ -714,7 +714,7 @@ fail() {
   exit 1
 }
 
-for excluded in .idea eng docs Directory.Build.props .github/workflows/template-ci.yml src/Ci.Generated.AppHost/RealmVariants; do
+for excluded in .idea .superpowers eng docs Directory.Build.props .github/workflows/template-ci.yml src/Ci.Generated.AppHost/RealmVariants; do
   [ ! -e "$excluded" ] || fail "'$excluded' leaked into the generated project."
 done
 if find . \( -name bin -o -name obj \) -type d | grep -q .; then
@@ -825,6 +825,7 @@ Expected: FAIL — `dotnet new` rejette l'option inconnue `--AuthorizationModel`
         {
           "exclude": [
             ".idea/**",
+            ".superpowers/**",
             "eng/**",
             "docs/**",
             ".github/workflows/template-ci.yml",

@@ -14,7 +14,9 @@ public sealed class GetCurrentUserQueryHandler(ICurrentUser currentUser)
         var result = new CurrentUserResult(
             currentUser.Id,
             currentUser.DisplayName,
-            currentUser.Email);
+            currentUser.Email,
+            currentUser.Roles,
+            currentUser.Groups);
 
         return ValueTask.FromResult(result);
     }

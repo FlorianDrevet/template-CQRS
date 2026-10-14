@@ -9,4 +9,8 @@ public sealed class FakeCurrentUser : ICurrentUser
     public string? DisplayName { get; init; }
 
     public string? Email { get; init; }
+
+    public IReadOnlyList<string> Roles { get; init; } = [];
+
+    public IReadOnlyList<string> Groups { get; init; } = [];
 }

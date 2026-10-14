@@ -21,7 +21,9 @@ public static class CurrentUserController
                 return TypedResults.Ok(new CurrentUserResponse(
                     currentUser.Id,
                     currentUser.DisplayName,
-                    currentUser.Email));
+                    currentUser.Email,
+                    currentUser.Roles,
+                    currentUser.Groups));
             })
             .WithName("GetCurrentUser")
             .RequireAuthorization();

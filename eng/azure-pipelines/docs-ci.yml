@@ -1,0 +1,28 @@
+# Azure DevOps pipeline checking the documentation (same checks as .github/workflows/docs.yml, job "check").
+# The Azure DevOps code wiki is published from main:/docs/wiki (see the "Contribuer à la doc" page).
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - '*'
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+  - task: UsePythonVersion@0
+    displayName: Use Python 3.13
+    inputs:
+      versionSpec: '3.13'
+  - bash: python -m pip install -r eng/docs/requirements.txt
+    displayName: Install documentation tooling
+  - bash: python -m pytest eng/docs/tests -q
+    displayName: Test documentation tooling
+  - bash: python eng/docs/docs.py check
+    displayName: Check documentation

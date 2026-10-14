@@ -81,9 +81,16 @@
             ".superpowers/**",
             "eng/**",
             "docs/**",
+            "site/**",
             ".github/workflows/template-ci.yml",
-            "Directory.Build.props"
-          ]
+            ".github/workflows/docs.yml",
+            "Directory.Build.props",
+            "mkdocs.yml",
+            "README.md"
+          ],
+          "rename": {
+            "README.generated.md": "README.md"
+          }
         },
         {
           "condition": "(!EnableAspire)",

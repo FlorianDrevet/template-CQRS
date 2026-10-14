@@ -74,3 +74,16 @@ def test_build_wiki(tmp_path: Path) -> None:
     assert (output / "Démarrer" / ".order").read_text(encoding="utf-8") == "Créer-un-projet\n"
     assert (output / ".attachments" / "flow.png").read_bytes() == b"png"
     assert (output / "GENERATED.txt").read_text(encoding="utf-8") == GENERATED_NOTICE
+
+
+def test_links_inside_code_block_of_an_admonition_are_untouched(tmp_path: Path) -> None:
+    site = tmp_path / "docs" / "site"
+    site.mkdir(parents=True)
+    (site / "index.md").write_text("!!! note\n    ```markdown\n    [x](nope.md)\n    ```\n", encoding="utf-8")
+    output = tmp_path / "docs" / "wiki"
+
+    build_wiki(site, tmp_path, Navigation(pages=[HOME], orders={"": ["Accueil"]}), output)
+
+    assert (output / "Accueil.md").read_text(encoding="utf-8") == (
+        "> 📝 **Note**\n>\n> ```markdown\n> [x](nope.md)\n> ```\n"
+    )

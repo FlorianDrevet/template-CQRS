@@ -63,8 +63,8 @@ def build_wiki(site_dir: Path, repo_root: Path, navigation: Navigation, output_d
     for page in navigation.pages:
         text = (site_dir / page.source).read_text(encoding="utf-8")
         text = resolve_includes(text, page.source, repo_root)
-        text = convert_for_wiki(text)
         text = rewrite_links(text, page, pages_by_source)
+        text = convert_for_wiki(text)
         target = output_dir / page.wiki_path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text, encoding="utf-8", newline="\n")

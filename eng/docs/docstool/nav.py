@@ -54,7 +54,12 @@ def _walk(entries: list[object], folder: str, pages: list[Page], orders: dict[st
             raise DocsError(f"mkdocs.yml: every navigation entry needs a title: {entry!r}")
         ((title, value),) = entry.items()
         name = wiki_name(str(title))
-        orders.setdefault(folder, []).append(name)
+        if not name:
+            raise DocsError(f'mkdocs.yml: navigation title "{title}" gives an empty wiki page name')
+        siblings = orders.setdefault(folder, [])
+        if name in siblings:
+            raise DocsError(f'mkdocs.yml: duplicate wiki page name "{name}" in folder "{folder or "(root)"}"')
+        siblings.append(name)
         location = f"{folder}/{name}" if folder else name
         if isinstance(value, str):
             pages.append(Page(value, str(title), f"{location}.md"))

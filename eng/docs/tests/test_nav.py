@@ -54,3 +54,15 @@ def test_untitled_entry_is_rejected(tmp_path: Path) -> None:
 def test_section_must_start_with_index(tmp_path: Path) -> None:
     with pytest.raises(DocsError, match='section "Guides" must start with its index.md page'):
         load_navigation(write_config(tmp_path, "nav:\n  - Guides:\n      - Un: guides/un.md\n"))
+
+
+def test_empty_wiki_name_is_rejected(tmp_path: Path) -> None:
+    with pytest.raises(DocsError, match='navigation title "\?" gives an empty wiki page name'):
+        load_navigation(write_config(tmp_path, 'nav:\n  - "?": index.md\n'))
+
+
+def test_duplicate_wiki_name_is_rejected(tmp_path: Path) -> None:
+    config = "nav:\n  - Un test: index.md\n  - Un  test: autre.md\n"
+
+    with pytest.raises(DocsError, match='duplicate wiki page name "Un-test" in folder "\(root\)"'):
+        load_navigation(write_config(tmp_path, config))

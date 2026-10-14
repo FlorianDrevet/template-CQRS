@@ -8,7 +8,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Persona,
     [string]$Password = 'Passw0rd!',
-    [string]$KeycloakUrl = 'http://localhost:8080',
+    [string]$KeycloakUrl = 'https://localhost:8080',
     [string]$Realm = 'template',
     [string]$ClientId = 'template-cli'
 )
@@ -30,7 +30,14 @@ try {
         }
 }
 catch {
-    Write-Error "Unable to get a token for '$username' from $KeycloakUrl (realm '$Realm'). Is the Aspire AppHost running and the persona defined in the realm? $($_.Exception.Message)"
+    $detail = $_.Exception.Message
+    if ($_.ErrorDetails -and $_.ErrorDetails.Message) { $detail = "$detail $($_.ErrorDetails.Message)" }
+    [Console]::Error.WriteLine("get-token: unable to get a token for '$username' from $KeycloakUrl (realm '$Realm'). Is the Aspire AppHost running and the persona defined in the realm? $detail")
+    exit 1
+}
+
+if (-not $response.access_token) {
+    [Console]::Error.WriteLine("get-token: no access_token in Keycloak response from $KeycloakUrl (realm '$Realm').")
     exit 1
 }
 

@@ -30,7 +30,7 @@ var api = builder
     .WaitFor(blobs)
     .WaitFor(keycloak)
     .WithEnvironment("Auth__Provider", "Keycloak")
-    .WithEnvironment("Auth__Authority", "http://localhost:8080/realms/template")
+    .WithEnvironment("Auth__Authority", "https://localhost:8080/realms/template")
     .WithEnvironment("Auth__Audience", "template-api")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/alive");

@@ -1,5 +1,5 @@
 @ApiBaseUrl = http://localhost:5257
-@KeycloakUrl = http://localhost:8080
+@KeycloakUrl = https://localhost:8080
 # Local Keycloak only: paste the output of `./scripts/get-token.ps1 -Persona admin` or `./scripts/get-token.sh admin`,
 # or copy access_token from the token request below.
 @AccessToken = paste-an-access-token-here

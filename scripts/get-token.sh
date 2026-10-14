@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Prints an access token for a local Keycloak persona (local development only).
 # Usage: scripts/get-token.sh <persona> [password]
-#   KEYCLOAK_URL (default http://localhost:8080), KEYCLOAK_REALM (default template), KEYCLOAK_CLIENT_ID (default template-cli)
+#   KEYCLOAK_URL (default https://localhost:8080), KEYCLOAK_REALM (default template), KEYCLOAK_CLIENT_ID (default template-cli)
 set -euo pipefail
 
 persona="${1:?Usage: scripts/get-token.sh <persona> [password]}"
 password="${2:-Passw0rd!}"
-keycloak_url="${KEYCLOAK_URL:-http://localhost:8080}"
+keycloak_url="${KEYCLOAK_URL:-https://localhost:8080}"
 realm="${KEYCLOAK_REALM:-template}"
 client_id="${KEYCLOAK_CLIENT_ID:-template-cli}"
 

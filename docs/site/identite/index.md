@@ -88,7 +88,7 @@ eyJhbGciOi...   .   eyJpc3MiOi...   .   SflKxwRJSM...
 !!! warning "Un JWT est signé, pas chiffré"
     N'importe qui peut lire le payload (il suffit de décoder le Base64). La signature garantit seulement qu'il n'a pas été modifié. Ne mettez jamais de secret dans un claim, et ne collez jamais un token **de production** dans un site de décodage en ligne.
 
-Voici le payload décodé d'un token obtenu pour `admin@local.test` avec le realm du template (les valeurs `iat`, `exp` et `oid` sont des exemples : elles changent à chaque token et chaque installation) :
+Voici le payload décodé d'un token obtenu pour `admin@local.test` avec le realm du template, **abrégé** (un vrai token porte aussi `typ`, `scope`, `sid`, `realm_access`, `preferred_username`, `given_name`…). Les valeurs `iat`, `exp` et `oid` sont des exemples : elles changent à chaque token et chaque installation :
 
 ```json
 {
@@ -97,7 +97,6 @@ Voici le payload décodé d'un token obtenu pour `admin@local.test` avec le real
   "iss": "https://localhost:8080/realms/template",
   "aud": "template-api",
   "sub": "3f5b1c1e-6a52-4c0e-9d1b-7d2d6f0a9b10",
-  "typ": "Bearer",
   "azp": "template-cli",
   "oid": "3f5b1c1e-6a52-4c0e-9d1b-7d2d6f0a9b10",
   "roles": ["Admin"],
@@ -123,7 +122,7 @@ Les claims que vous croiserez dans ce projet :
 
 ### Ce que l'API vérifie sur chaque requête
 
-Quand une requête arrive avec un token, le middleware d'authentification JWT de l'API contrôle, dans cet ordre d'idée :
+Quand une requête arrive avec un token, le middleware d'authentification JWT de l'API contrôle, dans l'ordre suivant :
 
 1. **La signature**, avec la clé publique du fournisseur. Les clés publiques sont publiées dans un document **JWKS** (*JSON Web Key Set*) dont l'URL figure dans le document de découverte OIDC. L'API les télécharge et les met en cache : le fournisseur n'est pas appelé à chaque requête.
 2. **L'issuer** (`iss`) : le token vient bien du fournisseur attendu.

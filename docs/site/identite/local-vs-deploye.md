@@ -58,7 +58,7 @@ Précisions sur le tableau :
 
 - `Authorization:Groups:Administrators` n'existe que pour les modèles `Groups` et `AppRolesAndGroups` (voir [Modèles d'autorisation](modeles-d-autorisation.md)). Valeur vide ou non GUID : l'API refuse de démarrer.
 - Une **liste** dans une variable d'environnement s'écrit élément par élément avec un indice : `Cors__AllowedOrigins__0=https://app.contoso.com`. Voir [CORS](../fonctionnalites/cors.md).
-- `Auth:Authority` est exigée en HTTPS hors développement (sauf adresse locale en développement) ; `Auth:Audience` est obligatoire avec Keycloak, facultative avec Entra.
+- Pour Keycloak seulement, `Auth:Authority` est exigée en HTTPS hors développement (sauf adresse locale en développement) ; elle est ignorée avec Entra ; `Auth:Audience` est obligatoire avec Keycloak, facultative avec Entra.
 - Les valeurs d'identité (identifiants de tenant et de client, GUID) ne sont **pas des secrets** au sens strict, mais elles sont propres à un environnement : ne les mettez pas dans `appsettings.json` du dépôt.
 - Aucune clé d'identité n'est un secret côté API : elle ne détient ni mot de passe ni *client secret*. Elle valide seulement des signatures avec des clés publiques.
 
@@ -85,13 +85,13 @@ Ce qui n'existe **pas** en production : le conteneur Keycloak, le script `get-to
 5. Renseigner `Authorization__Groups__Administrators` (modèles avec groupes).
 6. Renseigner `Cors__AllowedOrigins__N` avec l'adresse de chaque frontend.
 7. Vérifier que l'environnement n'est pas `Development` (sinon Scalar est exposé et `RequireHttpsMetadata` est désactivé en Keycloak).
-8. Démarrer : un échec de validation au démarrage nomme la clé manquante.
+8. Démarrer : un échec de validation au démarrage signale qu'une clé obligatoire manque (le message pour Entra liste les trois clés possibles sans désigner la fautive).
 9. Appeler `/me` avec un vrai token Entra : vérifier `oid`, `roles`, `groups` ; appeler `/admin/ping` avec un compte administrateur (200) et un compte ordinaire (403).
 
 Pour la mise en production de l'ensemble de l'application (hébergement, secrets, base), voir le [guide de configuration d'un déploiement](../guides/configurer-un-deploiement.md) et [Aspire : local et déployé](../aspire/local-vs-deploye.md).
 
 ## À essayer
 
-1. Dans un projet généré, lancez l'API seule avec `ASPNETCORE_ENVIRONMENT=Production` et sans variables `Auth__*` : relevez le message de validation qui nomme les clés manquantes.
+1. Dans un projet généré, lancez l'API seule avec `ASPNETCORE_ENVIRONMENT=Production` et sans variables `Auth__*` : relevez l'échec au démarrage : le message est unique (`Auth:Instance, Auth:TenantId and Auth:ClientId are required for Entra.`) et ne précise pas quelle clé manque.
 2. Prenez un token local (`get-token`) et décodez-le : quelles valeurs de `iss` et `aud` ne correspondraient pas à votre tenant Entra ?
 3. Complétez, pour votre futur environnement, une copie du tableau ci-dessus avec vos vraies valeurs, hors dépôt.

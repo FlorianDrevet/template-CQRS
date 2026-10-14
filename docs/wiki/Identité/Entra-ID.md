@@ -36,7 +36,11 @@ Puis *Expose an API* :
 1. Définissez l'**Application ID URI**. Par défaut, le portail propose `api://<client-id>`.
 2. Ajoutez un scope délégué, par exemple `access_as_user`. Son nom complet (`api://<client-id>/access_as_user`) est la valeur de `Auth:OpenApiScope`, que Scalar demandera.
 
-L'**audience** (`aud`) des tokens destinés à l'API est cet Application ID URI (ou le client ID selon la version du token). `Auth:Audience` doit lui correspondre quand vous le renseignez : l'API refuse (401) un token dont l'audience ne correspond pas. Avec Microsoft.Identity.Web, si `Audience` est vide, l'audience attendue par défaut est `api://<ClientId>` (et le `ClientId` seul est aussi accepté).
+L'**audience** (`aud`) des tokens destinés à l'API est cet Application ID URI (ou le client ID selon la version du token). `Auth:Audience` doit lui correspondre quand vous le renseignez : l'API refuse (401) un token dont l'audience ne correspond pas. Avec Microsoft.Identity.Web, si `Audience` est vide, l'audience attendue par défaut est `api://<ClientId>` (selon la version du token, le `ClientId` seul peut aussi être accepté ; ne vous y fiez pas).
+
+> ⚠️ **Personnalisez `Auth:Audience` avec prudence**
+>
+> Renseigner une audience personnalisée peut modifier les valeurs de `aud` acceptées. Gardez de préférence la valeur par défaut `api://<ClientId>` (laissez `Auth:Audience` vide), ou faites-la correspondre exactement au `aud` des tokens que vous décodez.
 
 ### 2. Les app roles
 
@@ -70,7 +74,7 @@ Pour que les tokens portent les groupes : dans l'inscription de l'API, *Token co
 
 ### 4. L'inscription cliente pour Scalar
 
-Créez une seconde App Registration (par exemple `contoso-orders-scalar`) de type *Single-page application (SPA)* ou *Web* selon votre usage, avec les *Redirect URIs* de l'endroit où Scalar est servi (en développement, `https://localhost:7246/scalar/v1` ou l'URL que votre navigateur affiche). Autorisez-la à appeler l'API : *API permissions > Add a permission > My APIs >* votre API *>* le scope `access_as_user`, puis accordez le consentement administrateur si nécessaire. Son **Application (client) ID** est la valeur de `Auth:OpenApiClientId`.
+Créez une seconde App Registration (par exemple `contoso-orders-scalar`) de type **Single-page application (SPA)** (et non *Web*), avec les *Redirect URIs* de l'endroit où Scalar est servi (en développement, `https://localhost:7246/scalar/v1` ou l'URL que votre navigateur affiche). Autorisez-la à appeler l'API : *API permissions > Add a permission > My APIs >* votre API *>* le scope `access_as_user`, puis accordez le consentement administrateur si nécessaire. Le type SPA est requis : Scalar exécute le flux Authorization Code avec PKCE depuis le navigateur, sans secret. La plateforme *Web*, elle, exige un *client secret* lors de l'échange du code, que Scalar ne peut pas fournir. Son **Application (client) ID** est la valeur de `Auth:OpenApiClientId`.
 
 > ℹ️ **Scalar n'existe qu'en développement**
 >
@@ -218,7 +222,7 @@ L'identifiant privilégie `oid` (stable dans tout le tenant) puis `sub`. L'email
 
 ## À essayer
 
-1. Dans un projet généré, videz `Auth:TenantId` dans `appsettings.json` avec `Auth:Provider` à `Entra`, et lancez l'API seule : relevez le message d'échec au démarrage.
+1. Dans un projet généré avec Aspire, `appsettings.Development.json` force `Auth:Provider` à `Keycloak`. Pour voir la validation Entra, lancez l'API seule avec `Auth__Provider=Entra` (par exemple `$env:Auth__Provider="Entra"` en PowerShell) et `Auth:TenantId` vide : l'API s'arrête au démarrage avec le message fixe `Auth:Instance, Auth:TenantId and Auth:ClientId are required for Entra.`, qui ne dit pas laquelle des trois clés manque. Avec `ASPNETCORE_ENVIRONMENT=Production`, `appsettings.Development.json` n'est plus lu et `appsettings.json` (Entra, clés vides) s'applique : même échec.
 2. Dans votre tenant, créez les deux inscriptions et remplissez les sept clés du tableau ; vérifiez dans [jwt.ms](https://jwt.ms) (avec un token de test, pas de production) que `aud` correspond à `Auth:Audience`.
 3. Attribuez le rôle `Admin` à votre compte dans *Enterprise applications*, reconnectez-vous, et vérifiez qu'il apparaît dans `roles`.
 

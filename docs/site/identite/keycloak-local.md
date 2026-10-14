@@ -108,13 +108,13 @@ Le realm est décrit dans un seul fichier, importé par Keycloak :
 --8<-- "src/Web.Template.CQRS.AppHost/Realms/template-realm.json" start='"clientId": "template-api"' end='"directAccessGrantsEnabled": false'
 ```
 
-`template-api` est « bearer only » : pas de flux interactif (`standardFlowEnabled` à `false`), pas de mot de passe direct.
+L'extrait ci-dessus (une partie seulement de l'objet) montre que `template-api` est « bearer only » : pas de flux interactif (`standardFlowEnabled` à `false`), pas de mot de passe direct.
 
 ```json title="src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
 --8<-- "src/Web.Template.CQRS.AppHost/Realms/template-realm.json" start='"clientId": "template-scalar"' before='"protocolMappers"'
 ```
 
-`template-scalar` active le flux Authorization Code (`standardFlowEnabled`), impose PKCE avec `S256`, interdit le password grant, et n'accepte de redirection que vers `http://localhost:5257/*` et `https://localhost:7246/*` : un token ne peut pas être livré à une autre adresse. Ses `protocolMappers` suivent dans le fichier.
+Cet extrait (propriétés seulement, sans accolades ni mappers) montre que `template-scalar` active le flux Authorization Code (`standardFlowEnabled`), impose PKCE avec `S256`, interdit le password grant, et n'accepte de redirection que vers `http://localhost:5257/*` et `https://localhost:7246/*` : un token ne peut pas être livré à une autre adresse. Ses `protocolMappers` suivent dans le fichier.
 
 ```json title="src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
 --8<-- "src/Web.Template.CQRS.AppHost/Realms/template-realm.json" start='"clientId": "template-cli"' before='"protocolMappers"'
@@ -136,10 +136,11 @@ Le travail important est dans les **protocol mappers** : chacun des deux clients
 | `iss` | (natif) | | L'URL du realm : `https://localhost:8080/realms/template` |
 | `scp` | (non reproduit) | | L'API n'utilise pas les scopes pour autoriser |
 
-Chaque mapper a la même forme : un nom, le type de mapper, et une `config` qui précise le nom du claim (`claim.name`), s'il est multivalué (`multivalued`) et dans quels tokens il apparaît (`access.token.claim` à `true`, `id.token.claim` à `false` : seul l'access token, celui que lit l'API, les contient).
+Chaque mapper a un nom, un type et une `config`. Pour `entra-oid`, `entra-roles` et `entra-groups`, elle précise le nom du claim (`claim.name`) et s'il est multivalué (`multivalued`) ; `template-api-audience` utilise à la place `included.client.audience`. Tous activent `access.token.claim` et désactivent `id.token.claim` : seul l'access token, celui que lit l'API, les contient. Voici l'extrait complet du client `template-cli`, mappers compris (les accolades finales ne sont pas reprises) :
 
-!!! note "Pourquoi les extraits s'arrêtent avant les mappers"
-    Les mappers du fichier existent en deux exemplaires identiques (un par client). Leur texte n'a donc pas d'ancre unique dans le fichier, et la documentation les décrit plutôt que de les afficher. Ouvrez `template-realm.json` pour les voir en entier.
+```json title="src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
+--8<-- "src/Web.Template.CQRS.AppHost/Realms/template-realm.json" start='"clientId": "template-cli"' end='"user.attribute": "objectId"'
+```
 
 Résultat observé sur un token réel du template (token d'administrateur) : `aud` contient `template-api`, `oid` est un UUID, `roles` vaut exactement `["Admin"]`, `groups` vaut `["6f1c2a4e-0d3b-4c1e-9a57-2b8f0e6d4c11"]`, `name` est « Alice Admin » et `email` est `admin@local.test`. Pour `user`, `roles` vaut `["User"]` et il n'y a pas de claim `groups`. Keycloak n'ajoute aucun rôle par défaut au claim `roles`.
 
@@ -190,7 +191,7 @@ L'appel à `/me` renvoie l'identifiant, le nom, l'email, les rôles et les group
 
 Ouvrez `https://localhost:8080`, puis la console d'administration. L'identifiant est `admin` (valeur par défaut d'Aspire pour Keycloak) et le mot de passe est celui du paramètre `keycloak-admin-password` (voir [Premier lancement](../demarrer/premier-lancement.md) pour le définir). Choisissez ensuite le realm `template` dans le sélecteur en haut à gauche : n'agissez pas dans le realm `master`, qui sert à administrer Keycloak lui-même.
 
-Vous y verrez *Users*, *Groups*, *Realm roles*, *Clients* (avec l'onglet *Client scopes* ou *Mappers* pour les claims). C'est un bon endroit pour comprendre : changez un attribut, redemandez un token, observez le claim.
+Vous y verrez *Users*, *Groups*, *Realm roles*, *Clients* (les mappers d'un client se trouvent dans *Clients > le client > Client scopes > `<client>-dedicated` > Mappers*). C'est un bon endroit pour comprendre : changez un attribut, redemandez un token, observez le claim.
 
 ### Créer un utilisateur à la main
 
@@ -222,7 +223,7 @@ Keycloak est servi en **HTTPS** sur `https://localhost:8080`, avec le certificat
 
 | Symptôme | Cause probable | Solution |
 |----------|----------------|----------|
-| **401** et un message d'issuer invalide dans les logs de l'API | L'`iss` du token diffère de l'issuer attendu. Keycloak construit l'issuer à partir de l'adresse utilisée pour demander le token : un token obtenu via `http://localhost:8080` ou une autre adresse ne correspond pas à `https://localhost:8080/realms/template` | Demandez le token à l'adresse exacte de `Auth:Authority` (`https://localhost:8080`), vérifiez l'`iss` dans [jwt.ms](https://jwt.ms) |
+| **401** et un message d'issuer invalide dans les logs de l'API | L'`iss` du token diffère de l'issuer attendu. Keycloak construit l'issuer à partir de l'adresse utilisée pour demander le token : un token obtenu via `https://127.0.0.1:8080` (ou un nom d'hôte de conteneur) ne correspond pas à `https://localhost:8080/realms/template` | Demandez le token à l'adresse exacte de `Auth:Authority` (`https://localhost:8080`), vérifiez l'`iss` dans [jwt.ms](https://jwt.ms) |
 | **401** quand vous appelez `http://localhost:5257` | Ce port HTTP répond par une redirection vers HTTPS, et les clients abandonnent l'en-tête `Authorization` en suivant une redirection | Appelez directement `https://localhost:7246` |
 | **401** et `aud` ne contient pas `template-api` | Token obtenu avec un autre client, ou mapper d'audience absent | Utilisez `template-cli` ou `template-scalar` ; vérifiez le mapper `template-api-audience` |
 | **403** pour l'administrateur | Le claim attendu manque : `roles` ou `groups` absent ou différent | Décodez le token ; vérifiez le persona, le modèle d'autorisation et le GUID du groupe |
@@ -235,7 +236,7 @@ Keycloak est servi en **HTTPS** sur `https://localhost:8080`, avec le certificat
 
 1. Lancez l'AppHost, récupérez les tokens de `admin` et de `user`, et comparez leurs claims `roles` et `groups`.
 2. Appelez `/admin/ping` avec chacun des deux tokens, puis sans token : retrouvez 200, 403 et 401.
-3. Ouvrez la console d'administration, trouvez le mapper `entra-roles` dans le client `template-cli`, et repérez le champ `claim.name`.
+3. Ouvrez la console d'administration, allez dans *Clients > template-cli > Client scopes > template-cli-dedicated > Mappers*, ouvrez le mapper `entra-roles`, et repérez le champ `claim.name`.
 4. Créez un utilisateur à la main, donnez-lui le rôle `Admin`, obtenez son token et appelez `/admin/ping`.
 5. Modifiez le prénom d'Alice dans `template-realm.json`, relancez sans réinitialiser : rien ne change. Réinitialisez, relancez : le changement apparaît dans le claim `name`.
 

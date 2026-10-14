@@ -93,6 +93,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapCurrentUserEndpoints();
+#if (UseAuthorizationPolicies)
+app.MapAdminEndpoints();
+#endif
 app.MapFallback(() => Results.NotFound()).AllowAnonymous();
 
 app.Run();

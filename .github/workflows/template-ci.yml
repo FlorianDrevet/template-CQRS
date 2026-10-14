@@ -1,0 +1,52 @@
+name: template-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  realm-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validate Keycloak realm files
+        run: |
+          for file in src/Web.Template.CQRS.AppHost/Realms/*.json src/Web.Template.CQRS.AppHost/RealmVariants/*.json; do
+            python3 -m json.tool "$file" > /dev/null
+            echo "valid $file"
+          done
+
+  generate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { auth: Authenticated, aspire: true, rateLimiting: true, tests: true }
+          - { auth: AppRoles, aspire: true, rateLimiting: true, tests: true }
+          - { auth: Groups, aspire: true, rateLimiting: false, tests: true }
+          - { auth: AppRolesAndGroups, aspire: true, rateLimiting: true, tests: true }
+          - { auth: AppRoles, aspire: false, rateLimiting: true, tests: true }
+          - { auth: AppRoles, aspire: true, rateLimiting: true, tests: false }
+    name: generate (${{ matrix.auth }}, aspire=${{ matrix.aspire }}, rl=${{ matrix.rateLimiting }}, tests=${{ matrix.tests }})
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Generate, build and test
+        run: bash eng/verify-template.sh ${{ matrix.auth }} ${{ matrix.aspire }} ${{ matrix.rateLimiting }} ${{ matrix.tests }}
+
+  template-repository:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Build and test the template sources
+        run: dotnet test --solution Web.Template.CQRS.slnx

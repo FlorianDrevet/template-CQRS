@@ -1,0 +1,84 @@
+# Azure DevOps pipeline for the template repository (same checks as .github/workflows/template-ci.yml).
+# Create the pipeline in Azure DevOps from this existing YAML file.
+# With Azure Repos, pull request validation is configured through a branch policy on main;
+# the "pr" trigger below only applies to GitHub and Bitbucket repositories.
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - '*'
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  - job: realm_json
+    displayName: Validate Keycloak realm files
+    steps:
+      - checkout: self
+      - bash: |
+          set -euo pipefail
+          for file in src/Web.Template.CQRS.AppHost/Realms/*.json src/Web.Template.CQRS.AppHost/RealmVariants/*.json; do
+            python3 -m json.tool "$file" > /dev/null
+            echo "valid $file"
+          done
+        displayName: Validate JSON
+
+  - job: template_repository
+    displayName: Build and test the template sources
+    steps:
+      - checkout: self
+      - task: UseDotNet@2
+        displayName: Install .NET SDK from global.json
+        inputs:
+          useGlobalJson: true
+      - bash: dotnet test --solution Web.Template.CQRS.slnx
+        displayName: dotnet test
+
+  - job: generate
+    displayName: Generate, build and test
+    strategy:
+      matrix:
+        authenticated:
+          auth: Authenticated
+          aspire: true
+          rateLimiting: true
+          tests: true
+        app_roles:
+          auth: AppRoles
+          aspire: true
+          rateLimiting: true
+          tests: true
+        groups_without_rate_limiting:
+          auth: Groups
+          aspire: true
+          rateLimiting: false
+          tests: true
+        app_roles_and_groups:
+          auth: AppRolesAndGroups
+          aspire: true
+          rateLimiting: true
+          tests: true
+        app_roles_without_aspire:
+          auth: AppRoles
+          aspire: false
+          rateLimiting: true
+          tests: true
+        app_roles_without_tests:
+          auth: AppRoles
+          aspire: true
+          rateLimiting: true
+          tests: false
+    steps:
+      - checkout: self
+      - task: UseDotNet@2
+        displayName: Install .NET SDK from global.json
+        inputs:
+          useGlobalJson: true
+      - bash: bash eng/verify-template.sh $(auth) $(aspire) $(rateLimiting) $(tests)
+        displayName: verify-template $(auth) aspire=$(aspire) rl=$(rateLimiting) tests=$(tests)

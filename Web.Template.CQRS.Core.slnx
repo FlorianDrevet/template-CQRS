@@ -10,4 +10,10 @@
   <Project Path="src/Web.Template.CQRS.Contracts/Web.Template.CQRS.Contracts.csproj" />
   <Project Path="src/Web.Template.CQRS.Domain/Web.Template.CQRS.Domain.csproj" />
   <Project Path="src/Web.Template.CQRS.Infrastructure/Web.Template.CQRS.Infrastructure.csproj" />
+  <!--#if (EnableTests) -->
+  <Folder Name="/tests/">
+    <Project Path="tests/Web.Template.CQRS.Application.UnitTests/Web.Template.CQRS.Application.UnitTests.csproj" />
+    <Project Path="tests/Web.Template.CQRS.Api.IntegrationTests/Web.Template.CQRS.Api.IntegrationTests.csproj" />
+  </Folder>
+  <!--#endif -->
 </Solution>

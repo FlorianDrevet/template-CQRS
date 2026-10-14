@@ -3,4 +3,6 @@ namespace Web.Template.CQRS.Contracts.Authentication;
 public sealed record CurrentUserResponse(
     string? Id,
     string? DisplayName,
-    string? Email);
+    string? Email,
+    IReadOnlyList<string> Roles,
+    IReadOnlyList<string> Groups);

@@ -26,6 +26,48 @@
       "datatype": "bool",
       "defaultValue": "true",
       "description": "Ajoute les politiques de limitation de débit de l'API."
+    },
+    "AuthorizationModel": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "AppRoles",
+      "description": "Modèle d'autorisation Entra ID reproduit localement par Keycloak.",
+      "choices": [
+        {
+          "choice": "Authenticated",
+          "description": "Utilisateur connecté uniquement."
+        },
+        {
+          "choice": "AppRoles",
+          "description": "App roles Entra (claim roles)."
+        },
+        {
+          "choice": "Groups",
+          "description": "Groupes de sécurité Entra (claim groups)."
+        },
+        {
+          "choice": "AppRolesAndGroups",
+          "description": "App roles et groupes de sécurité."
+        }
+      ]
+    },
+    "EnableTests": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Ajoute les projets de tests unitaires et d'intégration."
+    },
+    "UseAppRoles": {
+      "type": "computed",
+      "value": "(AuthorizationModel == \"AppRoles\" || AuthorizationModel == \"AppRolesAndGroups\")"
+    },
+    "UseGroups": {
+      "type": "computed",
+      "value": "(AuthorizationModel == \"Groups\" || AuthorizationModel == \"AppRolesAndGroups\")"
+    },
+    "UseAuthorizationPolicies": {
+      "type": "computed",
+      "value": "(AuthorizationModel != \"Authenticated\")"
     }
   },
   "sources": [
@@ -34,10 +76,21 @@
       "target": "./",
       "modifiers": [
         {
+          "exclude": [
+            ".idea/**",
+            ".superpowers/**",
+            "eng/**",
+            "docs/**",
+            ".github/workflows/template-ci.yml",
+            "Directory.Build.props"
+          ]
+        },
+        {
           "condition": "(!EnableAspire)",
           "exclude": [
             "src/Web.Template.CQRS.AppHost/**",
             "src/Web.Template.CQRS.ServiceDefaults/**",
+            "scripts/**",
             "Web.Template.CQRS.slnx"
           ],
           "rename": {
@@ -53,7 +106,77 @@
         {
           "condition": "(!EnableRateLimiting)",
           "exclude": [
-            "src/Web.Template.CQRS.Api/Common/RateLimiting/**"
+            "src/Web.Template.CQRS.Api/Common/RateLimiting/**",
+            "tests/Web.Template.CQRS.Api.IntegrationTests/RateLimiting/**"
+          ]
+        },
+        {
+          "condition": "(!EnableTests)",
+          "exclude": [
+            "tests/**"
+          ]
+        },
+        {
+          "condition": "(!UseAuthorizationPolicies)",
+          "exclude": [
+            "src/Web.Template.CQRS.Api/Authorization/Policies.cs",
+            "src/Web.Template.CQRS.Api/Controllers/AdminController.cs",
+            "src/Web.Template.CQRS.Application/Admin/**",
+            "src/Web.Template.CQRS.Contracts/Admin/**",
+            "tests/Web.Template.CQRS.Application.UnitTests/Admin/**",
+            "tests/Web.Template.CQRS.Api.IntegrationTests/Admin/**"
+          ]
+        },
+        {
+          "condition": "(!UseAppRoles)",
+          "exclude": [
+            "src/Web.Template.CQRS.Api/Authorization/AppRoles.cs"
+          ]
+        },
+        {
+          "condition": "(!UseGroups)",
+          "exclude": [
+            "src/Web.Template.CQRS.Api/Authorization/GroupOptions.cs",
+            "tests/Web.Template.CQRS.Api.IntegrationTests/Authorization/**"
+          ]
+        },
+        {
+          "condition": "(AuthorizationModel == \"Authenticated\")",
+          "exclude": [
+            "src/Web.Template.CQRS.AppHost/Realms/template-realm.json",
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.approles.json",
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.groups.json"
+          ],
+          "rename": {
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.authenticated.json": "src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
+          }
+        },
+        {
+          "condition": "(AuthorizationModel == \"AppRoles\")",
+          "exclude": [
+            "src/Web.Template.CQRS.AppHost/Realms/template-realm.json",
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.authenticated.json",
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.groups.json"
+          ],
+          "rename": {
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.approles.json": "src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
+          }
+        },
+        {
+          "condition": "(AuthorizationModel == \"Groups\")",
+          "exclude": [
+            "src/Web.Template.CQRS.AppHost/Realms/template-realm.json",
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.authenticated.json",
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.approles.json"
+          ],
+          "rename": {
+            "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.groups.json": "src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
+          }
+        },
+        {
+          "condition": "(AuthorizationModel == \"AppRolesAndGroups\")",
+          "exclude": [
+            "src/Web.Template.CQRS.AppHost/RealmVariants/**"
           ]
         }
       ]

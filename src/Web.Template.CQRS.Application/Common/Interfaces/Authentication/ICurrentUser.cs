@@ -7,4 +7,8 @@ public interface ICurrentUser
     string? DisplayName { get; }
 
     string? Email { get; }
+
+    IReadOnlyList<string> Roles { get; }
+
+    IReadOnlyList<string> Groups { get; }
 }

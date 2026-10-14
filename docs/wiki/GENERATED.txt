@@ -1,0 +1,2 @@
+This folder is generated from docs/site by: python eng/docs/docs.py wiki
+Do not edit it by hand: edit docs/site, then regenerate.

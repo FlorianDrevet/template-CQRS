@@ -13,12 +13,19 @@ namespace Web.Template.CQRS.Api.IntegrationTests.Infrastructure;
 
 public sealed class ApiFactory : WebApplicationFactory<Program>
 {
+#if (UseGroups)
+    public const string AdministratorsGroupId = "6f1c2a4e-0d3b-4c1e-9a57-2b8f0e6d4c11";
+
+#endif
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("Auth:Provider", "Keycloak");
         builder.UseSetting("Auth:Authority", "https://keycloak.tests.local/realms/template");
         builder.UseSetting("Auth:Audience", "template-api");
+#if (UseGroups)
+        builder.UseSetting("Authorization:Groups:Administrators", AdministratorsGroupId);
+#endif
 
         builder.ConfigureTestServices(services =>
         {

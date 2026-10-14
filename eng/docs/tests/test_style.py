@@ -51,3 +51,9 @@ def test_forbidden_syntax_inside_code_block_is_allowed() -> None:
 
 def test_unclosed_code_block() -> None:
     assert check_page("```csharp\nx\n", "p.md") == ["p.md:1: code block is never closed"]
+
+
+def test_single_quoted_include_is_valid() -> None:
+    text = "```csharp\n--8<-- \"src/A.cs\" start='\"x\"' before='y'\n```\n"
+
+    assert check_page(text, "p.md") == []

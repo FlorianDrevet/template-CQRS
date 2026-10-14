@@ -38,7 +38,6 @@ var keycloak = builder
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var api = builder
 ```
 
 Fournissez-les avec les user-secrets .NET (stockés hors du dépôt, dans votre profil utilisateur) :

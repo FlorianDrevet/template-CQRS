@@ -17,7 +17,7 @@ Ce parcours vérifie d'un coup que tout est en place : conteneurs, certificat, a
 L'AppHost déclare deux paramètres secrets : le mot de passe de SQL Server et celui de l'administrateur Keycloak. Ils ne sont écrits nulle part dans le code.
 
 ```csharp title="src/Web.Template.CQRS.AppHost/Program.cs"
---8<-- "src/Web.Template.CQRS.AppHost/Program.cs" start="var sqlPassword" end="var api"
+--8<-- "src/Web.Template.CQRS.AppHost/Program.cs" start="var sqlPassword" before="var api"
 ```
 
 Fournissez-les avec les user-secrets .NET (stockés hors du dépôt, dans votre profil utilisateur) :

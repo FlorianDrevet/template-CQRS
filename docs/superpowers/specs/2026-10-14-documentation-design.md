@@ -61,10 +61,15 @@ Syntaxe, seule sur sa ligne, à l'intérieur d'un bloc de code :
 ```
 --8<-- "chemin/depuis/la/racine.cs"
 --8<-- "chemin/depuis/la/racine.cs" start="texte de début" end="texte de fin"
+--8<-- "chemin/depuis/la/racine.cs" start='"clé": {' before="texte de fin"
 ```
 
-- Sans `start`/`end` : le fichier entier.
+- Sans `start`/`end`/`before` : le fichier entier.
 - Avec `start`/`end` : de la première ligne contenant `start` jusqu'à la première ligne suivante contenant `end`, bornes incluses. `start` seul : jusqu'à la fin du fichier.
+- Avec `start`/`before` : de la ligne contenant `start` jusqu'à la ligne juste avant la première ligne suivante contenant `before` (borne exclue). Sans `start`, l'extrait commence au début du fichier. `before` ne produit jamais d'extrait vide : la recherche commence à la ligne suivant `start`.
+- Une valeur s'écrit entre guillemets doubles (`"texte"`) ou simples (`'texte'`). Utilisez les guillemets simples pour ancrer sur une ligne JSON qui contient déjà des guillemets doubles.
+- `end` et `before` ne peuvent pas être combinés (directive invalide).
+- Attention : l'ancre est une sous-chaîne. Une ancre courte comme `}` correspond à la première ligne suivante qui contient `}`, pas forcément à la fin voulue ; préférez `before` ou une ancre plus précise.
 - Échec explicite (message avec page, ligne, chemin, ancre) si le fichier n'existe pas, si une ancre est introuvable, ou si `start` apparaît plusieurs fois (ancre ambiguë).
 - L'indentation commune minimale de l'extrait est retirée.
 - Aucun marqueur n'est ajouté dans le code du template (ce code est livré aux clients).

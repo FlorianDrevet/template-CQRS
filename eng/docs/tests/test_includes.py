@@ -93,3 +93,32 @@ def test_bom_and_crlf_are_normalized(tmp_path: Path) -> None:
     (tmp_path / "f.json").write_bytes("﻿{\r\n  \"a\": 1\r\n}\r\n".encode("utf-8"))
 
     assert resolve_includes('--8<-- "f.json"', "p.md", tmp_path) == '{\n  "a": 1\n}'
+
+
+def test_single_quoted_anchor_may_contain_double_quotes(tmp_path: Path) -> None:
+    (tmp_path / "data.json").write_text('{\n  "a": 1,\n  "b": {\n    "c": 2\n  }\n}\n', encoding="utf-8")
+    text = "--8<-- \"data.json\" start='\"b\": {' end='  }'"
+
+    assert resolve_includes(text, "page.md", tmp_path) == '"b": {\n  "c": 2\n}'
+
+
+def test_before_is_exclusive(repo: Path) -> None:
+    text = '--8<-- "src/Sample.cs" start="First()" before="Second()"'
+
+    assert resolve_includes(text, "page.md", repo) == "public static int First() => 1;\n"
+
+
+def test_before_without_start_starts_at_file_beginning(repo: Path) -> None:
+    text = '--8<-- "src/Sample.cs" before="public static class"'
+
+    assert resolve_includes(text, "page.md", repo) == "namespace Demo;\n"
+
+
+def test_missing_before_anchor(repo: Path) -> None:
+    with pytest.raises(DocsError, match='before anchor "never" not found'):
+        resolve_includes('--8<-- "src/Sample.cs" start="Second()" before="never"', "page.md", repo)
+
+
+def test_end_and_before_together_is_invalid(repo: Path) -> None:
+    with pytest.raises(DocsError, match="invalid include directive"):
+        resolve_includes('--8<-- "src/Sample.cs" start="First()" end="}" before="Second()"', "page.md", repo)

@@ -1,0 +1,6 @@
+<Project>
+  <!-- Template repository only (excluded from generated projects): compiles the most complete variant. -->
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);EnableAspire;EnableRateLimiting;EnableTests;UseAppRoles;UseGroups;UseAuthorizationPolicies</DefineConstants>
+  </PropertyGroup>
+</Project>

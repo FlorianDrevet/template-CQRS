@@ -78,14 +78,14 @@ Nouveau dossier `src/Web.Template.CQRS.Api/Authorization/` :
 | Fichier | Condition | Contenu |
 |---|---|---|
 | `AppRoles.cs` | `UseAppRoles` | Constantes `Admin = "Admin"`, `User = "User"` (valeurs des app roles Entra). |
-| `GroupOptions.cs` | `UseGroups` | Section `Authorization:Groups`, dictionnaire nom logique → object ID. Constante `Administrators`. |
+| `GroupOptions.cs` | `UseGroups` | Section `Authorization:Groups`, une propriété `string` par groupe logique (`Administrators`) contenant l'object ID. |
 | `Policies.cs` | `UseAuthorizationPolicies` | Noms de policies, dont `RequireAdmin`. |
 | `AuthorizationSetup.cs` | toujours | `AddTemplateAuthorization(...)` : fallback policy « authentifié » (déplacée depuis `DependencyInjection.cs`) et, selon le modèle, les policies nommées. |
 
 Construction de `RequireAdmin` :
 
 - `AppRoles` : `RequireRole(AppRoles.Admin)`.
-- `Groups` : `RequireClaim("groups", <object ID de Administrators lu en config>)`.
+- `Groups` : `RequireAssertion` vérifiant qu'un claim `groups` est égal à l'object ID de `Administrators` lu en config, **sans tenir compte de la casse** (Entra émet des GUID en minuscules, une config peut être en majuscules).
 - `AppRolesAndGroups` : rôle **ou** groupe (`RequireAssertion`), pour illustrer la combinaison.
 
 Les object IDs de groupes **viennent toujours de la configuration**, jamais du code. `GroupOptions` est validé au démarrage (`ValidateOnStart`) : chaque groupe déclaré doit avoir un GUID valide, sinon l'application refuse de démarrer.
@@ -112,7 +112,9 @@ Le client Keycloak `template-scalar` continue d'obtenir les scopes `roles` par d
 
 Principe : le token local doit avoir **la même forme** qu'un access token Entra v2, pour que `MapInboundClaims = false`, `RoleClaimType = "roles"` et les policies fonctionnent sans branche spécifique à Keycloak.
 
-### 4.1 Mappers (client scope `entra-compat`, ajouté aux scopes par défaut de `template-scalar` et `template-cli`)
+### 4.1 Mappers (déclarés directement dans `protocolMappers` des clients `template-scalar` et `template-cli`)
+
+Le realm ne déclare **aucun** `clientScopes` : déclarer ce tableau à l'import empêche Keycloak de créer ses scopes intégrés (`basic`, `profile`, `email`, `roles`…). Le mapper d'audience `template-api` existant est donc lui aussi déplacé dans les `protocolMappers` des clients, et les clients n'énumèrent plus `defaultClientScopes` (ils héritent des scopes par défaut du realm).
 
 | Mapper | Type Keycloak | Claim produit |
 |---|---|---|
@@ -133,7 +135,7 @@ Tous en `access.token.claim=true`.
 
 ### 4.3 Client `template-cli`
 
-Client public, `directAccessGrantsEnabled=true`, `standardFlowEnabled=false`, scopes par défaut incluant `entra-compat`, `profile`, `email`, `template-api-audience`. Il permet d'obtenir un token par persona sans navigateur (password grant). Usage strictement local : Entra n'utilise jamais ce flux.
+Client public, `directAccessGrantsEnabled=true`, `standardFlowEnabled=false`, mêmes `protocolMappers` que `template-scalar`. Il permet d'obtenir un token par persona sans navigateur (password grant). Usage strictement local : Entra n'utilise jamais ce flux.
 
 ### 4.4 Variantes de fichiers
 
@@ -145,13 +147,17 @@ L'AppHost importe **tout** le dossier `Realms/` : il ne doit donc contenir qu'un
 
 La CI (§6) valide le JSON des quatre fichiers ; la duplication entre variantes est assumée (fichiers de données, pas de logique).
 
-Risque connu : `aggregate.attrs` doit remonter les attributs des groupes dans la version de Keycloak tirée par `Aspire.Hosting.Keycloak` 13.5. À vérifier pendant l'implémentation ; repli : attribut `objectId` posé directement sur chaque persona (même forme de token, moins réaliste).
+Risque connu : `aggregate.attrs` doit remonter les attributs des groupes dans la version de Keycloak tirée par `Aspire.Hosting.Keycloak` 13.5. À vérifier pendant l'implémentation ; repli : nommer le groupe Keycloak par son GUID et utiliser le mapper `oidc-group-membership-mapper` (`full.path=false`) vers le claim `groups` (même forme de token, nom de groupe moins lisible dans la console).
 
 ### 4.5 Obtenir un token
 
 - `scripts/get-token.ps1 -Persona admin` et `scripts/get-token.sh admin` : appel `POST /realms/template/protocol/openid-connect/token` (client `template-cli`, password grant), affiche l'access token. Paramètres optionnels : `-KeycloakUrl` (défaut `http://localhost:8080`), `-Password`.
 - `Api.http` : requête de token par persona puis appels `/me` et `/admin/ping` réutilisant la réponse.
 - Les scripts sont inclus seulement si `EnableAspire=true`.
+
+### 4.6 Import du realm et volume persistant
+
+Keycloak n'importe un realm **qu'au premier démarrage** : avec `WithDataVolume()` et `ContainerLifetime.Persistent`, une modification ultérieure du JSON n'est pas appliquée tant que le volume existe. Le README le signale et indique comment supprimer le volume.
 
 ## 5. Tests
 
@@ -160,7 +166,11 @@ Risque connu : `aggregate.attrs` doit remonter les attributs des groupes dans la
 - `tests/Web.Template.CQRS.Application.UnitTests` : xUnit v3. Tests de `GetCurrentUserQueryHandler`, de `PingAdminQuery` (si présent) et de `ValidationBehavior` (avec un message et un validateur de test).
 - `tests/Web.Template.CQRS.Api.IntegrationTests` : xUnit v3 + `Microsoft.AspNetCore.Mvc.Testing`.
 
-Versions des packages vérifiées et centralisées dans `Directory.Packages.props` au moment de l'implémentation.
+Versions centralisées dans `Directory.Packages.props` : `xunit.v3` 4.0.2, `Microsoft.AspNetCore.Mvc.Testing` 10.0.11, `Microsoft.EntityFrameworkCore.InMemory` 10.0.11. xUnit v3 4.x impose Microsoft.Testing.Platform avec le SDK .NET 10 : `global.json` déclare `"test": { "runner": "Microsoft.Testing.Platform" }`.
+
+### 5.0 Compiler le dépôt du template tel quel
+
+Un `Directory.Build.props` à la racine du dépôt (exclu de la génération) définit les constantes `EnableAspire;EnableRateLimiting;EnableTests;UseAppRoles;UseGroups;UseAuthorizationPolicies`. Le dépôt du template compile et teste ainsi la variante la plus complète, cohérente avec `Realms/template-realm.json`.
 
 ### 5.2 Infrastructure de test d'intégration
 
@@ -199,7 +209,7 @@ Versions des packages vérifiées et centralisées dans `Directory.Packages.prop
 | 5 | AppRoles | false | true | true |
 | 6 | AppRoles | true | true | false |
 
-4. Pour chaque combinaison : `dotnet new templatewebcqrs -n Ci.Generated <flags>`, `dotnet build`, `dotnet test` si `EnableTests`.
+4. Pour chaque combinaison : `eng/verify-template.sh <AuthorizationModel> <EnableAspire> <EnableRateLimiting> <EnableTests>` (génère `Ci.Generated`, `dotnet build`, `dotnet test` si `EnableTests`). Le même script sert en local. `eng/**` est exclu de la génération.
 5. Vérification que `Realms/template-realm.json` et les trois fichiers de `RealmVariants/` sont des JSON valides.
 
 ## 7. Fichiers impactés (résumé)

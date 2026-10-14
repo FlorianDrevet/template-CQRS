@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Hosting;
 using Web.Template.CQRS.Api.IntegrationTests.Infrastructure;
 using Web.Template.CQRS.Contracts.Admin;
 #if (UseAppRoles)
@@ -68,6 +69,46 @@ public sealed class AdminEndpointTests(ApiFactory factory) : IClassFixture<ApiFa
         var response = await client.GetAsync("/admin/ping", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("{", "}")]
+    [InlineData(" ", " ")]
+    public async Task Ping_WithDecoratedConfiguredGroupId_Returns200(string prefix, string suffix)
+    {
+        await using var customFactory = factory.WithWebHostBuilder(builder =>
+            builder.UseSetting("Authorization:Groups:Administrators", prefix + ApiFactory.AdministratorsGroupId + suffix));
+        var client = customFactory.CreateClient().AsUser("admin-by-group", groups: [ApiFactory.AdministratorsGroupId]);
+
+        var response = await client.GetAsync("/admin/ping", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+#endif
+#if (UseAppRoles && !UseGroups)
+
+    [Fact]
+    public async Task Ping_AsMemberOfAdministratorsGroupWithoutAdminRole_Returns403()
+    {
+        var client = factory.CreateClient().AsUser(
+            "admin-by-group-only",
+            groups: ["6f1c2a4e-0d3b-4c1e-9a57-2b8f0e6d4c11"]);
+
+        var response = await client.GetAsync("/admin/ping", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+#endif
+#if (UseGroups && !UseAppRoles)
+
+    [Fact]
+    public async Task Ping_WithAdminRoleButNoGroup_Returns403()
+    {
+        var client = factory.CreateClient().AsUser("admin-by-role-only", roles: ["Admin"]);
+
+        var response = await client.GetAsync("/admin/ping", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 #endif
 }

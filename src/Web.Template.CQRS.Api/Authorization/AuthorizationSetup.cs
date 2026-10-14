@@ -41,10 +41,10 @@ public static class AuthorizationSetup
     private static void ConfigureRequireAdmin(AuthorizationPolicyBuilder policy, IServiceProvider serviceProvider)
     {
 #if (UseGroups)
-        var administratorsGroupId = serviceProvider
+        var administratorsGroupId = Guid.Parse(serviceProvider
             .GetRequiredService<IOptions<GroupOptions>>()
             .Value
-            .Administrators;
+            .Administrators);
 #endif
 #if (UseAppRoles && UseGroups)
         policy.RequireAssertion(context =>
@@ -59,8 +59,8 @@ public static class AuthorizationSetup
 #endif
 #if (UseGroups)
 
-    private static bool IsMemberOf(ClaimsPrincipal user, string groupObjectId) =>
+    private static bool IsMemberOf(ClaimsPrincipal user, Guid groupObjectId) =>
         user.FindAll(ClaimNames.Groups)
-            .Any(claim => string.Equals(claim.Value, groupObjectId, StringComparison.OrdinalIgnoreCase));
+            .Any(claim => Guid.TryParse(claim.Value, out var id) && id == groupObjectId);
 #endif
 }

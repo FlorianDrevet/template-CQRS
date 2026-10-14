@@ -57,13 +57,15 @@ docker build --file src/Contoso.Orders.Api/Dockerfile --tag contoso-orders .
 
 ## Lancer la pile locale Aspire
 
+Cette section concerne une génération avec `--EnableAspire true`.
+
 Prérequis : installez l'Aspire CLI avec `dotnet tool install -g Aspire.Cli` si nécessaire, démarrez Docker Desktop et approuvez une fois le certificat de développement ASP.NET Core :
 
 ```powershell
 dotnet dev-certs https --trust
 ```
 
-Keycloak et l'API l'utilisent en local ; sans cette approbation, les demandes de token et la récupération des métadonnées JWT par l'API échouent avec des erreurs TLS.
+Keycloak et l'API l'utilisent en local ; sans cette approbation, les demandes de token et la récupération des métadonnées JWT par l'API échouent avec des erreurs TLS. Sous Linux, cette commande ne suffit pas à faire approuver le certificat par curl/OpenSSL dans toutes les distributions : si `get-token.sh` échoue avec une erreur TLS, exportez le certificat (`dotnet dev-certs https --export-path ./localhost.crt --format PEM`) et passez-le à curl via `CURL_CA_BUNDLE=./localhost.crt`, ou ajoutez-le au magasin de confiance du système.
 
 Depuis le dossier créé, ajoutez les deux paramètres secrets de l'AppHost :
 
@@ -78,6 +80,8 @@ Aspire démarre SQL Server, Azurite et Keycloak (`https://localhost:8080`, servi
 Appelez l'API avec un token sur `https://localhost:7246` : `http://localhost:5257` redirige (307) vers HTTPS et les clients HTTP abandonnent l'en-tête `Authorization` lors de la redirection.
 
 ## Keycloak local : personas et tokens
+
+Cette section concerne une génération avec `--EnableAspire true`.
 
 Le realm `template` est importé au démarrage. Il imite Entra : claims `oid`, `roles` (plat) et `groups` (object IDs), audience `template-api`.
 
@@ -95,7 +99,7 @@ Obtenir un token sans navigateur (client `template-cli`, password grant, local u
 ```
 
 ```bash
-./scripts/get-token.sh admin
+bash ./scripts/get-token.sh admin
 ```
 
 Collez le token dans `src/Contoso.Orders.Api/Api.http` (`@AccessToken`, requêtes vers `https://localhost:7246`) ou utilisez Scalar sur `/scalar` (client `template-scalar`, connexion interactive).

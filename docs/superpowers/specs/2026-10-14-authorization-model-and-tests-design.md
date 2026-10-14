@@ -152,7 +152,7 @@ Risque connu : `aggregate.attrs` doit remonter les attributs des groupes dans la
 ### 4.5 Obtenir un token
 
 - `scripts/get-token.ps1 -Persona admin` et `scripts/get-token.sh admin` : appel `POST /realms/template/protocol/openid-connect/token` (client `template-cli`, password grant), affiche l'access token. Paramètres optionnels : `-KeycloakUrl` (défaut `https://localhost:8080`), `-Password`. L'intégration Aspire Keycloak sert HTTPS avec le certificat de développement ASP.NET Core.
-- `Api.http` : requête de token par persona puis appels `/me` et `/admin/ping` réutilisant la réponse.
+- `Api.http` : requête de token par persona, puis appels `/me` et `/admin/ping` ; l'access token est collé dans `@AccessToken` (sortie de `bash ./scripts/get-token.sh` ou de la requête de token), car la syntaxe de chaînage de requêtes diffère entre Visual Studio, VS Code REST Client et Rider.
 - Les scripts sont inclus seulement si `EnableAspire=true`.
 
 ### 4.6 Import du realm et volume persistant

@@ -30,9 +30,12 @@ Un symbole est une variable du template. Il en existe deux familles ici :
 !!! note "Pourquoi des symboles calculés ?"
     Plusieurs choix d'autorisation partagent le même comportement. Plutôt que de répéter `AuthorizationModel == "Groups" || AuthorizationModel == "AppRolesAndGroups"` partout, le template le calcule une fois dans `UseGroups`.
 
-```json title=".template.config/template.json"
---8<-- ".template.config/template.json" start="symbols" end="sources"
-```
+Le fichier complet est reproduit ci-dessous (dépliez l'encadré). Les symboles sont dans le bloc `symbols`, les règles d'exclusion et de renommage dans `sources`, puis `modifiers`. Les sections suivantes y renvoient.
+
+??? example "template.json en entier"
+    ```json title=".template.config/template.json"
+    --8<-- ".template.config/template.json"
+    ```
 
 ### Les directives `#if` dans le code
 
@@ -57,13 +60,9 @@ Voici un extrait réel du point d'entrée de l'API :
 
 ### Les `modifiers` : exclure et renommer des fichiers
 
-Certaines options ne suppriment pas des lignes mais des fichiers entiers (un projet, un dossier). La section `sources` de `template.json` décrit des `modifiers` : une liste d'exclusions et de renommages, éventuellement soumis à une condition. Le premier modifier, sans condition, retire tout ce qui ne doit jamais être généré (documentation, outillage, `.git`) et renomme `README.generated.md` en `README.md`.
+Certaines options ne suppriment pas des lignes mais des fichiers entiers (un projet, un dossier). La section `sources` du `template.json` ci-dessus décrit des `modifiers` : une liste d'exclusions et de renommages, éventuellement soumis à une condition. Le premier modifier, sans condition, retire tout ce qui ne doit jamais être généré (documentation, outillage, `.git`) et renomme `README.generated.md` en `README.md`.
 
-```json title=".template.config/template.json"
---8<-- ".template.config/template.json" start="sources" end="(EnableAspire)"
-```
-
-Lisez le deuxième modifier : si `EnableAspire` est faux, le projet AppHost, ServiceDefaults et les scripts sont exclus, et la solution allégée `Web.Template.CQRS.Core.slnx` prend la place de `Web.Template.CQRS.slnx`.
+Dans le fichier ci-dessus, repérez le modifier dont la condition est `(!EnableAspire)` : si `EnableAspire` est faux, le projet AppHost, ServiceDefaults et les scripts sont exclus, et la solution allégée `Web.Template.CQRS.Core.slnx` prend la place de `Web.Template.CQRS.slnx`.
 
 ### Installer et désinstaller un template
 

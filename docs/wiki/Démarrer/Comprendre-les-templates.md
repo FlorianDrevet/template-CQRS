@@ -31,67 +31,216 @@ Un symbole est une variable du template. Il en existe deux familles ici :
 >
 > Plusieurs choix d'autorisation partagent le même comportement. Plutôt que de répéter `AuthorizationModel == "Groups" || AuthorizationModel == "AppRolesAndGroups"` partout, le template le calcule une fois dans `UseGroups`.
 
-**Fichier :** `.template.config/template.json`
+Le fichier complet est reproduit ci-dessous (dépliez l'encadré). Les symboles sont dans le bloc `symbols`, les règles d'exclusion et de renommage dans `sources`, puis `modifiers`. Les sections suivantes y renvoient.
 
-```json
-"symbols": {
-  "EnableAspire": {
-    "type": "parameter",
-    "datatype": "bool",
-    "defaultValue": "true",
-    "description": "Ajoute Aspire, l'observabilité OpenTelemetry et les services locaux SQL Server, Azurite et Keycloak."
-  },
-  "EnableRateLimiting": {
-    "type": "parameter",
-    "datatype": "bool",
-    "defaultValue": "true",
-    "description": "Ajoute les politiques de limitation de débit de l'API."
-  },
-  "AuthorizationModel": {
-    "type": "parameter",
-    "datatype": "choice",
-    "defaultValue": "AppRoles",
-    "description": "Modèle d'autorisation Entra ID reproduit localement par Keycloak.",
-    "choices": [
-      {
-        "choice": "Authenticated",
-        "description": "Utilisateur connecté uniquement."
-      },
-      {
-        "choice": "AppRoles",
-        "description": "App roles Entra (claim roles)."
-      },
-      {
-        "choice": "Groups",
-        "description": "Groupes de sécurité Entra (claim groups)."
-      },
-      {
-        "choice": "AppRolesAndGroups",
-        "description": "App roles et groupes de sécurité."
-      }
-    ]
-  },
-  "EnableTests": {
-    "type": "parameter",
-    "datatype": "bool",
-    "defaultValue": "true",
-    "description": "Ajoute les projets de tests unitaires et d'intégration."
-  },
-  "UseAppRoles": {
-    "type": "computed",
-    "value": "(AuthorizationModel == \"AppRoles\" || AuthorizationModel == \"AppRolesAndGroups\")"
-  },
-  "UseGroups": {
-    "type": "computed",
-    "value": "(AuthorizationModel == \"Groups\" || AuthorizationModel == \"AppRolesAndGroups\")"
-  },
-  "UseAuthorizationPolicies": {
-    "type": "computed",
-    "value": "(AuthorizationModel != \"Authenticated\")"
-  }
-},
-"sources": [
-```
+> 🧪 **template.json en entier**
+>
+> **Fichier :** `.template.config/template.json`
+>
+> ```json
+> {
+>   "$schema": "http://json.schemastore.org/template",
+>   "author": "Florian Drevet",
+>   "classifications": [
+>     "Web"
+>   ],
+>   "name": "Web template using CQRS",
+>   "description": "This template creates a new web application using CQRS",
+>   "tags": {
+>     "language": "C#",
+>     "type": "project"
+>   },
+>   "shortName": "templatewebcqrs",
+>   "sourceName": "Web.Template.CQRS",
+>   "identity": "Web.Template.CQRS",
+>   "preferNameDirectory": true,
+>   "symbols": {
+>     "EnableAspire": {
+>       "type": "parameter",
+>       "datatype": "bool",
+>       "defaultValue": "true",
+>       "description": "Ajoute Aspire, l'observabilité OpenTelemetry et les services locaux SQL Server, Azurite et Keycloak."
+>     },
+>     "EnableRateLimiting": {
+>       "type": "parameter",
+>       "datatype": "bool",
+>       "defaultValue": "true",
+>       "description": "Ajoute les politiques de limitation de débit de l'API."
+>     },
+>     "AuthorizationModel": {
+>       "type": "parameter",
+>       "datatype": "choice",
+>       "defaultValue": "AppRoles",
+>       "description": "Modèle d'autorisation Entra ID reproduit localement par Keycloak.",
+>       "choices": [
+>         {
+>           "choice": "Authenticated",
+>           "description": "Utilisateur connecté uniquement."
+>         },
+>         {
+>           "choice": "AppRoles",
+>           "description": "App roles Entra (claim roles)."
+>         },
+>         {
+>           "choice": "Groups",
+>           "description": "Groupes de sécurité Entra (claim groups)."
+>         },
+>         {
+>           "choice": "AppRolesAndGroups",
+>           "description": "App roles et groupes de sécurité."
+>         }
+>       ]
+>     },
+>     "EnableTests": {
+>       "type": "parameter",
+>       "datatype": "bool",
+>       "defaultValue": "true",
+>       "description": "Ajoute les projets de tests unitaires et d'intégration."
+>     },
+>     "UseAppRoles": {
+>       "type": "computed",
+>       "value": "(AuthorizationModel == \"AppRoles\" || AuthorizationModel == \"AppRolesAndGroups\")"
+>     },
+>     "UseGroups": {
+>       "type": "computed",
+>       "value": "(AuthorizationModel == \"Groups\" || AuthorizationModel == \"AppRolesAndGroups\")"
+>     },
+>     "UseAuthorizationPolicies": {
+>       "type": "computed",
+>       "value": "(AuthorizationModel != \"Authenticated\")"
+>     }
+>   },
+>   "sources": [
+>     {
+>       "source": "./",
+>       "target": "./",
+>       "modifiers": [
+>         {
+>           "exclude": [
+>             ".idea/**",
+>             ".superpowers/**",
+>             "eng/**",
+>             "docs/**",
+>             "site/**",
+>             ".git/**",
+>             ".vs/**",
+>             ".cache/**",
+>             ".pytest_cache/**",
+>             "build/**",
+>             "**/TestResults/**",
+>             ".github/workflows/template-ci.yml",
+>             ".github/workflows/docs.yml",
+>             "Directory.Build.props",
+>             "mkdocs.yml",
+>             "README.md"
+>           ],
+>           "rename": {
+>             "README.generated.md": "README.md"
+>           }
+>         },
+>         {
+>           "condition": "(!EnableAspire)",
+>           "exclude": [
+>             "src/Web.Template.CQRS.AppHost/**",
+>             "src/Web.Template.CQRS.ServiceDefaults/**",
+>             "scripts/**",
+>             "Web.Template.CQRS.slnx"
+>           ],
+>           "rename": {
+>             "Web.Template.CQRS.Core.slnx": "Web.Template.CQRS.slnx"
+>           }
+>         },
+>         {
+>           "condition": "(EnableAspire)",
+>           "exclude": [
+>             "Web.Template.CQRS.Core.slnx"
+>           ]
+>         },
+>         {
+>           "condition": "(!EnableRateLimiting)",
+>           "exclude": [
+>             "src/Web.Template.CQRS.Api/Common/RateLimiting/**",
+>             "tests/Web.Template.CQRS.Api.IntegrationTests/RateLimiting/**"
+>           ]
+>         },
+>         {
+>           "condition": "(!EnableTests)",
+>           "exclude": [
+>             "tests/**"
+>           ]
+>         },
+>         {
+>           "condition": "(!UseAuthorizationPolicies)",
+>           "exclude": [
+>             "src/Web.Template.CQRS.Api/Authorization/Policies.cs",
+>             "src/Web.Template.CQRS.Api/Controllers/AdminController.cs",
+>             "src/Web.Template.CQRS.Application/Admin/**",
+>             "src/Web.Template.CQRS.Contracts/Admin/**",
+>             "tests/Web.Template.CQRS.Application.UnitTests/Admin/**",
+>             "tests/Web.Template.CQRS.Api.IntegrationTests/Admin/**"
+>           ]
+>         },
+>         {
+>           "condition": "(!UseAppRoles)",
+>           "exclude": [
+>             "src/Web.Template.CQRS.Api/Authorization/AppRoles.cs"
+>           ]
+>         },
+>         {
+>           "condition": "(!UseGroups)",
+>           "exclude": [
+>             "src/Web.Template.CQRS.Api/Authorization/GroupOptions.cs",
+>             "tests/Web.Template.CQRS.Api.IntegrationTests/Authorization/**"
+>           ]
+>         },
+>         {
+>           "condition": "(AuthorizationModel == \"Authenticated\")",
+>           "exclude": [
+>             "src/Web.Template.CQRS.AppHost/Realms/template-realm.json",
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.approles.json",
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.groups.json"
+>           ],
+>           "rename": {
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.authenticated.json": "src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
+>           }
+>         },
+>         {
+>           "condition": "(AuthorizationModel == \"AppRoles\")",
+>           "exclude": [
+>             "src/Web.Template.CQRS.AppHost/Realms/template-realm.json",
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.authenticated.json",
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.groups.json"
+>           ],
+>           "rename": {
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.approles.json": "src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
+>           }
+>         },
+>         {
+>           "condition": "(AuthorizationModel == \"Groups\")",
+>           "exclude": [
+>             "src/Web.Template.CQRS.AppHost/Realms/template-realm.json",
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.authenticated.json",
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.approles.json"
+>           ],
+>           "rename": {
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/template-realm.groups.json": "src/Web.Template.CQRS.AppHost/Realms/template-realm.json"
+>           }
+>         },
+>         {
+>           "condition": "(AuthorizationModel == \"AppRolesAndGroups\")",
+>           "exclude": [
+>             "src/Web.Template.CQRS.AppHost/RealmVariants/**"
+>           ]
+>         }
+>       ]
+>     }
+>   ],
+>   "guids": [
+>     "bdab3963-4400-4b37-9c1d-7148b0a3a96c",
+>     "fc205b91-e44d-4eb0-a0dd-8ad940659771"
+>   ]
+> }
+> ```
 
 ### Les directives `#if` dans le code
 
@@ -125,56 +274,9 @@ var app = builder.Build();
 
 ### Les `modifiers` : exclure et renommer des fichiers
 
-Certaines options ne suppriment pas des lignes mais des fichiers entiers (un projet, un dossier). La section `sources` de `template.json` décrit des `modifiers` : une liste d'exclusions et de renommages, éventuellement soumis à une condition. Le premier modifier, sans condition, retire tout ce qui ne doit jamais être généré (documentation, outillage, `.git`) et renomme `README.generated.md` en `README.md`.
+Certaines options ne suppriment pas des lignes mais des fichiers entiers (un projet, un dossier). La section `sources` du `template.json` ci-dessus décrit des `modifiers` : une liste d'exclusions et de renommages, éventuellement soumis à une condition. Le premier modifier, sans condition, retire tout ce qui ne doit jamais être généré (documentation, outillage, `.git`) et renomme `README.generated.md` en `README.md`.
 
-**Fichier :** `.template.config/template.json`
-
-```json
-"sources": [
-  {
-    "source": "./",
-    "target": "./",
-    "modifiers": [
-      {
-        "exclude": [
-          ".idea/**",
-          ".superpowers/**",
-          "eng/**",
-          "docs/**",
-          "site/**",
-          ".git/**",
-          ".vs/**",
-          ".cache/**",
-          ".pytest_cache/**",
-          "build/**",
-          "**/TestResults/**",
-          ".github/workflows/template-ci.yml",
-          ".github/workflows/docs.yml",
-          "Directory.Build.props",
-          "mkdocs.yml",
-          "README.md"
-        ],
-        "rename": {
-          "README.generated.md": "README.md"
-        }
-      },
-      {
-        "condition": "(!EnableAspire)",
-        "exclude": [
-          "src/Web.Template.CQRS.AppHost/**",
-          "src/Web.Template.CQRS.ServiceDefaults/**",
-          "scripts/**",
-          "Web.Template.CQRS.slnx"
-        ],
-        "rename": {
-          "Web.Template.CQRS.Core.slnx": "Web.Template.CQRS.slnx"
-        }
-      },
-      {
-        "condition": "(EnableAspire)",
-```
-
-Lisez le deuxième modifier : si `EnableAspire` est faux, le projet AppHost, ServiceDefaults et les scripts sont exclus, et la solution allégée `Web.Template.CQRS.Core.slnx` prend la place de `Web.Template.CQRS.slnx`.
+Dans le fichier ci-dessus, repérez le modifier dont la condition est `(!EnableAspire)` : si `EnableAspire` est faux, le projet AppHost, ServiceDefaults et les scripts sont exclus, et la solution allégée `Web.Template.CQRS.Core.slnx` prend la place de `Web.Template.CQRS.slnx`.
 
 ### Installer et désinstaller un template
 

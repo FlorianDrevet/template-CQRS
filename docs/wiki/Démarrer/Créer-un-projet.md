@@ -35,7 +35,7 @@ La seconde commande affiche toutes les options avec leur description, lue dans `
 
 | Option | Ce qui disparaît quand elle est désactivée ou différente |
 |--------|-----------------------------------------------------------|
-| `EnableAspire = false` | Projets `AppHost` et `ServiceDefaults`, dossier `scripts/`. La solution `Web.Template.CQRS.Core.slnx` est renommée en `.slnx` principal |
+| `EnableAspire = false` | Projets `AppHost` et `ServiceDefaults`, dossier `scripts/`. La solution `Web.Template.CQRS.Core.slnx` est renommée `Web.Template.CQRS.slnx` |
 | `EnableRateLimiting = false` | Dossier `Common/RateLimiting` de l'API et ses tests d'intégration |
 | `EnableTests = false` | Dossier `tests/` |
 | `AuthorizationModel = Authenticated` | `Authorization/Policies.cs`, `AdminController`, la feature `Admin` (Application et Contracts) et ses tests ; le realm Keycloak ne contient plus de rôles ni de groupes |

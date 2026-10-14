@@ -25,6 +25,20 @@ var sqlServer = builder
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 var projectDatabase = sqlServer.AddDatabase("projectdb");
+
+var blobs = builder
+    .AddAzureStorage("storage")
+    .RunAsEmulator()
+    .AddBlobs("blobs");
+
+var keycloakAdminPassword = builder.AddParameter("keycloak-admin-password", secret: true);
+var keycloak = builder
+    .AddKeycloak("keycloak", port: 8080, adminPassword: keycloakAdminPassword)
+    .WithRealmImport("./Realms")
+    .WithDataVolume()
+    .WithLifetime(ContainerLifetime.Persistent);
+
+var api = builder
 ```
 
 Fournissez-les avec les user-secrets .NET (stockés hors du dépôt, dans votre profil utilisateur) :
@@ -62,7 +76,7 @@ L'API attend que SQL Server, le stockage et Keycloak soient prêts (`WaitFor`) a
 
 ### Étape 4 : ouvrir le dashboard
 
-`aspire start` affiche l'URL du dashboard Aspire dans son résultat. Ouvrez-la : vous y voyez les quatre ressources, leur état, leurs logs et leurs traces. Attendez que l'API soit à l'état `Running` (ou `Healthy`).
+`aspire start` affiche l'URL du dashboard Aspire dans son résultat. Ouvrez-la : vous y voyez les ressources (`sqlserver`, `projectdb`, `storage`, `blobs`, `keycloak` et `api`), leur état, leurs logs et leurs traces. Attendez que l'API soit à l'état `Running` (ou `Healthy`).
 
 ### Étape 5 : obtenir un token
 
@@ -146,7 +160,7 @@ Les conteneurs SQL Server et Keycloak sont déclarés avec une durée de vie per
 >
 > - Port 8080 occupé : Keycloak est fixé sur ce port. Arrêtez le processus ou le conteneur qui l'utilise, puis relancez.
 > - Erreur de certificat avec `curl` ou `get-token` : relancez `dotnet dev-certs https --trust` (voir [Prérequis](/Démarrer/Prérequis.md)).
-> - Persona inconnu ou modification du realm sans effet : le realm n'est importé qu'au premier démarrage. Pour le réimporter, supprimez le volume Docker `<apphost-en-minuscules>-<hash>-keycloak-data`, puis relancez.
+> - Persona inconnu ou modification du realm sans effet : le realm n'est importé qu'au premier démarrage du volume Keycloak. Pour le réimporter, lancez `aspire stop --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj --force --volumes` : cette commande supprime les ressources persistantes et leurs volumes (les données de SQL Server sont donc remises à zéro aussi). Relancez ensuite `aspire start` : le realm est importé de nouveau.
 
 ## À essayer
 
@@ -154,6 +168,10 @@ Les conteneurs SQL Server et Keycloak sont déclarés avec une durée de vie per
 2. Collez votre token sur [jwt.ms](https://jwt.ms) ou décodez-le localement, et retrouvez les claims `roles`, `aud` et `iss`. Que contient `aud` ?
 3. Dans le dashboard, ouvrez la trace de votre appel à `/me` et repérez le `traceId` : le retrouvez-vous dans les logs de l'API ?
 4. Appelez `/me` sans en-tête `Authorization` et lisez la réponse.
+
+> 📝 **Ne collez que des tokens locaux**
+>
+> Ne collez sur un site externe (jwt.ms) que des tokens du Keycloak local. Ne collez jamais un token Entra ID ou de production : il donne accès à de vraies ressources.
 
 Pour continuer, écrivez votre première feature avec [Ajouter une feature](/Guides/Ajouter-une-feature.md).
 

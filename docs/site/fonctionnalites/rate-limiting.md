@@ -110,7 +110,7 @@ Pour un nouvel endpoint d'écriture, vous écririez de la même manière `endpoi
 Le comportement est vérifié par un test d'intégration qui consomme tout le quota de la politique `read`, puis contrôle la réponse suivante :
 
 ```csharp title="tests/Web.Template.CQRS.Api.IntegrationTests/RateLimiting/RateLimitingTests.cs"
---8<-- "tests/Web.Template.CQRS.Api.IntegrationTests/RateLimiting/RateLimitingTests.cs" start="public async Task ReadPolicy_WhenQuotaExceeded_Returns429ProblemDetails" end='GetProperty("traceId")'
+--8<-- "tests/Web.Template.CQRS.Api.IntegrationTests/RateLimiting/RateLimitingTests.cs" start='public sealed class RateLimitingTests'
 ```
 
 Le test vérifie le statut 429, la présence de `Retry-After`, le code `RATE_LIMITED` et un `traceId` non vide. La constante `ReadPermitLimit` du test doit rester alignée avec les 600 requêtes de la politique : si vous changez le quota, mettez le test à jour.

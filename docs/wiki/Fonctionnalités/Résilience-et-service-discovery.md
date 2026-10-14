@@ -56,7 +56,7 @@ public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder)
 
 ```
 
-Les trois lignes qui nous intéressent :
+Les quatre lignes qui nous intéressent :
 
 - `builder.Services.AddServiceDiscovery()` enregistre le mécanisme de découverte ;
 - `ConfigureHttpClientDefaults` applique des réglages à **tous** les `HttpClient` créés via `IHttpClientFactory` ;
@@ -106,7 +106,7 @@ Le préfixe `https+http://` demande à la découverte de préférer HTTPS et de 
 ## À essayer
 
 1. Ouvrez `Extensions.cs` : quels appels dans `AddServiceDefaults` concernent la résilience, lesquels la découverte de services ?
-2. Dans l'`AppHost`, repérez comment l'API reçoit l'adresse de Keycloak (`WithReference`). Quel est le nom logique utilisé ?
+2. Dans l'`AppHost`, repérez `.WithReference(projectDatabase)` : Aspire injecte ainsi la variable `ConnectionStrings__projectdb` dans l'API. Quel est le nom logique de la ressource ?
 3. Question : pourquoi un circuit breaker aide-t-il le service appelé autant que l'appelant ?
 4. Question : un `new HttpClient()` écrit dans un handler bénéficie-t-il du retry ? Pourquoi ?
 

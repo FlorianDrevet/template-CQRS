@@ -46,7 +46,7 @@ Pour Keycloak, le client est `template-scalar` et les scopes sont `openid`, `pro
 --8<-- "src/Web.Template.CQRS.Api/Program.cs" start="if (app.Environment.IsDevelopment())" before="app.MapCurrentUserEndpoints();"
 ```
 
-- `MapOpenApi()` publie le document sur **`/openapi/v1.json`** ; `MapScalarApiReference` publie l'interface (sous le préfixe `/scalar`, page du document `v1` : `/scalar/v1`). Les deux sont `AllowAnonymous` : sinon l'interface ne pourrait pas se charger avant d'avoir un jeton.
+- `MapOpenApi()` publie le document sur **`/openapi/v1.json`** ; `MapScalarApiReference` publie l'interface (sous le préfixe `/scalar`, la page du document `v1` est `/scalar/v1`). Les deux sont `AllowAnonymous` : sinon l'interface ne pourrait pas se charger avant d'avoir un jeton.
 - La condition `IsDevelopment()` évite de publier en production la carte complète de l'API et un client OAuth2 de développement. Pour documenter une API publique, retirez cette condition en connaissance de cause.
 - `AddAuthorizationCodeFlow` configure le flux OAuth2 décrit ci-dessous.
 
@@ -78,7 +78,7 @@ sequenceDiagram
 ## À essayer
 
 1. Lancez le projet avec Aspire et ouvrez `https://localhost:7246/openapi/v1.json`. Repérez la section `components.securitySchemes`.
-2. Ouvrez `https://localhost:7246/scalar/v1`, cliquez sur **Authorize**, connectez-vous avec `user@local.test`, puis appelez `GET /me`.
+2. Ouvrez `https://localhost:7246/scalar` (l'adresse utilisée dans [Premier lancement](../demarrer/premier-lancement.md), qui ouvre Scalar ; le document `v1` est servi sur `/scalar/v1`), cliquez sur **Authorize**, connectez-vous avec `user@local.test`, puis appelez `GET /me`.
 3. Appelez `/admin/ping` avec `user@local.test` (403), puis avec `admin@local.test` (200), si l'option des politiques d'autorisation est activée.
 4. Repérez dans le document JSON un endpoint avec une clé `security` et un autre sans. Lequel est `AllowAnonymous` ?
 5. Question : que se passerait-il en production si `MapOpenApi()` n'était pas dans le bloc `IsDevelopment()` ?

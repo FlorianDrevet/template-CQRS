@@ -94,7 +94,7 @@ Le comportement est le suivant :
 
 1. Si la requête entrante porte un `traceparent`, ASP.NET Core **reprend** le trace id reçu et crée un nouveau span enfant.
 2. Sinon, il **génère** un nouveau trace id.
-3. Quand l'API appelle un autre service avec `HttpClient`, l'instrumentation OpenTelemetry **ajoute** automatiquement l'en-tête `traceparent` à l'appel sortant.
+3. Quand l'API appelle un autre service avec `HttpClient`, l'en-tête `traceparent` est **ajouté** à l'appel sortant par les diagnostics de .NET, dès qu'une `Activity` est en cours. L'instrumentation OpenTelemetry se charge d'enregistrer les spans correspondants.
 
 ```mermaid
 sequenceDiagram
@@ -157,7 +157,7 @@ Ce qu'il faut retenir :
 
 - **Logs** : `IncludeFormattedMessage` envoie aussi le message déjà rempli, et `IncludeScopes` envoie les *scopes* de log (voir plus bas), donc `TraceId`, `RequestId` et `Endpoint`.
 - **Métriques** : instrumentation d'ASP.NET Core (durée des requêtes), de `HttpClient` (appels sortants) et du runtime (mémoire, ramasse-miettes), plus un compteur nommé d'après l'application (`AddMeter`).
-- **Traces** : instrumentation d'ASP.NET Core et de `HttpClient`. C'est elle qui lit et écrit l'en-tête `traceparent`.
+- **Traces** : instrumentation d'ASP.NET Core et de `HttpClient`. Elle enregistre les spans des requêtes entrantes et des appels sortants ; la lecture et l'écriture de `traceparent` reposent sur les diagnostics de .NET (voir plus haut).
 - **Filtrage** : les requêtes vers `/health` et `/alive` sont **exclues** des traces. Un orchestrateur les appelle toutes les quelques secondes ; sans filtre, ces appels noieraient les vraies requêtes. Voir [Health checks](health-checks.md).
 
 La seconde moitié choisit où envoyer la télémétrie, **selon la configuration** :
@@ -273,11 +273,11 @@ union requests, dependencies, traces, exceptions
 | order by timestamp asc
 ```
 
-Trouver les requêtes lentes ou en échec de la dernière heure :
+Trouver les requêtes lentes ou en échec de la dernière heure (la colonne `duration` est exprimée en millisecondes, donc `2000` vaut deux secondes) :
 
 ```text
 requests
-| where timestamp > ago(1h) and (success == false or duration > 2s)
+| where timestamp > ago(1h) and (success == false or duration > 2000)
 | order by duration desc
 | take 20
 ```

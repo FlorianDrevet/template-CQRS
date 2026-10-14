@@ -189,24 +189,32 @@ Le comportement est vérifié par un test d'intégration qui consomme tout le qu
 **Fichier :** `tests/Web.Template.CQRS.Api.IntegrationTests/RateLimiting/RateLimitingTests.cs`
 
 ```csharp
-public async Task ReadPolicy_WhenQuotaExceeded_Returns429ProblemDetails()
+public sealed class RateLimitingTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
-    var client = factory.CreateClient().AsUser("rate-limited-user");
-    var cancellationToken = TestContext.Current.CancellationToken;
+    // Matches the permit limit of the "read" policy in Api/Common/RateLimiting/RateLimiting.cs.
+    private const int ReadPermitLimit = 600;
 
-    for (var request = 0; request < ReadPermitLimit; request++)
+    [Fact]
+    public async Task ReadPolicy_WhenQuotaExceeded_Returns429ProblemDetails()
     {
-        var accepted = await client.GetAsync("/me", cancellationToken);
-        Assert.Equal(HttpStatusCode.OK, accepted.StatusCode);
+        var client = factory.CreateClient().AsUser("rate-limited-user");
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        for (var request = 0; request < ReadPermitLimit; request++)
+        {
+            var accepted = await client.GetAsync("/me", cancellationToken);
+            Assert.Equal(HttpStatusCode.OK, accepted.StatusCode);
+        }
+
+        var rejected = await client.GetAsync("/me", cancellationToken);
+
+        Assert.Equal(HttpStatusCode.TooManyRequests, rejected.StatusCode);
+        Assert.True(rejected.Headers.Contains("Retry-After"));
+        using var problem = JsonDocument.Parse(await rejected.Content.ReadAsStringAsync(cancellationToken));
+        Assert.Equal("RATE_LIMITED", problem.RootElement.GetProperty("code").GetString());
+        Assert.False(string.IsNullOrWhiteSpace(problem.RootElement.GetProperty("traceId").GetString()));
     }
-
-    var rejected = await client.GetAsync("/me", cancellationToken);
-
-    Assert.Equal(HttpStatusCode.TooManyRequests, rejected.StatusCode);
-    Assert.True(rejected.Headers.Contains("Retry-After"));
-    using var problem = JsonDocument.Parse(await rejected.Content.ReadAsStringAsync(cancellationToken));
-    Assert.Equal("RATE_LIMITED", problem.RootElement.GetProperty("code").GetString());
-    Assert.False(string.IsNullOrWhiteSpace(problem.RootElement.GetProperty("traceId").GetString()));
+}
 ```
 
 Le test vérifie le statut 429, la présence de `Retry-After`, le code `RATE_LIMITED` et un `traceId` non vide. La constante `ReadPermitLimit` du test doit rester alignée avec les 600 requêtes de la politique : si vous changez le quota, mettez le test à jour.

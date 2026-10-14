@@ -194,7 +194,7 @@ Un `Directory.Build.props` à la racine du dépôt (exclu de la génération) d�
 
 ## 6. CI du dépôt template
 
-`.github/workflows/template-ci.yml`, déclenché sur push et pull request :
+Deux définitions équivalentes : `.github/workflows/template-ci.yml` (GitHub Actions) et `eng/azure-pipelines/template-ci.yml` (Azure DevOps, exclu de la génération). Toutes deux appellent `eng/verify-template.sh`, déclenchées sur push vers `main` et sur pull request :
 
 1. `actions/setup-dotnet` selon `global.json`.
 2. `dotnet new install ./`.

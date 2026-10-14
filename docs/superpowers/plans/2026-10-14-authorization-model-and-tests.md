@@ -45,7 +45,8 @@ Directory.Packages.props                      (modifié) packages de tests
 Web.Template.CQRS.slnx / .Core.slnx           (modifiés) dossier /tests/ conditionnel
 .template.config/template.json                (modifié) symboles + modifiers
 eng/verify-template.sh                        (créé)    génère + build + test une combinaison
-.github/workflows/template-ci.yml             (créé)    matrice de générations
+.github/workflows/template-ci.yml             (créé)    matrice de générations (GitHub Actions)
+eng/azure-pipelines/template-ci.yml           (créé)    même matrice (Azure DevOps)
 scripts/get-token.ps1, scripts/get-token.sh   (créés)   token d'un persona (Aspire uniquement)
 README.md, src/Web.Template.CQRS.Api/README.md (modifiés)
 
@@ -696,7 +697,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
-echo "::group::Generate AuthorizationModel=$auth EnableAspire=$aspire EnableRateLimiting=$rate_limiting EnableTests=$tests"
+echo "==> Generate AuthorizationModel=$auth EnableAspire=$aspire EnableRateLimiting=$rate_limiting EnableTests=$tests"
 dotnet new install "$root" --force
 dotnet new templatewebcqrs \
   --name Ci.Generated \
@@ -705,7 +706,6 @@ dotnet new templatewebcqrs \
   --EnableAspire "$aspire" \
   --EnableRateLimiting "$rate_limiting" \
   --EnableTests "$tests"
-echo "::endgroup::"
 
 cd "$work/Ci.Generated"
 
@@ -2413,15 +2413,16 @@ Expected: plus aucun conteneur ni volume `verify` (`docker ps -a | grep -i verif
 
 ---
 
-### Task 7: CI du dépôt template, matrice complète et documentation
+### Task 7: CI du dépôt template (GitHub Actions et Azure DevOps), matrice complète et documentation
 
 **Files:**
 - Create: `.github/workflows/template-ci.yml`
+- Create: `eng/azure-pipelines/template-ci.yml`
 - Modify: `README.md`, `src/Web.Template.CQRS.Api/README.md`
 
 **Interfaces:**
 - Consumes: `eng/verify-template.sh` (Task 2), variantes de realm (Task 5), noms de volumes observés (Task 6).
-- Produces: workflow `template-ci` ; README à jour (options, modèles d'autorisation, personas, tokens, import du realm, tests, développement du template).
+- Produces: workflow GitHub `template-ci` et pipeline Azure DevOps `eng/azure-pipelines/template-ci.yml` exécutant les mêmes jobs ; README à jour (options, modèles d'autorisation, personas, tokens, import du realm, tests, développement du template).
 
 - [ ] **Step 1: Créer le workflow**
 
@@ -2478,6 +2479,102 @@ jobs:
       - name: Build and test the template sources
         run: dotnet test --solution Web.Template.CQRS.slnx
 ```
+
+- [ ] **Step 1b: Créer le pipeline Azure DevOps équivalent**
+
+`eng/azure-pipelines/template-ci.yml` (dans `eng/`, donc exclu de la génération comme le reste de l'outillage du template) :
+
+```yaml
+# Azure DevOps pipeline for the template repository (same checks as .github/workflows/template-ci.yml).
+# Create the pipeline in Azure DevOps from this existing YAML file.
+# With Azure Repos, pull request validation is configured through a branch policy on main;
+# the "pr" trigger below only applies to GitHub and Bitbucket repositories.
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - '*'
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  - job: realm_json
+    displayName: Validate Keycloak realm files
+    steps:
+      - checkout: self
+      - bash: |
+          set -euo pipefail
+          for file in src/Web.Template.CQRS.AppHost/Realms/*.json src/Web.Template.CQRS.AppHost/RealmVariants/*.json; do
+            python3 -m json.tool "$file" > /dev/null
+            echo "valid $file"
+          done
+        displayName: Validate JSON
+
+  - job: template_repository
+    displayName: Build and test the template sources
+    steps:
+      - checkout: self
+      - task: UseDotNet@2
+        displayName: Install .NET SDK from global.json
+        inputs:
+          useGlobalJson: true
+      - bash: dotnet test --solution Web.Template.CQRS.slnx
+        displayName: dotnet test
+
+  - job: generate
+    displayName: Generate, build and test
+    strategy:
+      matrix:
+        authenticated:
+          auth: Authenticated
+          aspire: true
+          rateLimiting: true
+          tests: true
+        app_roles:
+          auth: AppRoles
+          aspire: true
+          rateLimiting: true
+          tests: true
+        groups_without_rate_limiting:
+          auth: Groups
+          aspire: true
+          rateLimiting: false
+          tests: true
+        app_roles_and_groups:
+          auth: AppRolesAndGroups
+          aspire: true
+          rateLimiting: true
+          tests: true
+        app_roles_without_aspire:
+          auth: AppRoles
+          aspire: false
+          rateLimiting: true
+          tests: true
+        app_roles_without_tests:
+          auth: AppRoles
+          aspire: true
+          rateLimiting: true
+          tests: false
+    steps:
+      - checkout: self
+      - task: UseDotNet@2
+        displayName: Install .NET SDK from global.json
+        inputs:
+          useGlobalJson: true
+      - bash: bash eng/verify-template.sh $(auth) $(aspire) $(rateLimiting) $(tests)
+        displayName: verify-template $(auth) aspire=$(aspire) rl=$(rateLimiting) tests=$(tests)
+```
+
+Vérifier la syntaxe YAML localement :
+
+Run: `python -c "import yaml,sys; [yaml.safe_load(open(f)) for f in sys.argv[1:]]; print('yaml ok')" .github/workflows/template-ci.yml eng/azure-pipelines/template-ci.yml`
+Expected: `yaml ok` (si le module `yaml` est absent : `python -m pip install --user pyyaml`, puis relancer).
 
 - [ ] **Step 2: Exécuter la matrice complète en local**
 
@@ -2622,7 +2719,7 @@ Les tests d'intégration démarrent l'API en mémoire avec un schéma d'authenti
 
 - `Directory.Build.props` (exclu de la génération) définit toutes les constantes de template : le dépôt compile et teste la variante la plus complète (`AppRolesAndGroups`, Aspire, rate limiting, tests).
 - `eng/verify-template.sh <AuthorizationModel> <EnableAspire> <EnableRateLimiting> <EnableTests>` génère une solution, vérifie les exclusions, la compile et lance ses tests.
-- `.github/workflows/template-ci.yml` exécute une matrice de six combinaisons et valide les fichiers de realm.
+- `.github/workflows/template-ci.yml` (GitHub Actions) et `eng/azure-pipelines/template-ci.yml` (Azure DevOps) exécutent la même matrice de six combinaisons, valident les fichiers de realm et testent les sources du template. Côté Azure DevOps, créez le pipeline à partir de ce fichier YAML existant ; avec Azure Repos, la validation des pull requests passe par une branch policy sur `main`.
 - `src/Web.Template.CQRS.AppHost/Realms/template-realm.json` est la variante complète ; `RealmVariants/` contient les autres variantes, renommées à la génération.
 ~~~~
 
@@ -2654,8 +2751,8 @@ L'endpoint `GET /me` retourne l'identité, les rôles et les groupes du token. L
 - [ ] **Step 5: Commit**
 
 ```bash
-git add .github/workflows/template-ci.yml README.md src/Web.Template.CQRS.Api/README.md
-git commit -m "ci: verify template generations in a matrix and document authorization models
+git add .github/workflows/template-ci.yml eng/azure-pipelines/template-ci.yml README.md src/Web.Template.CQRS.Api/README.md
+git commit -m "ci: verify template generations on GitHub Actions and Azure DevOps and document authorization models
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```

@@ -119,7 +119,7 @@ Déclencheurs : `push` sur `main` et toute `pull_request`. Deux jobs :
 
 | Job | Quand | Étapes |
 |-----|-------|--------|
-| `check` | toujours | installe Python 3.13 et les dépendances, lance `python -m pytest eng/docs/tests -q`, puis `python eng/docs/docs.py check` |
+| `check` | toujours | installe Python 3.13 et les dépendances, lance `python -m pytest eng/docs/tests -q`, puis `python eng/docs/docs.py check` et `python eng/docs/docs.py build` (le build strict du site échoue donc dès la pull request en cas de lien ou de page cassés) |
 | `deploy` | seulement sur `push` vers `main`, après `check` | `python eng/docs/docs.py build`, puis publication du dossier `site` sur GitHub Pages |
 
 ```mermaid

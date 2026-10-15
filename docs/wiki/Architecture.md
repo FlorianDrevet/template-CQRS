@@ -162,7 +162,6 @@ public async Task<TEntity> AddAsync(TEntity entity)
     await Context.SaveChangesAsync();
     return res.Entity;
 }
-
 ```
 
 Le `BaseRepository` ne contient que les opérations communes (ajout, mise à jour, suppression, lecture). Les requêtes propres à un agrégat se placent dans une classe fille. Le template ne fournit pas d'agrégat concret : le dépôt de base est un point de départ pour vos propres entités.

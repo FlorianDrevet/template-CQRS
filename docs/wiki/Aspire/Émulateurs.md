@@ -101,6 +101,15 @@ Keycloak est fixé sur le port **8080** de l'hôte (`port: 8080` dans l'AppHost)
 Get-NetTCPConnection -LocalPort 8080 -State Listen | Select-Object OwningProcess
 ```
 
+Le coupable est souvent le **Keycloak d'un autre projet généré**. Keycloak (comme SQL Server) est déclaré avec `ContainerLifetime.Persistent` : un simple `aspire stop` ne supprime pas son conteneur, qui continue de tourner et de garder le port 8080. Si vous démarrez un second projet (par exemple le tutoriel `Contoso.Catalog` après `Contoso.Orders`), son Keycloak ne peut pas se lier au port 8080 et l'API attend indéfiniment (`WaitFor(keycloak)`). Cherchez et arrêtez le conteneur :
+
+```bash
+docker ps --filter name=keycloak
+docker stop <nom-du-conteneur>
+```
+
+Vous pouvez aussi nettoyer le premier projet avec `aspire stop --apphost <chemin-de-l-autre-AppHost>.csproj --force` : l'option `--force` supprime les ressources persistantes (les volumes sont conservés, sauf avec `--volumes`).
+
 SQL Server et l'émulateur de stockage n'ont pas de port imposé dans l'AppHost : Aspire en attribue (visibles dans le dashboard), ce qui évite ces conflits. Le port fixe de Keycloak est le prix à payer pour une adresse d'émetteur stable dans les tokens.
 
 ## À essayer

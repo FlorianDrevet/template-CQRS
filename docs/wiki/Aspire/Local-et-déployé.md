@@ -23,7 +23,7 @@ Une application qui fonctionne en local et échoue au déploiement vient presque
 | Ressource | En local (Aspire) | Une fois déployé | Configuration à fournir |
 |-----------|-------------------|------------------|-------------------------|
 | Base de données | conteneur SQL Server, base `projectdb` | Azure SQL (ou tout SQL Server accessible) | `ConnectionStrings:projectdb` (variable d'environnement `ConnectionStrings__projectdb`) |
-| Fichiers | émulateur Azurite, service `blobs` | Azure Blob Storage | `ConnectionStrings:blobs` (ou, à défaut, `ConnectionStrings:AzureBlobStorageConnectionString`) ; nom du conteneur : `BlobSettings:ContainerName` (`uploads` par défaut) |
+| Fichiers | émulateur Azurite, service `blobs` | Azure Blob Storage | `ConnectionStrings:blobs` (le repli `AzureBlobStorageConnectionString` n'est utilisé que si la clé `blobs` est absente, ce qui n'est pas le cas avec les fichiers livrés) ; nom du conteneur : `BlobSettings:ContainerName` (`uploads` par défaut) |
 | Identité | Keycloak, realm `template` | Microsoft Entra ID | section `Auth` : `Provider` = `Entra`, `Instance`, `TenantId`, `ClientId`, `Audience`, `OpenApiClientId`, `OpenApiScope` ; `Authorization:Groups:Administrators` si les groupes sont activés |
 | Télémétrie | dashboard Aspire (OpenTelemetry) | Application Insights | `APPLICATIONINSIGHTS_CONNECTION_STRING` |
 | Secrets | User Secrets de l'AppHost | magasin de secrets de l'hébergeur (par exemple Azure Key Vault ou paramètres sécurisés de l'application) | les mêmes clés que ci-dessus, jamais dans le dépôt |
@@ -71,7 +71,6 @@ if (!string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
 {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
-
 ```
 
 - En local, Aspire définit `OTEL_EXPORTER_OTLP_ENDPOINT` : la télémétrie va au dashboard.

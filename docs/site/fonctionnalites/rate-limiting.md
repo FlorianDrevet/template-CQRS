@@ -119,7 +119,7 @@ Le test vérifie le statut 429, la présence de `Retry-After`, le code `RATE_LIM
 
 1. Lisez `CreatePartition` : que se passe-t-il pour une requête anonyme ? Pour deux utilisateurs différents ?
 2. Ajoutez la politique `write` à un endpoint de votre choix et vérifiez qu'elle est bien appliquée.
-3. Lancez `dotnet test tests/Web.Template.CQRS.Api.IntegrationTests --filter RateLimitingTests`.
+3. Lancez `dotnet test --project tests/Web.Template.CQRS.Api.IntegrationTests --filter-class "*RateLimitingTests"`.
 4. Abaissez temporairement le quota `read` à 3, relancez le projet et appelez `/me` quatre fois de suite avec un jeton valide. Quel en-tête permet de savoir quand réessayer ? Remettez 600 ensuite.
 5. Question : pourquoi le middleware de limitation est-il placé après `UseAuthentication` dans `Program.cs` ?
 

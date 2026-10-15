@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import pytest
@@ -61,3 +62,26 @@ def test_check_reports_broken_include(paths: Paths) -> None:
     generate_wiki_errors = check(paths)
 
     assert generate_wiki_errors == ["guide.md:4: included file not found: src/A.cs"]
+
+
+def run_main(monkeypatch: pytest.MonkeyPatch, error: Exception) -> int:
+    import docs
+
+    def fail(paths: Paths) -> None:
+        raise error
+
+    monkeypatch.setattr(docs, "build", fail)
+    monkeypatch.setattr(sys, "argv", ["docs.py", "build"])
+    return docs.main()
+
+
+def test_main_reports_missing_zensical(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    assert run_main(monkeypatch, FileNotFoundError("zensical")) == 1
+    assert "pip install -r eng/docs/requirements.txt" in capsys.readouterr().err
+
+
+def test_main_reports_failed_command(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    import subprocess
+
+    assert run_main(monkeypatch, subprocess.CalledProcessError(2, ["zensical", "build"])) == 1
+    assert "exit code 2" in capsys.readouterr().err

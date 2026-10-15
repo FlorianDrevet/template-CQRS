@@ -156,7 +156,6 @@ if (app.Environment.IsDevelopment())
         });
     }).AllowAnonymous();
 }
-
 ```
 
 - `MapOpenApi()` publie le document sur **`/openapi/v1.json`** ; `MapScalarApiReference` publie l'interface (sous le préfixe `/scalar`, la page du document `v1` est `/scalar/v1`). Les deux sont `AllowAnonymous` : sinon l'interface ne pourrait pas se charger avant d'avoir un jeton.

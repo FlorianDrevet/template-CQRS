@@ -113,7 +113,6 @@ else
         options.RequireHttpsMetadata = !environment.IsDevelopment();
     });
 }
-
 ```
 
 - `Authority` est l'URL du realm : l'API en déduit le document de découverte (`<Authority>/.well-known/openid-configuration`), l'**issuer** attendu et l'adresse des clés publiques de signature.

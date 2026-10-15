@@ -34,8 +34,14 @@ Personas : `admin@local.test` et `user@local.test` (mot de passe `Passw0rd!`, re
 Configurez `Auth:*` (Entra ID), `ConnectionStrings:projectdb` et `ConnectionStrings:blobs` dans les User Secrets, puis :
 
 ```powershell
-dotnet run --project src/Web.Template.CQRS.Api/Web.Template.CQRS.Api.csproj
+dotnet run --project src/Web.Template.CQRS.Api/Web.Template.CQRS.Api.csproj --launch-profile https
 ```
+
+Le profil `https` expose `https://localhost:7246` (le premier profil, par défaut, n'écoute qu'en HTTP sur le port 5257).
+<!--#if (UseGroups) -->
+
+Avec les groupes, renseignez aussi `Authorization:Groups:Administrators` (identifiant du groupe des administrateurs).
+<!--#endif -->
 <!--#endif -->
 <!--#if (EnableTests) -->
 

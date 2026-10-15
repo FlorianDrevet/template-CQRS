@@ -222,7 +222,7 @@ public async Task UnexpectedException_Returns500WithoutInternalDetails()
 
 1. Appelez une route qui n'existe pas (par exemple `GET /nimporte-quoi`) avec `curl -i`. Quel statut et quel type de contenu obtenez-vous ?
 2. Lisez `ErrorHandlingTests.cs` : combien de cas de test y a-t-il, et que vérifie chacun ?
-3. Lancez `dotnet test tests/Web.Template.CQRS.Api.IntegrationTests --filter ErrorHandlingTests`.
+3. Lancez `dotnet test --project tests/Web.Template.CQRS.Api.IntegrationTests --filter-class "*ErrorHandlingTests"`.
 4. Pour une future erreur « commande introuvable » (404), quel `code` proposeriez-vous, et où dans le code l'ajouteriez-vous ?
 
 ## Pour aller plus loin

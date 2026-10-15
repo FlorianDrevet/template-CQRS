@@ -30,8 +30,9 @@ L'AppHost est la **source de vérité de l'environnement local**. Si un port, un
 ```
 
 - `Sdk="Aspire.AppHost.Sdk/…"` : un SDK MSBuild spécial pour les AppHost. Il fournit l'outillage de build propre à Aspire (par exemple la génération d'une classe `Projects.<NomDuProjet>` pour les projets référencés ; le template n'en a pas besoin, car il désigne le projet de l'API par son chemin, voir plus bas).
+- `AspireUseCliBundle` : un réglage du SDK Aspire, laissé tel que généré (vous n'avez pas à le modifier).
 - `OutputType` `Exe` : l'AppHost est un programme exécutable.
-- Les trois `PackageReference` sont les **intégrations d'hébergement** : `Aspire.Hosting.SqlServer`, `Aspire.Hosting.Azure.Storage` et `Aspire.Hosting.Keycloak`. Elles apportent les méthodes `AddSqlServer`, `AddAzureStorage` et `AddKeycloak`. Leurs versions sont centralisées dans `Directory.Packages.props`.
+- Les trois `PackageReference` sont les **intégrations d'hébergement** : `Aspire.Hosting.SqlServer`, `Aspire.Hosting.Azure.Storage` et `Aspire.Hosting.Keycloak`. Elles apportent les méthodes `AddSqlServer`, `AddAzureStorage` et `AddKeycloak`. Leurs versions sont centralisées dans `Directory.Packages.props`. Attention : `Aspire.Hosting.Keycloak` est un paquet en **préversion** (`13.5.3-preview…`), son API peut encore évoluer.
 - `UserSecretsId` : identifie le fichier de secrets de l'AppHost (voir [Paramètres et secrets](parametres-et-secrets.md)).
 
 ### Le point d'entrée
@@ -101,7 +102,7 @@ Pour le contenu du realm et la raison de ce choix, voir [Keycloak en local](../i
 --8<-- "src/Web.Template.CQRS.Infrastructure/DependencyInjection.cs" start="var connectionString" end="AddBlobServiceClient(connectionString);"
 ```
 
-`GetConnectionString("projectdb")` lit la clé `ConnectionStrings:projectdb`. Le code ne mentionne pas Aspire : en local, la valeur vient de l'AppHost ; une fois déployé, c'est à vous de la fournir (voir [Local et déployé](local-vs-deploye.md)). Pour le blob, la clé `blobs` est essayée en premier, puis `AzureBlobStorageConnectionString`.
+`GetConnectionString("projectdb")` lit la clé `ConnectionStrings:projectdb`. Le code ne mentionne pas Aspire : en local, la valeur vient de l'AppHost ; une fois déployé, c'est à vous de la fournir (voir [Local et déployé](local-vs-deploye.md)). Pour le blob, la clé `blobs` est essayée en premier ; le repli `AzureBlobStorageConnectionString` ne joue que si la clé `blobs` est **absente**. Les fichiers `appsettings` livrés la définissent (vide, `""`) : avec eux, le repli ne se déclenche jamais, configurez donc `ConnectionStrings:blobs`.
 
 ### Le démarrage
 

@@ -85,7 +85,7 @@ def read_snippet(
     else:
         last = len(lines) - 1
 
-    return textwrap.dedent("\n".join(lines[first:last + 1])).split("\n")
+    return textwrap.dedent("\n".join(lines[first:last + 1])).rstrip("\n").split("\n")
 
 
 def find_start(lines: list[str], start: str | None, relative_path: str, where: str) -> int:

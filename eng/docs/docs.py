@@ -9,6 +9,7 @@ Usage: python eng/docs/docs.py {resolve|wiki|build|serve|check}
 """
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 
@@ -35,6 +36,16 @@ def main() -> int:
         {"resolve": resolve, "wiki": generate_wiki, "build": build, "serve": serve}[command](paths)
     except DocsError as error:
         print(error, file=sys.stderr)
+        return 1
+    except FileNotFoundError as error:
+        print(
+            f"docs: command not found ({error.filename or error}); install the tooling with: "
+            "python -m pip install -r eng/docs/requirements.txt",
+            file=sys.stderr,
+        )
+        return 1
+    except subprocess.CalledProcessError as error:
+        print(f"docs: command failed with exit code {error.returncode}: {' '.join(map(str, error.cmd))}", file=sys.stderr)
         return 1
     return 0
 

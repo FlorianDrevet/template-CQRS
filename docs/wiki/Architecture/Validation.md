@@ -101,7 +101,7 @@ Le message exact (`'Name' must not be empty.`) est le texte par défaut de Fluen
 ## À essayer
 
 1. Lisez les deux tests de `ValidationBehaviorTests` : quel test prouve que le handler n'est pas appelé quand le message est invalide ?
-2. Exécutez-les : `dotnet test tests/Web.Template.CQRS.Application.UnitTests`.
+2. Exécutez-les : `dotnet test --project tests/Web.Template.CQRS.Application.UnitTests`.
 3. Imaginez une commande `CreateOrderCommand(string CustomerName, decimal Amount)`. Écrivez sur papier son validateur : nom non vide, montant strictement positif (`GreaterThan(0)`).
 4. Pourquoi le client reçoit-il toutes les erreurs plutôt que la première seulement ? Quelle ligne de `ValidationBehavior` en est responsable ?
 

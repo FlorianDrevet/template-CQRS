@@ -105,13 +105,13 @@ def test_single_quoted_anchor_may_contain_double_quotes(tmp_path: Path) -> None:
 def test_before_is_exclusive(repo: Path) -> None:
     text = '--8<-- "src/Sample.cs" start="First()" before="Second()"'
 
-    assert resolve_includes(text, "page.md", repo) == "public static int First() => 1;\n"
+    assert resolve_includes(text, "page.md", repo) == "public static int First() => 1;"
 
 
 def test_before_without_start_starts_at_file_beginning(repo: Path) -> None:
     text = '--8<-- "src/Sample.cs" before="public static class"'
 
-    assert resolve_includes(text, "page.md", repo) == "namespace Demo;\n"
+    assert resolve_includes(text, "page.md", repo) == "namespace Demo;"
 
 
 def test_missing_before_anchor(repo: Path) -> None:
@@ -131,3 +131,9 @@ def test_text_fence_keeps_directives_literal(repo: Path) -> None:
 
     assert resolved.startswith('```text\n--8<-- "src/Sample.cs" start="First()"\n--8<-- invalid\n```\n')
     assert "public static int First() => 1;" in resolved
+
+
+def test_trailing_blank_lines_are_trimmed(tmp_path: Path) -> None:
+    (tmp_path / "a.txt").write_text("one\ntwo\n\n\nthree\n", encoding="utf-8")
+
+    assert resolve_includes('--8<-- "a.txt" start="one" before="three"', "page.md", tmp_path) == "one\ntwo"

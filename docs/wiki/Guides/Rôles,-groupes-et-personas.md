@@ -297,6 +297,10 @@ Un persona est un utilisateur du realm local. Ajoutez-le dans le tableau `users`
 }
 ```
 
+> ⚠️ **Ne référencez que ce qui existe dans votre realm**
+>
+> Si le realm importé ne contient pas le rôle ou le groupe cité, l'import du realm échoue. Par exemple `/Editors` dans un projet `AppRoles` seul (sans groupes), ou `Editor` dans un projet `Groups` seul (sans rôles d'application). Omettez la clé `realmRoles` ou `groups` qui ne correspond pas à votre modèle d'autorisation.
+
 Chaque champ compte :
 
 - `firstName` et `lastName` sont **obligatoires en pratique**. Sans eux, Keycloak considère le profil de l'utilisateur incomplet et exige une mise à jour du profil à la première connexion : le flux « password grant » utilisé par `get-token` échoue alors. Ils fournissent aussi le claim `name`.

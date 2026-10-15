@@ -56,7 +56,6 @@ builder.Services.AddCors(options =>
         }
     });
 });
-
 ```
 
 - La liste vient de la clé **`Cors:AllowedOrigins`** (un tableau de chaînes).

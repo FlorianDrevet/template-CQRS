@@ -41,7 +41,6 @@ public static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder)
 
     return builder;
 }
-
 ```
 
 Un seul check existe : `self`, qui retourne toujours `Healthy`. Il signifie simplement « le processus répond ». Il porte l'étiquette (`tag`) `live`, qui sert à le sélectionner pour la sonde de vivacité.
@@ -59,7 +58,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
         Predicate = check => check.Tags.Contains("live")
     }).AllowAnonymous();
 }
-
 ```
 
 Deux endpoints en découlent :
@@ -95,7 +93,6 @@ var api = builder
     .WithEnvironment("Auth__Audience", "template-api")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/alive");
-
 ```
 
 `WithHttpHealthCheck("/alive")` fait interroger cette route par Aspire. Le dashboard affiche alors l'état de la ressource (en bonne santé ou non), et les ressources qui `WaitFor` l'API attendent qu'elle soit saine. Les requêtes vers `/alive` et `/health` sont exclues des traces (voir [Observabilité](/Fonctionnalités/Observabilité.md)) pour ne pas les noyer.

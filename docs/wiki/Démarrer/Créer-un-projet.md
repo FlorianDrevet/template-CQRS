@@ -85,7 +85,7 @@ dotnet new templatewebcqrs -n Contoso.Orders --EnableAspire false
 
 > ⚠️ **Sans Aspire, plus de services locaux**
 >
-> Le projet généré ne démarre pas SQL Server, Azurite ni Keycloak. Configurez `Auth:*` (Entra ID), `ConnectionStrings:projectdb` et `ConnectionStrings:blobs` dans les User Secrets, puis lancez `dotnet run --project src/Contoso.Orders.Api/Contoso.Orders.Api.csproj`.
+> Le projet généré ne démarre pas SQL Server, Azurite ni Keycloak. Configurez `Auth:*` (Entra ID), `ConnectionStrings:projectdb` et `ConnectionStrings:blobs` dans les User Secrets, puis lancez `dotnet run --project src/Contoso.Orders.Api/Contoso.Orders.Api.csproj --launch-profile https` (le profil `https` écoute sur `https://localhost:7246` ; le premier profil, par défaut, n'écoute qu'en HTTP sur le port 5257). Si votre modèle d'autorisation utilise les groupes (`Groups` ou `AppRolesAndGroups`), renseignez aussi `Authorization:Groups:Administrators`.
 
 ### Ce que vous obtenez
 

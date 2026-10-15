@@ -37,7 +37,6 @@ var keycloak = builder
     .WithRealmImport("./Realms")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
-
 ```
 
 Fournissez-les avec les user-secrets .NET (stockés hors du dépôt, dans votre profil utilisateur) :
@@ -157,7 +156,7 @@ Les conteneurs SQL Server et Keycloak sont déclarés avec une durée de vie per
 
 > 💡 **Dépannage**
 >
-> - Port 8080 occupé : Keycloak est fixé sur ce port. Arrêtez le processus ou le conteneur qui l'utilise, puis relancez.
+> - Port 8080 occupé : Keycloak est fixé sur ce port. Si vous avez déjà lancé un autre projet généré, son conteneur Keycloak (durée de vie persistante) tourne encore même après `aspire stop`, et votre API attend indéfiniment Keycloak. Listez-le avec `docker ps --filter name=keycloak`, puis `docker stop <conteneur>`, ou lancez `aspire stop --apphost <autre projet>.csproj --force` (voir [Émulateurs et conteneurs](/Aspire/Émulateurs.md)). Sinon, arrêtez le processus qui utilise le port, puis relancez.
 > - Erreur de certificat avec `curl` ou `get-token` : relancez `dotnet dev-certs https --trust` (voir [Prérequis](/Démarrer/Prérequis.md)).
 > - Persona inconnu ou modification du realm sans effet : le realm n'est importé qu'au premier démarrage du volume Keycloak. Pour le réimporter, lancez `aspire stop --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj --force --volumes` : cette commande supprime les ressources persistantes et leurs volumes (les données de SQL Server sont donc remises à zéro aussi). Relancez ensuite `aspire start` : le realm est importé de nouveau.
 
@@ -165,7 +164,7 @@ Les conteneurs SQL Server et Keycloak sont déclarés avec une durée de vie per
 
 1. Déroulez les étapes 1 à 7. Quel code HTTP obtenez-vous pour `user@local.test` sur `/admin/ping` ?
 2. Collez votre token sur [jwt.ms](https://jwt.ms) ou décodez-le localement, et retrouvez les claims `roles`, `aud` et `iss`. Que contient `aud` ?
-3. Dans le dashboard, ouvrez la trace de votre appel à `/me` et repérez le `traceId` : le retrouvez-vous dans les logs de l'API ?
+3. Dans le dashboard, ouvrez la trace de votre appel à `/me` et repérez le `traceId`. Aux niveaux de log par défaut, un `/me` réussi ou une 401 n'écrit aucune ligne de log : regardez la trace (ses spans) plutôt que les logs. Pour voir des logs corrélés, relancez l'API avec `Logging__LogLevel__Microsoft.AspNetCore=Information`.
 4. Appelez `/me` sans en-tête `Authorization` et lisez la réponse.
 
 > 📝 **Ne collez que des tokens locaux**

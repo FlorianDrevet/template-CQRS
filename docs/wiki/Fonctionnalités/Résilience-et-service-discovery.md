@@ -53,7 +53,6 @@ public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder)
 
     return builder;
 }
-
 ```
 
 Les quatre lignes qui nous intéressent :

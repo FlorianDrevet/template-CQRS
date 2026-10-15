@@ -190,7 +190,6 @@ else
         options.RequireHttpsMetadata = !environment.IsDevelopment();
     });
 }
-
 ```
 
 Avec `Entra`, l'API appelle `AddMicrosoftIdentityWebApi` : la bibliothèque **Microsoft.Identity.Web** lit la section `Auth` (`Instance`, `TenantId`, `ClientId`, `Audience`), en déduit l'issuer et l'adresse des clés de signature, et valide signature, issuer, audience et expiration. Avec `Keycloak`, c'est le middleware JWT Bearer standard, avec `Authority` et `Audience`. Dans les deux cas, `ConfigureCommonJwtOptions` désactive la transformation automatique des noms de claims (`MapInboundClaims = false`) et déclare `name` comme claim du nom et `roles` comme claim des rôles. C'est ce qui fait que `User.IsInRole("Admin")` fonctionne avec le claim `roles` tel qu'Entra l'émet.

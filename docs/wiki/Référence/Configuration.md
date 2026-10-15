@@ -111,7 +111,6 @@ if (!string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
 {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
 }
-
 ```
 
 ## L'environnement : `ASPNETCORE_ENVIRONMENT`
@@ -216,6 +215,6 @@ Ces fichiers contiennent des directives du template (`//#if (EnableAspire)`, `//
 
 ## À essayer
 
-1. Dans un projet généré, lancez l'API seule avec `Auth__Provider=Keycloak` mais sans `Auth__Audience` : quel message d'erreur obtenez-vous au démarrage ?
+1. Dans un projet généré, lancez l'API seule avec `Auth__Provider=Keycloak` et `Auth__Audience=` (vide, explicitement, car `appsettings.Development.json` fournit sinon une valeur) : quel message d'erreur obtenez-vous au démarrage ?
 2. Passez `Logging__LogLevel__Default` à `Debug` pour une exécution et observez la différence dans la console.
 3. Retrouvez, dans le dashboard Aspire, la valeur effective de `ConnectionStrings__projectdb` injectée dans la ressource `api`.

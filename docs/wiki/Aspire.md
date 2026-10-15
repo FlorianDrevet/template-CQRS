@@ -73,7 +73,6 @@ public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder)
 
     return builder;
 }
-
 ```
 
 > ℹ️ **Les lignes `#if` du dépôt**

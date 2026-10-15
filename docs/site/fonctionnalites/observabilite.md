@@ -293,8 +293,9 @@ Lancez le projet avec Aspire (voir [Premier lancement](../demarrer/premier-lance
    ```bash
    curl -ik https://localhost:7246/me
    ```
+   Avec les niveaux de log livrés (`Microsoft.AspNetCore: Warning`), cette 401 n'écrit **aucune ligne de log** : seule la trace la montre.
 2. Dans le dashboard Aspire, ouvrez **Traces**, ressource `api`, et retrouvez la requête `GET /me` à l'heure de votre appel. Quel est son statut ? Combien de spans contient-elle ?
-3. Ouvrez la page **Logs structurés** et cherchez votre `traceId`. Quels champs du scope (`TraceId`, `RequestId`, `Endpoint`) voyez-vous ?
+3. Ouvrez la page **Logs structurés** et cherchez votre `traceId`. Aux niveaux par défaut, vous n'y trouvez rien pour une 401 ou un `/me` réussi : le seul appel de log de l'application est le `LogError` du gestionnaire d'erreurs (`ErrorHandling.cs`), déclenché par une erreur 500. Pour voir des logs corrélés, relancez l'API avec `Logging__LogLevel__Microsoft.AspNetCore=Information` (variable d'environnement), ou provoquez temporairement une erreur 500. Quels champs du scope (`TraceId`, `RequestId`, `Endpoint`) voyez-vous alors ?
 4. Faites le même chemin depuis le terminal : `aspire otel traces api --trace-id <votre traceId>` puis `aspire otel logs api --trace-id <votre traceId>`.
 5. Récupérez un jeton valide (voir [Premier lancement](../demarrer/premier-lancement.md)), appelez `/me`, et comparez la trace d'une requête réussie avec celle de la 401.
 6. Question : pourquoi les appels à `/alive` n'apparaissent-ils pas dans les traces ? Où le code l'explique-t-il ?

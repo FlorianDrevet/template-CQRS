@@ -885,7 +885,7 @@ Obtenez un token pour chaque persona : `admin@local.test` (rôle `Admin`) et `us
     # 201 Created : un administrateur crée un produit
     Invoke-WebRequest -Method Post -Uri https://localhost:7246/products -Headers @{ Authorization = "Bearer $admin" } -ContentType 'application/json' -Body $body
 
-    # 403 : un utilisateur ordinaire n'a pas le droit de créer
+    # 403 : un utilisateur ordinaire n'a pas le droit de créer (-SkipHttpErrorCheck exige PowerShell 7 ou plus)
     Invoke-WebRequest -Method Post -Uri https://localhost:7246/products -Headers @{ Authorization = "Bearer $user" } -ContentType 'application/json' -Body $body -SkipHttpErrorCheck
     ```
 
@@ -921,6 +921,9 @@ renvoie un `400` au format Problem Details, avec le code `VALIDATION` et l'erreu
 
 Arrêtez l'application avec `aspire stop`. Les données de la table `Products` sont conservées dans le volume de SQL Server.
 
+!!! warning "Un autre projet généré est déjà lancé ?"
+    Les conteneurs SQL Server et Keycloak sont persistants : après `aspire stop`, le Keycloak d'un projet précédent (par exemple `Contoso.Orders`) garde le port 8080. Celui de `Contoso.Catalog` ne peut alors pas démarrer et l'API attend indéfiniment. Arrêtez l'ancien conteneur (`docker ps --filter name=keycloak`, puis `docker stop <conteneur>`) ou lancez `aspire stop --apphost <autre projet>.csproj --force`.
+
 ### Dépannage
 
 | Symptôme | Cause probable | Remède |
@@ -929,6 +932,7 @@ Arrêtez l'application avec `aspire stop`. Les données de la table `Products` s
 | `Unable to create a 'DbContext'` ou erreur au chargement de l'application par `dotnet ef` | le projet de démarrage ne se construit pas | corrigez d'abord `dotnet build` |
 | Les tests d'intégration échouent sur `Products` | la configuration EF est incorrecte (conversion de l'identifiant) | relisez l'étape 3.2 |
 | 500 à l'appel de `POST /products` en local | la table n'existe pas : la migration n'a pas été appliquée | étape 4.4 ; relancez `aspire start` en `Development` |
+| L'API reste en attente de Keycloak, ou le port 8080 est occupé | le Keycloak persistant d'un autre projet généré tourne encore | `docker ps --filter name=keycloak` puis `docker stop <conteneur>`, ou `aspire stop --apphost <autre projet>.csproj --force` |
 | 403 pour l'administrateur | token du mauvais persona, ou rôle absent | décodez le token : le claim `roles` doit contenir `Admin` |
 
 ## À essayer

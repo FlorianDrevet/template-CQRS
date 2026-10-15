@@ -35,7 +35,7 @@ Dans `groups` (modèles avec groupes). Le `objectId` est le GUID **local**, le m
 
 ## Persona
 
-Dans `users`.
+Dans `users`. L'exemple suppose que le rôle `Editor` et le groupe `Editors` ont été ajoutés avant au realm : ne référencez que des rôles et groupes existants.
 
 ```json
 {

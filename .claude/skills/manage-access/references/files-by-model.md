@@ -102,9 +102,10 @@ options.AddPolicy(Policies.RequireEditor, policy =>
 
 `RequireRole` avec plusieurs valeurs accepte l'utilisateur qui en possède au moins une.
 
-**Modèles `Groups` / `AppRolesAndGroups`** : une méthode à côté de `ConfigureRequireAdmin`, qui réutilise `IsMemberOf` (déjà présent). Les GUID sont comparés en tant que GUID, la casse n'importe pas.
+**Modèles `Groups` / `AppRolesAndGroups`** : une méthode à côté de `ConfigureRequireAdmin`, qui réutilise `IsMemberOf` (déjà présent). Les GUID sont comparés en tant que GUID, la casse n'importe pas. Le corps de `RequireAssertion` dépend du modèle ; recopiez la variante exacte :
 
 ```csharp
+// AppRolesAndGroups
 private static void ConfigureRequireEditor(AuthorizationPolicyBuilder policy, IServiceProvider serviceProvider)
 {
     var editorsGroupId = Guid.Parse(serviceProvider
@@ -118,7 +119,19 @@ private static void ConfigureRequireEditor(AuthorizationPolicyBuilder policy, IS
 }
 ```
 
-Dans `Groups` seul, retirez les deux lignes `IsInRole` (il n'y a pas de rôles). Le fichier du projet généré est déjà résolu (plus de directives `#if`) : n'ajoutez aucune directive.
+```csharp
+// Groups seul (pas de AppRoles : n'y faites aucune référence)
+private static void ConfigureRequireEditor(AuthorizationPolicyBuilder policy, IServiceProvider serviceProvider)
+{
+    var editorsGroupId = Guid.Parse(serviceProvider
+        .GetRequiredService<IOptions<GroupOptions>>()
+        .Value
+        .Editors);
+    policy.RequireAssertion(context => IsMemberOf(context.User, editorsGroupId));
+}
+```
+
+Le fichier du projet généré est déjà résolu (plus de directives `#if`) : n'ajoutez aucune directive.
 
 ### Appliquer la policy à un endpoint
 
@@ -170,7 +183,7 @@ builder.UseSetting("Authorization:Groups:Administrators", AdministratorsGroupId)
 builder.UseSetting("Authorization:Groups:Editors", EditorsGroupId);
 ```
 
-Fichier de tests de policy (modèle `AppRolesAndGroups` ; retirez le test de groupe sans groupes, et ceux de rôle sans rôles) :
+Fichier de tests de policy (modèle `AppRolesAndGroups`). Adaptation : `AppRoles` seul = supprimez `Ping_AsMemberOfEditorsGroup_Returns200` ; `Groups` seul = supprimez `Ping_WithEditorRole_Returns200` et écrivez `AsUser("standard-user")` sans `roles:` ni `using ...Authorization` :
 
 ```csharp
 using System.Net;

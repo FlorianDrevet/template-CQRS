@@ -57,3 +57,7 @@ def test_single_quoted_include_is_valid() -> None:
     text = "```csharp\n--8<-- \"src/A.cs\" start='\"x\"' before='y'\n```\n"
 
     assert check_page(text, "p.md") == []
+
+
+def test_text_fence_may_show_invalid_include_syntax() -> None:
+    assert check_page('```text\n--8<-- oops\n```\n', "page.md") == []

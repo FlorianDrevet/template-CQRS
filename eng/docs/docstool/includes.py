@@ -5,6 +5,7 @@ import textwrap
 from pathlib import Path
 
 from docstool.errors import DocsError
+from docstool.fences import closes_fence, opening_fence
 
 VALUE = r'(?:"[^"]+"|\'[^\']+\')'
 INCLUDE_PATTERN = re.compile(
@@ -18,13 +19,29 @@ def is_include(line: str) -> bool:
     return line.lstrip().startswith("--8<--")
 
 
+def is_literal_fence(info: str) -> bool:
+    """A fence tagged exactly `text` shows include directives as plain text (used to document the syntax)."""
+    return info.strip() == "text"
+
+
 def unquote(value: str | None) -> str | None:
     return None if value is None else value[1:-1]
 
 
 def resolve_includes(text: str, page: str, repo_root: Path) -> str:
     resolved: list[str] = []
+    marker: str | None = None
     for number, line in enumerate(text.split("\n"), start=1):
+        if marker is not None:
+            if closes_fence(line, marker):
+                marker = None
+            resolved.append(line)
+            continue
+        fence = opening_fence(line)
+        if fence and is_literal_fence(fence["info"]):
+            marker = fence["marker"]
+            resolved.append(line)
+            continue
         if not is_include(line):
             resolved.append(line)
             continue

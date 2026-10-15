@@ -122,3 +122,12 @@ def test_missing_before_anchor(repo: Path) -> None:
 def test_end_and_before_together_is_invalid(repo: Path) -> None:
     with pytest.raises(DocsError, match="invalid include directive"):
         resolve_includes('--8<-- "src/Sample.cs" start="First()" end="}" before="Second()"', "page.md", repo)
+
+
+def test_text_fence_keeps_directives_literal(repo: Path) -> None:
+    text = '```text\n--8<-- "src/Sample.cs" start="First()"\n--8<-- invalid\n```\n\n```csharp\n--8<-- "src/Sample.cs" start="First()" end=";"\n```'
+
+    resolved = resolve_includes(text, "page.md", repo)
+
+    assert resolved.startswith('```text\n--8<-- "src/Sample.cs" start="First()"\n--8<-- invalid\n```\n')
+    assert "public static int First() => 1;" in resolved

@@ -6,8 +6,8 @@ Deux familles de fichiers cohabitent :
 
 | Famille | Fichiers | Présents dans un projet généré ? |
 |---------|----------|----------------------------------|
-| Scripts d'usage | `scripts/get-token.ps1`, `scripts/get-token.sh` | oui, seulement avec `EnableAspire` |
-| Outillage du dépôt | `eng/verify-template.sh`, `eng/azure-pipelines/*.yml`, `eng/docs/**`, `.github/workflows/*.yml`, `Directory.Build.props` | non |
+| Scripts d'usage | `scripts/get-token.ps1`, `scripts/get-token.sh`, `scripts/smoke-test.ps1`, `scripts/smoke-test.sh` | oui, seulement avec `EnableAspire` |
+| Outillage du dépôt | `eng/verify-template.sh`, `eng/init/new-project.ps1`, `eng/init/new-project.sh`, `eng/azure-pipelines/*.yml`, `eng/docs/**`, `.github/workflows/*.yml`, `Directory.Build.props` | non |
 
 ## `get-token` : obtenir un jeton pour un persona local
 
@@ -52,6 +52,44 @@ Le persona peut être un nom court ou une adresse : si la valeur ne contient pas
 | non nul | `get-token.sh` appelé sans persona : Bash affiche le message d'usage `Usage: scripts/get-token.sh <persona> [password]` |
 
 Les messages d'erreur sont écrits sur la sortie d'erreur et commencent par `get-token:`. Le certificat de développement doit être approuvé (`dotnet dev-certs https --trust`), sinon l'appel HTTPS à Keycloak échoue. La version Bash exige `curl` et extrait le jeton avec `sed` ; la version PowerShell n'a pas d'autre dépendance.
+
+## `smoke-test` : vérifier l'API locale
+
+Le script contrôle en quelques secondes que l'API lancée par Aspire répond comme prévu. Il demande un token à deux personas (par défaut `admin` et `user`, via `get-token`), puis compare le code HTTP obtenu à celui attendu et affiche une ligne `OK` ou `FAIL` par contrôle. Il n'existe que dans les projets avec Aspire et suppose l'environnement démarré (`aspire start`). Le skill `run-local` le lance (voir [Skills de développement](../harnais/skills-de-developpement.md)).
+
+| Contrôle | Attendu |
+|----------|---------|
+| `GET /me` sans token | 401 |
+| `GET /me` en tant qu'administrateur et en tant qu'utilisateur | 200 |
+| `GET /admin/ping` sans token | 401 |
+| `GET /admin/ping` en tant qu'administrateur | 200 |
+| `GET /admin/ping` en tant qu'utilisateur | 403 |
+
+Si `/admin/ping` renvoie 404 sans token (route non générée, par exemple avec le modèle `Authenticated`), les trois derniers contrôles sont ignorés avec un message `SKIP`. Le script sort avec le code `1` si au moins un contrôle échoue. Les variables `API_BASE_URL` (défaut `https://localhost:7246`), `SMOKE_ADMIN` (défaut `admin`) et `SMOKE_USER` (défaut `user`) changent les valeurs par défaut.
+
+```bash title="scripts/smoke-test.sh"
+--8<-- "scripts/smoke-test.sh" start='ping_anonymous=' before='if [ "$failures"'
+```
+
+=== "PowerShell"
+    ```powershell
+    ./scripts/smoke-test.ps1
+    ```
+
+=== "Bash"
+    ```bash
+    bash scripts/smoke-test.sh
+    ```
+
+## `eng/init/new-project` : générer un projet client
+
+Ces scripts ne sont pas copiés dans un projet généré : ils servent à créer un projet client depuis un clone du template, avec ou sans agent (voir [Initialiser un projet](../harnais/initialiser-un-projet.md)). Ils valident les paramètres, installent le dépôt comme template (`dotnet new install <racine> --force`, qui remplace le template déjà installé), génèrent le projet, initialisent git et ajoutent le remote s'il est fourni.
+
+```bash
+bash eng/init/new-project.sh --name Contoso.Orders --authorization AppRolesAndGroups
+```
+
+Le script refuse un nom qui n'est pas en PascalCase avec des points (`Contoso.Orders`) et un dossier cible existant et non vide (code de sortie `1`, rien n'est modifié). Par défaut le projet est créé dans `../<Nom>`.
 
 ## `eng/verify-template.sh` : générer, vérifier, compiler, tester
 

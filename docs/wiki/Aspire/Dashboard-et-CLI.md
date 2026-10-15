@@ -82,9 +82,7 @@ Côté CLI :
 - `aspire agent init` prépare la configuration des assistants détectés sur votre poste (l'option `--mcp` y active le serveur MCP) ;
 - l'ancienne commande `aspire mcp` est signalée comme obsolète par le CLI, au profit de `aspire agent`.
 
-> 📝 **Documentation à venir**
->
-> Ce tour d'horizon s'arrête volontairement ici. L'utilisation de l'MCP Aspire avec un assistant de code, dans le cadre du harnais agentique du template, sera documentée en détail dans la section dédiée.
+Le template configure ce serveur pour Claude Code (`.mcp.json`) et pour Copilot (`.vscode/mcp.json`). Pour la configuration, l'approbation au premier usage et des exemples de questions à poser à l'agent, voir [MCP Aspire](/Harnais-agentique/MCP-Aspire.md).
 
 ## À essayer
 

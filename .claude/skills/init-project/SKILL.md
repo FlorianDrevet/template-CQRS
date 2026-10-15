@@ -34,10 +34,9 @@ Questions, valeurs par défaut et validations : [references/questionnaire.md](re
 6. **Environnement local** (seulement si Aspire).
    - Secrets de l'AppHost : générez les deux valeurs **dans la commande elle-même** (jamais de valeur tapée en clair dans un appel, ni de variable affichée) ; le préfixe `Aa1_` (pas de `!`, que le shell interprète) garantit la complexité exigée par SQL Server. Elles vont dans les user-secrets, **hors dépôt** ; ne les affichez ni ne les écrivez dans un fichier du projet :
      ```bash
-     command -v openssl >/dev/null || { echo "openssl introuvable : utilisez la commande PowerShell" >&2; }
-     dotnet user-secrets set "Parameters:sql-password" "Aa1_$(openssl rand -hex 16)" --project <sortie>/src/<Nom>.AppHost/<Nom>.AppHost.csproj
-     dotnet user-secrets set "Parameters:keycloak-admin-password" "Aa1_$(openssl rand -hex 16)" --project <sortie>/src/<Nom>.AppHost/<Nom>.AppHost.csproj
+     command -v openssl >/dev/null && dotnet user-secrets set "Parameters:sql-password" "Aa1_$(openssl rand -hex 16)" --project <sortie>/src/<Nom>.AppHost/<Nom>.AppHost.csproj && dotnet user-secrets set "Parameters:keycloak-admin-password" "Aa1_$(openssl rand -hex 16)" --project <sortie>/src/<Nom>.AppHost/<Nom>.AppHost.csproj || echo "openssl introuvable : utilisez la variante PowerShell" >&2
      ```
+     Les deux `set` ne s'exécutent que si openssl existe (une seule commande, chaînée) : sans openssl, aucun secret n'est écrit. Si openssl est absent, utilisez la variante PowerShell ; n'enregistrez jamais un secret sans sa partie aléatoire.
      PowerShell : `dotnet user-secrets set "Parameters:sql-password" ("Aa1_" + [Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16))) --project <csproj>` (idem pour `Parameters:keycloak-admin-password`).
    - Skills et MCP Aspire : cette commande installe des hooks de télémétrie. **Demandez un accord explicite** avant de la lancer, en mentionnant l'opt-out (variable d'environnement `ASPIRE_CLI_TELEMETRY_OPTOUT=true`, rappelée par la CLI après l'init) :
      ```bash

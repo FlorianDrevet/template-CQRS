@@ -78,8 +78,8 @@ docker volume rm <nom-exact-du-volume-keycloak> <nom-exact-du-volume-sqlserver>
 
 # 4. redémarrer et attendre (premier démarrage de Keycloak : jusqu'à plusieurs minutes)
 aspire start
-aspire wait keycloak --timeout 300
-aspire wait api --timeout 300
+aspire wait keycloak --timeout 300 --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
+aspire wait api --timeout 300 --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
 ```
 
 `--force` supprime les ressources persistantes ; `--volumes` (qui exige `--force`) est censé supprimer aussi leurs volumes, et l'aide de la commande le dit. Constat sur l'Aspire CLI 13.6 : la commande se termine avec succès mais les volumes `<apphost>-<hash>-keycloak-data` et `<apphost>-<hash>-sqlserver-data` **restent**, donc le realm n'est pas réimporté. Le filtre `name=` accepte toute sous-chaîne et peut afficher les volumes d'autres projets : ne supprimez jamais « tout ce que le filtre renvoie », seulement les noms exacts de votre projet.

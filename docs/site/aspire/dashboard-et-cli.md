@@ -53,7 +53,7 @@ Un parcours typique :
 aspire start --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
 
 # attendre que l'API soit saine, puis voir l'état de tout
-aspire wait api
+aspire wait api --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
 aspire describe
 
 # lire les dernières lignes de la console de Keycloak

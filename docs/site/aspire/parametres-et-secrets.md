@@ -67,8 +67,9 @@ Avec le CLI .NET, en visant le projet de l'AppHost :
 # définir (ou remplacer) un secret
 dotnet user-secrets set "Parameters:sql-password" "Choose-A-Strong-Local-Password!" --project src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
 
-# lister les clés (les valeurs sont affichées : attention aux captures d'écran)
-dotnet user-secrets list --project src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
+# lister les clés seulement (la sortie brute affiche aussi les valeurs : ne la copiez pas)
+dotnet user-secrets list --project src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj | sed 's/ = .*//'
+# PowerShell : dotnet user-secrets list --project src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj | ForEach-Object { ($_ -split ' = ')[0] }
 
 # supprimer un secret
 dotnet user-secrets remove "Parameters:sql-password" --project src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
@@ -85,7 +86,7 @@ Le CLI Aspire a des commandes équivalentes pour les secrets de l'AppHost : `asp
 ## À essayer
 
 1. Exécutez `aspire secret path --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj` et repérez le dossier correspondant à l'identifiant de l'AppHost.
-2. Définissez les deux secrets, puis `dotnet user-secrets list --project …` : quelles clés voyez-vous ?
+2. Définissez les deux secrets, puis `dotnet user-secrets list --project … | sed 's/ = .*//'` (clés seulement) : quelles clés voyez-vous ?
 3. Supprimez `Parameters:sql-password` et lancez l'application : que se passe-t-il ? Rétablissez ensuite le secret.
 4. Question : pourquoi un secret supprimé dans un commit ultérieur reste-t-il un problème s'il a été commité ?
 

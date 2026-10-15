@@ -77,7 +77,7 @@ Pour savoir si votre skill marche, testez-le avec un agent neuf : donnez-lui une
 
 ### Ajouter un agent
 
-Un agent est un fichier unique, en deux exemplaires pour couvrir les deux outils (voir [Agent de revue](agent-de-revue.md)) :
+Un agent est un fichier unique, le template fournit les deux formats (VS Code peut aussi lire `.claude/agents/`) (voir [Agent de revue](agent-de-revue.md)) :
 
 - `.claude/agents/<nom>.md`, avec `name`, `description`, `tools` et `model` ;
 - `.github/agents/<nom>.agent.md`, avec `name`, `description` et `tools`.
@@ -117,4 +117,4 @@ Après une modification, générez un projet avec `eng/verify-template.sh` dans 
 - [Skills de développement](skills-de-developpement.md) : trois exemples de skills complets.
 - [Agent de revue](agent-de-revue.md)
 - [Scripts et CI](../reference/scripts-et-ci.md) : `verify-template.sh`.
-- [Claude Code, les skills](https://docs.claude.com/en/docs/claude-code/skills)
+- [Claude Code, les skills](https://code.claude.com/docs/en/skills)

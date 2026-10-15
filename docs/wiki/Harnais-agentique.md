@@ -32,7 +32,7 @@ Le template ne maintient pas deux jeux de consignes. `AGENTS.md` est le socle co
 | Élément | Claude Code | GitHub Copilot |
 |---------|-------------|----------------|
 | Consignes du dépôt | `CLAUDE.md`, qui importe `AGENTS.md` | `AGENTS.md` et `.github/copilot-instructions.md` |
-| Skills | `.claude/skills/<nom>/SKILL.md` | lit aussi `.claude/skills/` |
+| Skills | `.claude/skills/<nom>/SKILL.md` | lit aussi `.claude/skills/` ([source](https://learn.microsoft.com/en-us/visualstudio/ide/copilot-agent-skills)) |
 | Agents | `.claude/agents/<nom>.md` | `.github/agents/<nom>.agent.md` |
 | Serveur MCP Aspire | `.mcp.json` | `.vscode/mcp.json` |
 
@@ -106,7 +106,7 @@ Les pages suivantes détaillent chaque élément :
 
 ## Pour aller plus loin
 
-- [Claude Code, les skills](https://docs.claude.com/en/docs/claude-code/skills)
-- [Claude Code, les sous-agents](https://docs.claude.com/en/docs/claude-code/sub-agents)
+- [Claude Code, les skills](https://code.claude.com/docs/en/skills)
+- [Claude Code, les sous-agents](https://code.claude.com/docs/en/sub-agents)
 - [GitHub Copilot, les instructions personnalisées](https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot)
 - [Le standard AGENTS.md](https://agents.md/)

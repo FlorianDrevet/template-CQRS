@@ -62,7 +62,7 @@ Ajoute un rôle Editor et un persona editor@local.test qui l'a.
 Renomme le rôle Admin en Administrator.
 ```
 
-**Ce que fait l'agent** : un rôle, un groupe ou un persona vit à trois endroits qui doivent rester identiques, le code de l'API, le realm Keycloak local et Entra ID. L'agent établit l'état actuel, confirme l'opération et liste les fichiers touchés avant d'écrire, puis modifie le code, le realm, les tests et `project-profile.json`. Il vous **communique** les étapes à faire dans le portail Entra (créer l'app role, assigner les utilisateurs) : ce sont des actions humaines, il ne les exécute pas. Si Keycloak tourne déjà, le realm n'est réimporté qu'avec `aspire stop --force --volumes`, une opération destructive (elle efface aussi la base SQL locale) qui demande votre accord explicite. Voir aussi [Rôles, groupes et personas](../guides/ajouter-role-groupe-persona.md).
+**Ce que fait l'agent** : un rôle, un groupe ou un persona vit à trois endroits qui doivent rester identiques, le code de l'API, le realm Keycloak local et Entra ID. L'agent établit l'état actuel, confirme l'opération et liste les fichiers touchés avant d'écrire, puis modifie le code, le realm, les tests et `project-profile.json`. Il vous **communique** les étapes à faire dans le portail Entra (créer l'app role, assigner les utilisateurs) : ce sont des actions humaines, il ne les exécute pas. Si Keycloak tourne déjà, le realm n'est réimporté qu'avec `aspire stop --apphost <csproj> --force --volumes`, une opération destructive (elle efface aussi la base SQL locale) qui demande votre accord explicite. Voir aussi [Rôles, groupes et personas](../guides/ajouter-role-groupe-persona.md).
 
 **Critères de fin et interdits**
 

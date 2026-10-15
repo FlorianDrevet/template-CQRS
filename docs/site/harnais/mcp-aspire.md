@@ -58,7 +58,7 @@ Les trois skills officiels sont `aspire` (utilisation générale du CLI), `aspir
 
 ### Ce que l'agent peut faire
 
-D'après la documentation officielle d'Aspire, le serveur expose des outils pour lister les ressources et leur état, lire les logs console et les logs structurés, lister les traces et exécuter des commandes de ressource (démarrer, arrêter, redémarrer). Le skill `run-local` les utilise en priorité et retombe sur le CLI (`aspire logs`, `aspire otel`) quand ils ne sont pas disponibles.
+D'après la documentation officielle d'Aspire, le serveur expose notamment des outils (selon la version du CLI) pour lister les ressources et leur état, lire les logs console et les logs structurés, lister les traces et exécuter des commandes de ressource (démarrer, arrêter, redémarrer). Le skill `run-local` les utilise en priorité et retombe sur le CLI (`aspire logs`, `aspire otel`) quand ils ne sont pas disponibles.
 
 Voici des questions à poser à l'agent, avec ce qu'elles déclenchent :
 
@@ -85,4 +85,4 @@ Voici des questions à poser à l'agent, avec ce qu'elles déclenchent :
 - [Dashboard et CLI](../aspire/dashboard-et-cli.md) : les mêmes informations par le dashboard et le terminal.
 - [Observabilité](../fonctionnalites/observabilite.md) : logs, traces et métriques de l'API.
 - [Le serveur MCP d'Aspire](https://aspire.dev/get-started/aspire-mcp-server/)
-- [Claude Code, les serveurs MCP](https://docs.claude.com/en/docs/claude-code/mcp)
+- [Claude Code, les serveurs MCP](https://code.claude.com/docs/en/mcp)

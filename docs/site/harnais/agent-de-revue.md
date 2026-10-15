@@ -18,7 +18,7 @@ Séparer l'auteur et le relecteur est une bonne pratique humaine : celui qui a �
 
 ### Deux fichiers pour deux outils
 
-Les deux fichiers ont le même contenu ; seul l'en-tête change, car les deux outils n'écrivent pas les outils autorisés de la même façon.
+Les deux fichiers ont le même contenu ; seul l'en-tête change, car les deux outils n'écrivent pas les outils autorisés de la même façon. Le template fournit les deux formats (VS Code peut aussi lire `.claude/agents/`).
 
 === "Claude Code"
     ```yaml title=".claude/agents/reviewer.md"
@@ -37,16 +37,16 @@ Côté Claude Code, l'agent a les outils `Read`, `Grep`, `Glob` et `Bash` (ce de
 Dans les deux outils, la `description` de l'agent dit « à utiliser après chaque feature ou correctif » : le skill `add-feature` le sollicite lui-même (étape de relecture), et `CLAUDE.md` demande à Claude Code de lui faire relire tout changement avant de le présenter comme terminé. Vous pouvez aussi l'appeler à la demande.
 
 === "Claude Code"
-    Demandez en toutes lettres, ou mentionnez l'agent :
+    Mentionnez l'agent : tapez `@` et choisissez `reviewer` dans la liste de suggestions, ou écrivez directement `@agent-reviewer` ; la mention garantit que cet agent s'exécute.
 
     ```text
-    Fais relire mon travail par l'agent reviewer.
+    @agent-reviewer relis mes changements
     ```
 
-    La commande `/agents` liste les agents disponibles.
+    Nommer l'agent en langage courant (« Fais relire mon travail par l'agent reviewer ») reste une demande que Claude peut suivre, sans garantie. Selon la version, `/agents` ouvre un assistant de gestion ou rappelle de demander à Claude ou de modifier `.claude/agents/`.
 
 === "Copilot"
-    Dans VS Code, ouvrez la conversation Copilot, choisissez l'agent `reviewer` dans le sélecteur d'agents, puis écrivez :
+    Dans VS Code, ouvrez la conversation Copilot, choisissez l'agent `reviewer` dans la liste déroulante Agent du chat, puis écrivez :
 
     ```text
     Relis les changements de ma branche.

@@ -71,8 +71,14 @@ else
     fail "AGENTS.md mentions Aspire or Keycloak in a project generated without Aspire."
   fi
 fi
-py="$(command -v python3 || command -v python || true)"
-if [ -n "$py" ] && "$py" -c "import yaml" 2>/dev/null; then
+py=""
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c "import yaml" >/dev/null 2>&1; then
+    py="$candidate"
+    break
+  fi
+done
+if [ -n "$py" ]; then
   for file in .claude/skills/*/SKILL.md .claude/agents/*.md .github/agents/*.agent.md; do
     "$py" -c "import sys,yaml; yaml.safe_load(open(sys.argv[1],encoding='utf-8').read().split('---')[1])" "$file" \
       || fail "$file has invalid YAML frontmatter."

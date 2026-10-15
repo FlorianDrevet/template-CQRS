@@ -1,0 +1,97 @@
+site_name: Template Web CQRS
+site_description: Guide et cours du template ASP.NET Core CQRS (.NET 10, Aspire, Entra ID, Keycloak)
+site_url: https://floriandrevet.github.io/template-CQRS/
+repo_url: https://github.com/FlorianDrevet/template-CQRS
+edit_uri: edit/main/docs/site/
+docs_dir: build/docs-src
+site_dir: site
+
+theme:
+  name: material
+  language: fr
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Passer en mode sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Passer en mode clair
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Accueil: index.md
+  - Glossaire: glossaire.md
+  - Démarrer:
+      - demarrer/index.md
+      - Comprendre les templates: demarrer/qu-est-ce-qu-un-template.md
+      - Prérequis: demarrer/prerequis.md
+      - Créer un projet: demarrer/creer-un-projet.md
+      - Premier lancement: demarrer/premier-lancement.md
+  - Architecture:
+      - architecture/index.md
+      - CQRS et Mediator: architecture/cqrs-et-mediator.md
+      - Validation: architecture/validation.md
+      - Erreurs et Problem Details: architecture/erreurs-et-problem-details.md
+  - Fonctionnalités:
+      - fonctionnalites/index.md
+      - Observabilité: fonctionnalites/observabilite.md
+      - Health checks: fonctionnalites/health-checks.md
+      - Rate limiting: fonctionnalites/rate-limiting.md
+      - Résilience et service discovery: fonctionnalites/resilience-et-service-discovery.md
+      - OpenAPI et Scalar: fonctionnalites/openapi-et-scalar.md
+      - CORS: fonctionnalites/cors.md
+  - Aspire:
+      - aspire/index.md
+      - AppHost: aspire/apphost.md
+      - Émulateurs: aspire/emulateurs.md
+      - Paramètres et secrets: aspire/parametres-et-secrets.md
+      - Dashboard et CLI: aspire/dashboard-et-cli.md
+      - Local et déployé: aspire/local-vs-deploye.md
+  - Identité:
+      - identite/index.md
+      - Entra ID: identite/entra-id.md
+      - Keycloak en local: identite/keycloak-local.md
+      - Modèles d'autorisation: identite/modeles-d-autorisation.md
+      - Configuration locale et déployée: identite/local-vs-deploye.md
+  - Tests:
+      - tests/index.md
+  - Guides:
+      - guides/index.md
+      - Ajouter une feature: guides/ajouter-une-feature.md
+      - Rôles, groupes et personas: guides/ajouter-role-groupe-persona.md
+      - Configurer un déploiement: guides/configurer-un-deploiement.md
+  - Référence:
+      - reference/index.md
+      - Options du template: reference/options-du-template.md
+      - Configuration: reference/configuration.md
+      - Endpoints: reference/endpoints.md
+      - Scripts et CI: reference/scripts-et-ci.md
+      - Arborescence: reference/arborescence.md
+      - Contribuer à la doc: reference/contribuer-a-la-doc.md

@@ -29,9 +29,17 @@ fail() {
   exit 1
 }
 
-for excluded in .idea .superpowers eng docs Directory.Build.props .github/workflows/template-ci.yml src/Ci.Generated.AppHost/RealmVariants; do
+for excluded in .idea .superpowers eng docs site Directory.Build.props .github/workflows/template-ci.yml .github/workflows/docs.yml mkdocs.yml README.generated.md .git .vs .cache .pytest_cache build src/Ci.Generated.AppHost/RealmVariants; do
   [ ! -e "$excluded" ] || fail "'$excluded' leaked into the generated project."
 done
+[ -f README.md ] || fail "the generated project has no README.md."
+grep -q "Ci.Generated" README.md || fail "README.md is not the generated project's README."
+if grep -q "dotnet new install" README.md; then
+  fail "README.md is the template repository README."
+fi
+if find . -name TestResults -type d | grep -q .; then
+  fail "TestResults folders leaked into the generated project."
+fi
 if find . \( -name bin -o -name obj \) -type d | grep -q .; then
   fail "bin/obj folders leaked into the generated project."
 fi

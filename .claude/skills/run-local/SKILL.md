@@ -1,6 +1,6 @@
 ---
 name: run-local
-description: Lancer, vérifier et dépanner l'environnement local Aspire (SQL Server, Azurite, Keycloak, API) : démarrer/arrêter, obtenir un token pour un persona, appeler l'API, lancer le smoke test, lire logs et traces via le MCP Aspire ou la CLI. À utiliser pour tester une feature en local, reproduire un bug ou diagnostiquer une erreur 401/403/500.
+description: "Lancer, vérifier et dépanner l'environnement local Aspire (SQL Server, Azurite, Keycloak, API) : démarrer/arrêter, obtenir un token pour un persona, appeler l'API, lancer le smoke test, lire logs et traces via le MCP Aspire ou la CLI. À utiliser pour tester une feature en local, reproduire un bug ou diagnostiquer une erreur 401/403/500."
 ---
 
 # Lancer et vérifier en local

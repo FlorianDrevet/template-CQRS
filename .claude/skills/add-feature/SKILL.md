@@ -1,6 +1,6 @@
 ---
 name: add-feature
-description: Ajouter une fonctionnalité métier complète à l'API (entité, persistance EF, commande/query CQRS, validation, endpoint, autorisation, rate limiting, tests) en suivant les conventions du projet. À utiliser pour toute nouvelle route, ressource, endpoint de liste ou de lecture, règle d'unicité ou cas d'usage métier (« ajouter une ressource », « créer un endpoint », « nouvelle feature »).
+description: "Ajouter une fonctionnalité métier complète à l'API (entité, persistance EF, commande/query CQRS, validation, endpoint, autorisation, rate limiting, tests) en suivant les conventions du projet. À utiliser pour toute nouvelle route, ressource, endpoint de liste ou de lecture, règle d'unicité ou cas d'usage métier (« ajouter une ressource », « créer un endpoint », « nouvelle feature »)."
 ---
 
 # Ajouter une feature

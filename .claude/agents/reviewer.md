@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Relit un changement de code de l'API contre les conventions du projet (AGENTS.md) et rend des constats classés. À utiliser après chaque feature ou correctif, avant de présenter le travail comme terminé.
+description: "Relit un changement de code de l'API contre les conventions du projet (AGENTS.md) et rend des constats classés. À utiliser après chaque feature ou correctif, avant de présenter le travail comme terminé."
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---

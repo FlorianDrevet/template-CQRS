@@ -1,6 +1,6 @@
 ---
 name: manage-access
-description: Gérer les accès de l'API : ajouter, renommer ou retirer un rôle (app role Entra), un groupe de sécurité ou un persona Keycloak local ; garder cohérents le code, le realm Keycloak, la configuration, les tests, la doc Entra et project-profile.json. À utiliser dès qu'une demande parle de rôle, groupe, droit, permission, persona ou compte de test, y compris juste après la génération d'un projet (rien ne tourne encore).
+description: "Gérer les accès de l'API : ajouter, renommer ou retirer un rôle (app role Entra), un groupe de sécurité ou un persona Keycloak local ; garder cohérents le code, le realm Keycloak, la configuration, les tests, la doc Entra et project-profile.json. À utiliser dès qu'une demande parle de rôle, groupe, droit, permission, persona ou compte de test, y compris juste après la génération d'un projet (rien ne tourne encore)."
 ---
 
 # Gérer les accès

@@ -62,12 +62,12 @@ Docker doit être lancé. Le premier démarrage télécharge les images des cont
 ```mermaid
 graph TD
     CLI[aspire start] --> Host[AppHost]
-    Host --> SQL[(SQL Server<br/>conteneur)]
-    Host --> Blob[Azurite<br/>conteneur]
-    Host --> KC[Keycloak<br/>https://localhost:8080]
+    Host --> SQL[(SQL Server conteneur)]
+    Host --> Blob[Azurite conteneur]
+    Host --> KC[Keycloak https://localhost:8080]
     SQL --> API
     Blob --> API
-    KC --> API[API<br/>https://localhost:7246]
+    KC --> API[API https://localhost:7246]
     Host --> Dash[Dashboard Aspire]
 ```
 

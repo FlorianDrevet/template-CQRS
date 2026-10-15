@@ -85,10 +85,10 @@ public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder)
 ```mermaid
 graph TD
     Dev[Vous : aspire start] --> Host[AppHost]
-    Host -->|conteneur| SQL[(sqlserver<br/>base projectdb)]
-    Host -->|conteneur| Storage[storage<br/>émulateur Azurite, blobs]
-    Host -->|conteneur| KC[keycloak<br/>https://localhost:8080]
-    Host -->|processus .NET| API[api<br/>https://localhost:7246]
+    Host -->|conteneur| SQL[(sqlserver base projectdb)]
+    Host -->|conteneur| Storage[storage émulateur Azurite, blobs]
+    Host -->|conteneur| KC[keycloak https://localhost:8080]
+    Host -->|processus .NET| API[api https://localhost:7246]
     SQL -->|ConnectionStrings__projectdb| API
     Storage -->|ConnectionStrings__blobs| API
     KC -.->|Auth__Authority| API

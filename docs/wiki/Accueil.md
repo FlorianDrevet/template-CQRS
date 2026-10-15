@@ -42,13 +42,13 @@ Le dépôt est découpé en projets dont les dépendances vont toujours vers le 
 
 ```mermaid
 graph TD
-    AppHost[AppHost<br/>orchestration Aspire]
-    Api[Api<br/>endpoints, auth, middlewares]
-    SD[ServiceDefaults<br/>OpenTelemetry, health, resilience]
-    Contracts[Contracts<br/>requêtes et réponses HTTP]
-    Infra[Infrastructure<br/>accès aux données, stockage]
-    App[Application<br/>commandes, queries, handlers]
-    Domain[Domain<br/>modèle métier]
+    AppHost[AppHost orchestration Aspire]
+    Api[Api endpoints, auth, middlewares]
+    SD[ServiceDefaults OpenTelemetry, health, resilience]
+    Contracts[Contracts requêtes et réponses HTTP]
+    Infra[Infrastructure accès aux données, stockage]
+    App[Application commandes, queries, handlers]
+    Domain[Domain modèle métier]
 
     AppHost -. démarre .-> Api
     Api --> SD

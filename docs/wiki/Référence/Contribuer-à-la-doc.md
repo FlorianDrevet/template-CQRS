@@ -34,10 +34,10 @@ Les deux ne lisent pas le Markdown de la même façon : le site comprend des ext
 
 ```mermaid
 graph LR
-    S["docs/site<br/>(sources)"] -->|resolve| B["build/docs-src"]
-    B -->|zensical build| W["site/<br/>GitHub Pages"]
-    S -->|wiki| K["docs/wiki<br/>wiki Azure DevOps"]
-    C["Code du dépôt<br/>(src, tests, scripts...)"] -.->|inclusions| B
+    S["docs/site (sources)"] -->|resolve| B["build/docs-src"]
+    B -->|zensical build| W["site/ GitHub Pages"]
+    S -->|wiki| K["docs/wiki wiki Azure DevOps"]
+    C["Code du dépôt (src, tests, scripts...)"] -.->|inclusions| B
     C -.->|inclusions| K
 ```
 
@@ -188,7 +188,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 #### Diagrammes mermaid
 
-Un bloc de langage `mermaid` produit un diagramme sur le site. L'outillage le recopie tel quel dans le wiki.
+Un bloc de langage `mermaid` produit un diagramme sur le site. L'outillage le recopie dans le wiki, mais le mermaid du wiki Azure DevOps ne rend pas la plupart des balises HTML : n'écrivez pas de HTML dans les libellés. Par tolérance, la conversion pour le wiki remplace `<br/>`, `<br />` et `<br>` par une espace dans les blocs `mermaid` (le site, lui, garde les sauts de ligne).
 
 ````text
 ```mermaid
@@ -224,7 +224,7 @@ Une **inclusion** remplace une ligne par le contenu d'un fichier du dépôt, ou 
 
 Les règles complètes :
 
-- Sans `start`, l'extrait commence à la première ligne du fichier ; sans `end` ni `before`, il va jusqu'à la fin du fichier. On utilise `end` ou `before`, jamais les deux, et toujours après `start`.
+- Sans `start`, l'extrait commence à la première ligne du fichier ; sans `end` ni `before`, il va jusqu'à la fin du fichier. On utilise `end` ou `before`, jamais les deux. `end` et `before` peuvent s'employer sans `start` : la recherche part alors du début du fichier (`end` dès la première ligne, `before` dès la deuxième).
 - Une valeur est entourée de guillemets doubles (`"texte"`) ou simples (`'texte'`). Elle n'est jamais vide et ne contient pas le guillemet qui l'entoure.
 - **`start` doit être unique** : l'outil compare le texte à chaque ligne du fichier (comme un simple « contient »). Si le texte n'apparaît nulle part ou apparaît plusieurs fois, l'erreur donne les numéros de ligne concernés.
 - La correspondance se fait sur un **morceau de ligne**, pas sur un mot entier ni sur la ligne entière. Les espaces du début comptent seulement si vous les écrivez dans l'ancre.

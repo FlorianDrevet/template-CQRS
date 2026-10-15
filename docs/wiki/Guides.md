@@ -14,7 +14,7 @@ Les guides sont des **procédures pas à pas** : ils partent d'un objectif concr
 
 ```mermaid
 graph LR
-    A[Démarrer<br/>créer et lancer] --> B[Ajouter une feature]
+    A[Démarrer créer et lancer] --> B[Ajouter une feature]
     B --> C[Rôles, groupes et personas]
     B --> D[Configurer un déploiement]
 ```

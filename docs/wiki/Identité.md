@@ -162,12 +162,12 @@ Conséquence essentielle : **le code de l'API ne change pas** entre local et pro
 ```mermaid
 graph LR
     subgraph Local["Poste de développement (Aspire)"]
-        KC[Keycloak<br/>realm template]
+        KC[Keycloak realm template]
     end
     subgraph Azure["Azure"]
         EN[Microsoft Entra ID]
     end
-    API[API<br/>valide un JWT]
+    API[API valide un JWT]
     KC -- "Auth:Provider = Keycloak" --> API
     EN -- "Auth:Provider = Entra" --> API
 ```

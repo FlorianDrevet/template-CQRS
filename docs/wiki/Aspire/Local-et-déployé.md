@@ -82,11 +82,11 @@ if (!string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
 ```mermaid
 graph LR
     subgraph Local
-        L1[AppHost] -->|Auth__Authority<br/>Auth__Audience| L2[API]
-        L3[Keycloak<br/>realm template] -->|tokens| L2
+        L1[AppHost] -->|Auth__Authority Auth__Audience| L2[API]
+        L3[Keycloak realm template] -->|tokens| L2
     end
     subgraph Déployé
-        D1[Configuration de l'hébergeur<br/>section Auth] --> D2[API]
+        D1[Configuration de l'hébergeur section Auth] --> D2[API]
         D3[Microsoft Entra ID] -->|tokens| D2
     end
 ```

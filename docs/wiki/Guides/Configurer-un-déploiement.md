@@ -12,7 +12,7 @@ Le code ne change pas d'un environnement à l'autre ; seules les valeurs de conf
 graph LR
     subgraph Hébergeur
         IMG[Image de l'API]
-        ENV[Variables d'environnement<br/>et secrets]
+        ENV[Variables d'environnement et secrets]
     end
     ENV --> IMG
     IMG --> SQL[(Azure SQL)]

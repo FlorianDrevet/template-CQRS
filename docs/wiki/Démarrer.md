@@ -13,10 +13,10 @@ Si vous êtes pressé, lisez les pages 2 à 4 dans l'ordre et revenez à la page
 
 ```mermaid
 graph LR
-    A[Comprendre<br/>les templates] --> B[Prérequis]
-    B --> C[Créer<br/>un projet]
-    C --> D[Premier<br/>lancement]
-    D --> E[Guides et<br/>sections de cours]
+    A[Comprendre les templates] --> B[Prérequis]
+    B --> C[Créer un projet]
+    C --> D[Premier lancement]
+    D --> E[Guides et sections de cours]
 ```
 
 À la fin de la section, poursuivez avec [Ajouter une feature](/Guides/Ajouter-une-feature.md) ou avec le cours [Architecture](/Architecture.md).

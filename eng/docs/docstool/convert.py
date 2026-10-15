@@ -86,7 +86,12 @@ def _render_admonition(kind: str, title: str | None, body: list[str]) -> list[st
     return rendered
 
 
+BREAK_PATTERN = re.compile(r"<br\s*/?>", re.IGNORECASE)
+
+
 def _convert_fence(block: list[str], fence: re.Match[str]) -> list[str]:
+    if fence["info"].strip() == "mermaid":
+        return [block[0], *(BREAK_PATTERN.sub(" ", line) for line in block[1:-1]), *block[-1:]] if len(block) > 1 else block
     titled = FENCE_TITLE_PATTERN.match(fence["info"].strip())
     if titled is None:
         return block

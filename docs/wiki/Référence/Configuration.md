@@ -64,7 +64,7 @@ Avec un tableau vide, la stratégie CORS n'autorise aucune origine précise. Voi
 Précisions :
 
 - Avec Aspire, l'AppHost injecte `ConnectionStrings__projectdb` et `ConnectionStrings__blobs` : vous n'avez rien à écrire en local (voir [AppHost](/Aspire/AppHost.md)).
-- Pour les blobs, si `ConnectionStrings:blobs` est absente, le code essaie ensuite `ConnectionStrings:AzureBlobStorageConnectionString`, puis une chaîne vide.
+- Pour les blobs, si `ConnectionStrings:blobs` est absente, le code essaie ensuite `ConnectionStrings:AzureBlobStorageConnectionString`, puis une chaîne vide. Ce repli ne joue que si `ConnectionStrings:blobs` est **absente** : `appsettings.json` et `appsettings.Development.json` la définissent (vide, `""`), donc avec les fichiers livrés le repli ne se déclenche jamais.
 - Ne mettez jamais un mot de passe dans un fichier versionné : utilisez les User Secrets en local (voir [Paramètres et secrets](/Aspire/Paramètres-et-secrets.md)) et un coffre ou des variables d'environnement en production.
 
 ## Journalisation : `Logging`

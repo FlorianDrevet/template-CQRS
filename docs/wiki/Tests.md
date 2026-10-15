@@ -10,9 +10,9 @@ Un test automatisé est un petit programme qui appelle votre code et vérifie le
 
 ```mermaid
 graph TD
-    E2E["Tests de bout en bout<br/>navigateur, vrais services<br/>(non fournis par le template)"]
-    INT["Tests d'intégration<br/>toute l'API en mémoire<br/>(Api.IntegrationTests)"]
-    UNIT["Tests unitaires<br/>un handler, un validateur<br/>(Application.UnitTests)"]
+    E2E["Tests de bout en bout navigateur, vrais services (non fournis par le template)"]
+    INT["Tests d'intégration toute l'API en mémoire (Api.IntegrationTests)"]
+    UNIT["Tests unitaires un handler, un validateur (Application.UnitTests)"]
     E2E --> INT --> UNIT
 ```
 

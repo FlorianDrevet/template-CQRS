@@ -130,7 +130,7 @@ graph LR
     D --> P[GitHub Pages]
 ```
 
-**Activer GitHub Pages** : dans le dépôt GitHub, ouvrez *Settings*, puis *Pages*, et choisissez *Source* : **GitHub Actions**. Le job `deploy` s'exécute dans l'environnement `github-pages` et publie à l'adresse déclarée par `site_url` dans `mkdocs.yml`. Tant que cette source n'est pas configurée, le job `deploy` ne peut pas publier le site.
+**Activer GitHub Pages** : dans le dépôt GitHub, ouvrez *Settings*, puis *Pages*, et choisissez *Source* : **GitHub Actions**. Le job `deploy` s'exécute dans l'environnement `github-pages` et publie le site à l'adresse GitHub Pages du dépôt (exposée par l'action `deploy-pages` sous le nom `page_url`). La clé `site_url` de `mkdocs.yml` ne choisit pas cette adresse : elle sert aux liens canoniques et au plan du site, et doit donc correspondre à l'adresse GitHub Pages du dépôt. Tant que cette source n'est pas configurée, le job `deploy` ne peut pas publier le site.
 
 ## Les pipelines Azure DevOps
 

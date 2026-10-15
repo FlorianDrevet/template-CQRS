@@ -39,6 +39,18 @@ def test_admonition_syntax_inside_code_block_is_untouched() -> None:
     assert convert_for_wiki(text) == text
 
 
+def test_mermaid_html_line_breaks_become_spaces() -> None:
+    text = "```mermaid\ngraph LR\n  A[Ligne 1<br/>Ligne 2] --> B[X<br />Y<br>Z]\n```"
+
+    assert convert_for_wiki(text) == "```mermaid\ngraph LR\n  A[Ligne 1 Ligne 2] --> B[X Y Z]\n```"
+
+
+def test_html_line_break_outside_mermaid_is_untouched() -> None:
+    text = "```text\na<br/>b\n```"
+
+    assert convert_for_wiki(text) == text
+
+
 def test_mermaid_is_untouched() -> None:
     text = "```mermaid\ngraph LR\n  A --> B\n```"
 

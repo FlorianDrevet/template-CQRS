@@ -77,7 +77,7 @@ Le fichier `AGENTS.md` d'un projet généré est dérivé de `AGENTS.generated.m
 ```markdown
 ## Skills et agent
 
-- `add-feature` : ajouter une query ou une commande de bout en bout (Application, Contracts, Api, tests).
+- `add-feature` : ajouter une fonctionnalité en tranche verticale complète (Domain, Infrastructure, Application, Contracts, Api, tests).
 - `manage-access` : ajouter ou modifier un rôle, un groupe ou une politique d'autorisation.
 <!--#if (EnableAspire) -->
 - `run-local` : démarrer l'environnement local, obtenir un token, lancer le smoke test.

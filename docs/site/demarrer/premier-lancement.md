@@ -132,7 +132,7 @@ Les conteneurs SQL Server et Keycloak sont déclarés avec une durée de vie per
 !!! tip "Dépannage"
     - Port 8080 occupé : Keycloak est fixé sur ce port. Si vous avez déjà lancé un autre projet généré, son conteneur Keycloak (durée de vie persistante) tourne encore même après `aspire stop`, et votre API attend indéfiniment Keycloak. Listez-le avec `docker ps --filter name=keycloak`, puis `docker stop <conteneur>`, ou lancez `aspire stop --apphost <autre projet>.csproj --force` (voir [Émulateurs et conteneurs](../aspire/emulateurs.md)). Sinon, arrêtez le processus qui utilise le port, puis relancez.
     - Erreur de certificat avec `curl` ou `get-token` : relancez `dotnet dev-certs https --trust` (voir [Prérequis](prerequis.md)).
-    - Persona inconnu ou modification du realm sans effet : le realm n'est importé qu'au premier démarrage du volume Keycloak. Pour le réimporter, lancez `aspire stop --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj --force --volumes` : cette commande supprime les ressources persistantes et leurs volumes (les données de SQL Server sont donc remises à zéro aussi). Relancez ensuite `aspire start` : le realm est importé de nouveau.
+    - Persona inconnu ou modification du realm sans effet : le realm n'est importé qu'au premier démarrage du volume Keycloak. Pour le réimporter, suivez la procédure de réinitialisation de [Émulateurs](../aspire/emulateurs.md#reinitialiser-les-donnees) (`aspire stop … --force --volumes`, contrôle des volumes restants, `aspire start`) : elle remet aussi à zéro les données de SQL Server.
 
 ## À essayer
 

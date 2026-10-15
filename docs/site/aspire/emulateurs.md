@@ -57,13 +57,25 @@ Keycloak est servi en **HTTPS** sur `https://localhost:8080`, avec le certificat
 
 Deux méthodes, de la plus simple à la plus fine.
 
-**Tout remettre à zéro avec le CLI Aspire** (SQL Server et Keycloak sont réinitialisés) :
+**Tout remettre à zéro avec le CLI Aspire** (SQL Server et Keycloak sont réinitialisés). C'est la procédure de référence, que les autres pages reprennent :
 
 ```bash
+# 1. arrêter et demander la suppression des ressources persistantes et de leurs volumes
 aspire stop --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj --force --volumes
+
+# 2. contrôler ce qui reste (le filtre est une recherche de sous-chaîne : lisez les noms)
+docker volume ls --filter name=web.template.cqrs.apphost
+
+# 3. seulement si des volumes de CE projet restent : les supprimer par leur nom exact
+docker volume rm <nom-exact-du-volume-keycloak> <nom-exact-du-volume-sqlserver>
+
+# 4. redémarrer et attendre (premier démarrage de Keycloak : jusqu'à plusieurs minutes)
+aspire start
+aspire wait keycloak --timeout 300
+aspire wait api --timeout 300
 ```
 
-`--force` supprime les ressources persistantes ; `--volumes` supprime aussi leurs volumes (il exige `--force`). Sans `--volumes`, les volumes sont conservés.
+`--force` supprime les ressources persistantes ; `--volumes` (qui exige `--force`) est censé supprimer aussi leurs volumes, et l'aide de la commande le dit. Constat sur l'Aspire CLI 13.6 : la commande se termine avec succès mais les volumes `<apphost>-<hash>-keycloak-data` et `<apphost>-<hash>-sqlserver-data` **restent**, donc le realm n'est pas réimporté. Le filtre `name=` accepte toute sous-chaîne et peut afficher les volumes d'autres projets : ne supprimez jamais « tout ce que le filtre renvoie », seulement les noms exacts de votre projet.
 
 **Réinitialiser une seule ressource avec Docker**, par exemple Keycloak pour réimporter le realm sans perdre la base SQL. Les volumes s'appellent `<nom de l'AppHost en minuscules>-<hash>-<ressource>-data`, par exemple `web.template.cqrs.apphost-1a2b3c4d5e-keycloak-data` (le hash diffère chez vous) :
 

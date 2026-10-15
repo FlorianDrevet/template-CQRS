@@ -38,13 +38,17 @@ Détails (lisez le fichier concerné avant d'écrire) :
    Corrigez la cause d'un échec ; ne supprimez ni n'assouplissez un test pour le faire passer.
 7. **Mettre à jour `project-profile.json`** (`references/project-profile.md`) : rôles, groupes (avec `localObjectId`), personas, `purpose`. Créez-le s'il n'existe pas.
 8. **Communiquer les étapes Entra** (`references/entra.md`), adaptées à l'opération : valeur de l'app role à créer dans le manifest et assignations, groupe de sécurité et claim `groups`, object ID à fournir en configuration `Authorization__Groups__<Nom>`. Ce sont des actions humaines dans le portail : ne les exécutez pas et ne les supposez pas faites.
-9. **Réimporter le realm si Keycloak tourne déjà** (projet existant avec Aspire et un volume Keycloak). L'opération est **destructive : elle efface aussi les données SQL locales**. Demandez un accord explicite, puis :
+9. **Réimporter le realm si Keycloak tourne déjà** (projet existant avec Aspire et un volume Keycloak). Procédure de référence, aussi décrite dans <https://floriandrevet.github.io/template-CQRS/aspire/emulateurs/>. L'opération est **destructive : elle efface aussi les données SQL locales**. Demandez un accord explicite, puis :
    ```bash
    aspire stop --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj --force --volumes
-   docker volume ls --filter name=<nom du projet en minuscules>   # doit être vide
-   aspire start
+   docker volume ls --filter name=<nom de l'AppHost en minuscules>
    ```
-   Avec la CLI 13.6, `--volumes` peut laisser les volumes `<projet>.apphost-*-keycloak-data` et `-sqlserver-data` : si le realm n'est pas réimporté, supprimez **ces volumes du projet seulement** (`docker volume rm <noms>`, avec l'accord déjà obtenu), puis relancez. Après `aspire start`, attendez `aspire wait keycloak --timeout 240` puis `aspire wait api --timeout 300` (Keycloak met jusqu'à 2-3 minutes).
+   Le filtre `name=` est une recherche de sous-chaîne : il peut renvoyer les volumes d'autres projets. **Ne supprimez jamais par filtre.** Constat sur l'Aspire CLI 13.6 (l'aide dit pourtant que `--volumes` les supprime) : `<projet>.apphost-<hash>-keycloak-data` et `…-sqlserver-data` restent, donc le realm n'est pas réimporté. S'ils restent, affichez à l'utilisateur les **noms exacts** de ce projet, obtenez son accord explicite sur cette liste, puis `docker volume rm <nom> <nom>`. Ensuite :
+   ```bash
+   aspire start
+   aspire wait keycloak --timeout 300
+   aspire wait api --timeout 300
+   ```
    Si le port 8080 reste occupé par un conteneur Keycloak persistant d'un autre projet, expliquez-le à l'utilisateur et proposez une remédiation sans l'appliquer d'office. Sans accord, laissez le fichier modifié et dites que le changement ne sera visible qu'après réinitialisation. Si rien ne tourne ou si le projet vient d'être généré : passez cette étape.
 10. **Vérifier un token live** (seulement si l'environnement tourne après l'étape 9) : obtenez un token du persona et décodez le payload ; `roles` et `groups` doivent contenir les valeurs attendues.
     ```bash
@@ -74,7 +78,7 @@ Le modèle n'a ni rôle, ni groupe, ni policy : tout utilisateur connecté a les
 
 ## Ne jamais faire sans demander
 
-- Supprimer des volumes (`aspire stop ... --volumes` efface aussi la base SQL locale) : accord explicite à chaque fois.
+- Supprimer des volumes (`aspire stop ... --volumes` ou `docker volume rm` : efface aussi la base SQL locale) : accord explicite à chaque fois ; `docker volume rm` seulement sur des noms exacts confirmés, jamais par filtre.
 - Retirer ou renommer un rôle ou un groupe utilisé par une policy ou un endpoint.
 - Changer le modèle d'autorisation (régénération du projet).
 - Retirer `admin@local.test` / `user@local.test` ou changer leur mot de passe local.

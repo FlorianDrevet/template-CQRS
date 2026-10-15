@@ -84,7 +84,7 @@ Ajoute un rôle Editor et un persona editor@local.test qui l'a.
 Renomme le rôle Admin en Administrator.
 ```
 
-**Ce que fait l'agent** : un rôle, un groupe ou un persona vit à trois endroits qui doivent rester identiques, le code de l'API, le realm Keycloak local et Entra ID. L'agent établit l'état actuel, confirme l'opération et liste les fichiers touchés avant d'écrire, puis modifie le code, le realm, les tests et `project-profile.json`. Il vous **communique** les étapes à faire dans le portail Entra (créer l'app role, assigner les utilisateurs) : ce sont des actions humaines, il ne les exécute pas. Si Keycloak tourne déjà, le realm n'est réimporté qu'avec `aspire stop --apphost <csproj> --force --volumes`, une opération destructive (elle efface aussi la base SQL locale) qui demande votre accord explicite. Voir aussi [Rôles, groupes et personas](/Guides/Rôles,-groupes-et-personas.md).
+**Ce que fait l'agent** : un rôle, un groupe ou un persona vit à trois endroits qui doivent rester identiques, le code de l'API, le realm Keycloak local et Entra ID. L'agent établit l'état actuel, confirme l'opération et liste les fichiers touchés avant d'écrire, puis modifie le code, le realm, les tests et `project-profile.json`. Il vous **communique** les étapes à faire dans le portail Entra (créer l'app role, assigner les utilisateurs) : ce sont des actions humaines, il ne les exécute pas. Si Keycloak tourne déjà, le realm n'est réimporté qu'après la réinitialisation des volumes (`aspire stop --apphost <csproj> --force --volumes`, puis contrôle des volumes restants et suppression de ceux du projet par nom exact, voir [Émulateurs](/Aspire/Émulateurs.md#reinitialiser-les-donnees)), une opération destructive (elle efface aussi la base SQL locale) qui demande votre accord explicite. Voir aussi [Rôles, groupes et personas](/Guides/Rôles,-groupes-et-personas.md).
 
 **Critères de fin et interdits**
 
@@ -95,14 +95,14 @@ Renomme le rôle Admin en Administrator.
 
 - `dotnet build` sans erreur et `dotnet test` entièrement vert.
 - Constantes, validation, policies, `appsettings*.json`, `ApiFactory` et realm sont cohérents entre eux (mêmes noms, même GUID local) ; le JSON du realm est valide ; aucun persona ne cite un rôle ou un groupe absent du realm.
-- Des tests couvrent le nouveau droit (accepté, refusé en 403).
+- Si une policy a été ajoutée : des tests la couvrent (accepté, refusé en 403). Un rôle ou un persona sans policy n'en demande pas.
 - `project-profile.json` est à jour.
 - Les étapes Entra ont été communiquées à l'utilisateur.
 - Si l'environnement tourne : le token du persona contient les `roles` / `groups` attendus. Sinon, dites que ce contrôle reste à faire au prochain `aspire start`.
 
 ## Ne jamais faire sans demander
 
-- Supprimer des volumes (`aspire stop ... --volumes` efface aussi la base SQL locale) : accord explicite à chaque fois.
+- Supprimer des volumes (`aspire stop ... --volumes` ou `docker volume rm` : efface aussi la base SQL locale) : accord explicite à chaque fois ; `docker volume rm` seulement sur des noms exacts confirmés, jamais par filtre.
 - Retirer ou renommer un rôle ou un groupe utilisé par une policy ou un endpoint.
 - Changer le modèle d'autorisation (régénération du projet).
 - Retirer `admin@local.test` / `user@local.test` ou changer leur mot de passe local.
@@ -144,7 +144,7 @@ J'ai une 500 sur POST /books : trouve la cause.
 
 ## Ne jamais faire sans demander
 
-- `aspire stop ... --force --volumes` ou toute suppression de volume ou de conteneur : efface la base et le realm.
+- `aspire stop ... --force --volumes`, `docker volume rm` ou toute suppression de volume ou de conteneur : efface la base et le realm (noms exacts confirmés, jamais par filtre).
 - Arrêter ou supprimer le conteneur Keycloak (ou toute ressource) d'un autre projet.
 - Modifier le realm Keycloak : il faut ensuite le réimporter (voir `manage-access`).
 - Écrire des user-secrets manquants (`dotnet user-secrets set`) : accord préalable, valeurs jamais affichées.

@@ -29,7 +29,7 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
    ```
    Le résultat donne l'URL du dashboard (elle contient un jeton : ne la republiez pas). Attendez ensuite que l'API soit saine, puis contrôlez :
    ```bash
-   aspire wait keycloak --timeout 240
+   aspire wait keycloak --timeout 300
    aspire wait api --timeout 300
    aspire ps
    aspire describe
@@ -69,7 +69,7 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
    ```bash
    aspire stop --apphost APPHOST
    ```
-   SQL Server et Keycloak sont des conteneurs persistants avec volume : ils restent actifs avec leurs données (et gardent le port 8080). `--force` supprime les ressources persistantes (conteneurs) en gardant les volumes ; `--force --volumes` efface aussi les volumes, donc **la base SQL locale et le realm** : accord explicite requis, à chaque fois.
+   SQL Server et Keycloak sont des conteneurs persistants avec volume : ils restent actifs avec leurs données (et gardent le port 8080). `--force` supprime les ressources persistantes (conteneurs) en gardant les volumes ; `--force --volumes` est censé effacer aussi les volumes, donc **la base SQL locale et le realm** : accord explicite requis, à chaque fois. Sur l'Aspire CLI 13.6 les volumes du projet peuvent subsister : suivez l'étape 9 de `manage-access` (contrôle, suppression par noms exacts confirmés, jamais par filtre).
 
 ## Terminé quand
 
@@ -80,7 +80,7 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
 
 ## Ne jamais faire sans demander
 
-- `aspire stop ... --force --volumes` ou toute suppression de volume ou de conteneur : efface la base et le realm.
+- `aspire stop ... --force --volumes`, `docker volume rm` ou toute suppression de volume ou de conteneur : efface la base et le realm (noms exacts confirmés, jamais par filtre).
 - Arrêter ou supprimer le conteneur Keycloak (ou toute ressource) d'un autre projet.
 - Modifier le realm Keycloak : il faut ensuite le réimporter (voir `manage-access`).
 - Écrire des user-secrets manquants (`dotnet user-secrets set`) : accord préalable, valeurs jamais affichées.

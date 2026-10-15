@@ -88,7 +88,7 @@ L'API écoute uniquement sur `https://localhost:7246`. Keycloak local : `https:/
 - Ne pas écrire de code propre à un fournisseur d'identité local : Entra ID est la cible.
 - Ne pas désactiver la validation des options, l'autorisation ou la validation des commandes.
 <!--#if (EnableAspire) -->
-- Ne pas modifier le realm Keycloak sans prévenir qu'il faut le réimporter (`aspire stop --apphost <csproj> --force --volumes`, destructif).
+- Ne pas modifier le realm Keycloak sans prévenir qu'il faut le réimporter (skill `manage-access`, étape 9 : `aspire stop --apphost <csproj> --force --volumes`, puis contrôle et suppression par noms exacts des volumes restants, destructif).
 - Ne pas supprimer de volumes sans accord explicite.
 <!--#endif -->
 - Ne pas pousser sur un remote sans accord explicite.

@@ -29,7 +29,8 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
    ```
    Le résultat donne l'URL du dashboard (elle contient un jeton : ne la republiez pas). Attendez ensuite que l'API soit saine, puis contrôlez :
    ```bash
-   aspire wait api --timeout 180
+   aspire wait keycloak --timeout 240
+   aspire wait api --timeout 300
    aspire ps
    aspire describe
    ```
@@ -61,6 +62,7 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
      aspire otel logs api --trace-id <traceId>          # les logs corrélés
      ```
      Options communes : `--format Json`, `--limit`/`-n`, `--search`.
+   - Une 401 ou une 403 n'est **pas** une erreur côté trace (état `OK`, `hasError` faux) : `--has-error` ne la renvoie pas. Prenez le `traceId` du Problem Details et lisez `aspire otel traces api --trace-id <traceId> --format Json` : l'attribut `http.response.status_code` donne le code.
    - Reliez toujours une erreur à sa trace : le `traceId` du Problem Details est l'identifiant à passer à `--trace-id`.
    - Niveaux de log par défaut : `Microsoft.AspNetCore` en `Warning`. Une 401 ou un 200 n'écrit donc aucun log : lisez la trace (spans). Seule une 500 écrit un `LogError` (gestionnaire d'erreurs). Pour des logs corrélés sur toutes les requêtes, relancez l'API avec `Logging__LogLevel__Microsoft.AspNetCore=Information` (avec Aspire, ajoutez temporairement `.WithEnvironment("Logging__LogLevel__Microsoft.AspNetCore", "Information")` à la ressource `api` de l'AppHost, annoncez-le et retirez-le ensuite).
 8. **Arrêter.**

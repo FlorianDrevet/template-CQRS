@@ -41,8 +41,10 @@ Détails (lisez le fichier concerné avant d'écrire) :
 9. **Réimporter le realm si Keycloak tourne déjà** (projet existant avec Aspire et un volume Keycloak). L'opération est **destructive : elle efface aussi les données SQL locales**. Demandez un accord explicite, puis :
    ```bash
    aspire stop --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj --force --volumes
+   docker volume ls --filter name=<nom du projet en minuscules>   # doit être vide
    aspire start
    ```
+   Avec la CLI 13.6, `--volumes` peut laisser les volumes `<projet>.apphost-*-keycloak-data` et `-sqlserver-data` : si le realm n'est pas réimporté, supprimez **ces volumes du projet seulement** (`docker volume rm <noms>`, avec l'accord déjà obtenu), puis relancez. Après `aspire start`, attendez `aspire wait keycloak --timeout 240` puis `aspire wait api --timeout 300` (Keycloak met jusqu'à 2-3 minutes).
    Si le port 8080 reste occupé par un conteneur Keycloak persistant d'un autre projet, expliquez-le à l'utilisateur et proposez une remédiation sans l'appliquer d'office. Sans accord, laissez le fichier modifié et dites que le changement ne sera visible qu'après réinitialisation. Si rien ne tourne ou si le projet vient d'être généré : passez cette étape.
 10. **Vérifier un token live** (seulement si l'environnement tourne après l'étape 9) : obtenez un token du persona et décodez le payload ; `roles` et `groups` doivent contenir les valeurs attendues.
     ```bash
@@ -65,7 +67,7 @@ Le modèle n'a ni rôle, ni groupe, ni policy : tout utilisateur connecté a les
 
 - `dotnet build` sans erreur et `dotnet test` entièrement vert.
 - Constantes, validation, policies, `appsettings*.json`, `ApiFactory` et realm sont cohérents entre eux (mêmes noms, même GUID local) ; le JSON du realm est valide ; aucun persona ne cite un rôle ou un groupe absent du realm.
-- Des tests couvrent le nouveau droit (accepté, refusé en 403).
+- Si une policy a été ajoutée : des tests la couvrent (accepté, refusé en 403). Un rôle ou un persona sans policy n'en demande pas.
 - `project-profile.json` est à jour.
 - Les étapes Entra ont été communiquées à l'utilisateur.
 - Si l'environnement tourne : le token du persona contient les `roles` / `groups` attendus. Sinon, dites que ce contrôle reste à faire au prochain `aspire start`.

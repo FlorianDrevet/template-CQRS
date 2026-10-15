@@ -50,6 +50,8 @@ Questions, valeurs par défaut et validations : [references/questionnaire.md](re
    (sans tests générés : seulement le build). Corrigez la cause d'un échec ; n'assouplissez aucun test. Puis, **si Aspire** :
    ```bash
    aspire start --apphost src/<Nom>.AppHost/<Nom>.AppHost.csproj
+   aspire wait keycloak --timeout 300   # premier démarrage : plusieurs minutes
+   aspire wait api --timeout 300
    bash scripts/smoke-test.sh        # PowerShell : ./scripts/smoke-test.ps1
    aspire stop --apphost src/<Nom>.AppHost/<Nom>.AppHost.csproj
    ```

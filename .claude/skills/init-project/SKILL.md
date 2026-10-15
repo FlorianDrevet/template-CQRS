@@ -53,7 +53,7 @@ Questions, valeurs par défaut et validations : [references/questionnaire.md](re
    bash scripts/smoke-test.sh        # PowerShell : ./scripts/smoke-test.ps1
    aspire stop --apphost src/<Nom>.AppHost/<Nom>.AppHost.csproj
    ```
-   Si le port 8080 est déjà pris, la cause probable est un conteneur Keycloak persistant d'un autre projet : expliquez-le (`docker ps --filter publish=8080`) et proposez de l'arrêter, **sans le faire** sans accord. Ne passez jamais `--volumes` ici.
+   Si le port 8080 est déjà pris, la cause probable est un conteneur Keycloak persistant d'un autre projet : expliquez-le (`docker ps --filter publish=8080`) et proposez de l'arrêter, **sans le faire** sans accord. Si le port reste pris après `docker stop`, un autre AppHost tourne (`aspire ps`) : demandez l'accord de l'arrêter (`aspire stop --apphost <csproj>`) ou arrêtez-vous. Ne passez jamais `--volumes` ici.
 8. **Git.** Dans `<sortie>` (le dépôt a déjà été initialisé et le remote ajouté par le script) :
    ```bash
    git add -A

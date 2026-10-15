@@ -157,7 +157,7 @@ Si le projet a le rate limiting (`RateLimitingPolicies` existe), ajoutez aussi `
 },
 ```
 
-`src/Web.Template.CQRS.Api/appsettings.Development.json` : GUID **local**, le même que l'attribut `objectId` du groupe dans le realm. Générez-le : `python -c "import uuid; print(uuid.uuid4())"` (ou `uuidgen`, ou `[guid]::NewGuid()` en PowerShell). Ne réutilisez pas `6f1c2a4e-...` (réservé à `Administrators`).
+`src/Web.Template.CQRS.Api/appsettings.Development.json` : GUID **local**, le même que l'attribut `objectId` du groupe dans le realm. Générez-le : `pwsh -NoProfile -Command "[guid]::NewGuid()"` (ou `uuidgen` sous Linux/macOS). Ne réutilisez pas `6f1c2a4e-...` (réservé à `Administrators`).
 
 ```json
 "Authorization": {
@@ -183,7 +183,7 @@ builder.UseSetting("Authorization:Groups:Administrators", AdministratorsGroupId)
 builder.UseSetting("Authorization:Groups:Editors", EditorsGroupId);
 ```
 
-Fichier de tests de policy (modèle `AppRolesAndGroups`). Adaptation : `AppRoles` seul = supprimez `Ping_AsMemberOfEditorsGroup_Returns200` ; `Groups` seul = supprimez `Ping_WithEditorRole_Returns200` et écrivez `AsUser("standard-user")` sans `roles:` ni `using ...Authorization` :
+Fichier de tests de policy (modèle `AppRolesAndGroups`). Adaptation : `AppRoles` seul = supprimez `Ping_AsMemberOfEditorsGroup_Returns200` ; `Groups` seul = supprimez `Ping_WithEditorRole_Returns200` et, dans `Ping_AsStandardUser_Returns403`, remplacez `AsUser("standard-user", roles: [AppRoles.User])` par `AsUser("standard-user")` et supprimez le `using ...Authorization` :
 
 ```csharp
 using System.Net;
@@ -227,6 +227,6 @@ public sealed class EditorPolicyTests(ApiFactory factory) : IClassFixture<ApiFac
 }
 ```
 
-Dans un projet `Groups` seul, `AsUser("standard-user")` sans paramètre (pas de `AppRoles`). Vérifiez la signature de `AsUser` dans `tests/Web.Template.CQRS.Api.IntegrationTests/Infrastructure/` et imitez `tests/Web.Template.CQRS.Api.IntegrationTests/Admin/AdminEndpointTests.cs`.
+Vérifiez la signature de `AsUser` dans `tests/Web.Template.CQRS.Api.IntegrationTests/Infrastructure/` et imitez `tests/Web.Template.CQRS.Api.IntegrationTests/Admin/AdminEndpointTests.cs`.
 
 Un test qui ne vise que le persona (ajout d'un utilisateur au realm sans nouveau droit) n'a pas de test unitaire à ajouter.

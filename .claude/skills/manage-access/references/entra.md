@@ -1,6 +1,6 @@
 # Étapes Entra à communiquer
 
-Entra ID est la cible de production. Ces actions se font dans le portail par un humain ayant les droits sur le tenant : ne les exécutez pas, listez-les à l'utilisateur à la fin de l'opération, avec les valeurs exactes (nom du rôle, nom du groupe, clé de configuration). Référence détaillée : `docs/site/identite/entra-id.md` du dépôt du template, sections « Les app roles » et « Le claim de groupes » (cette doc n'est pas copiée dans le projet généré).
+Entra ID est la cible de production. Ces actions se font dans le portail par un humain ayant les droits sur le tenant : ne les exécutez pas, listez-les à l'utilisateur à la fin de l'opération, avec les valeurs exactes (nom du rôle, nom du groupe, clé de configuration). Référence détaillée : https://floriandrevet.github.io/template-CQRS/identite/entra-id/ , sections « Les app roles » et « Le claim de groupes ».
 
 ## Nouveau rôle (app role)
 

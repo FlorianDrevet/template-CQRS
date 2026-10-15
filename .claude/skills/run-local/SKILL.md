@@ -22,7 +22,7 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
      ```
      PowerShell : `dotnet user-secrets set "Parameters:sql-password" ("Aa1!" + [Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16))) --project APPHOST` (idem pour `Parameters:keycloak-admin-password`).
      Ces mots de passe restent dans le profil de l'utilisateur ; ne les écrivez dans aucun fichier du dépôt.
-2. **Port 8080 libre.** `docker ps --filter name=keycloak`. Si un Keycloak d'un **autre** projet occupe le port (conteneur persistant qui survit à `aspire stop`), expliquez-le à l'utilisateur et proposez `aspire stop --apphost <autre csproj> --force` ou `docker stop <conteneur>` ; n'appliquez aucune des deux d'office. Si aucun conteneur ne l'occupe, cherchez le processus (`netstat -ano | grep :8080`).
+2. **Port 8080 libre.** `docker ps --filter name=keycloak`. Si un Keycloak d'un **autre** projet occupe le port (conteneur persistant qui survit à `aspire stop`), expliquez-le à l'utilisateur et proposez `aspire stop --apphost <autre csproj> --force` ou `docker stop <conteneur>` ; n'appliquez aucune des deux d'office. Arrêter le conteneur ne suffit pas toujours : le proxy du `dcp` d'un **autre AppHost encore en marche** garde les ports 8080 et 7246 (`netstat -ano | grep -E ":(8080|7246) "` puis `aspire ps` pour repérer l'AppHost). Dans ce cas, seul `aspire stop --apphost <autre csproj>` libère les ports : proposez-le, n'appliquez rien d'office. Un seul projet généré à la fois peut tourner sur ces ports fixes.
 3. **Démarrer** (en arrière-plan, rend la main) :
    ```bash
    aspire start --apphost APPHOST

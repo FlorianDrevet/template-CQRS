@@ -23,11 +23,12 @@ Détails (lisez le fichier concerné avant d'écrire) :
 
 1. **Établir l'état actuel.** Lisez `project-profile.json` (racine) s'il existe ; sinon reconstruisez-le depuis le code : `AppRoles.cs`, `GroupOptions.cs`, `Policies.cs`, `AuthorizationSetup.cs`, `Realms/template-realm.json` (absent dans un projet sans Aspire). Déduisez le **modèle d'autorisation** des fichiers présents (tableau dans `files-by-model.md`). En cas de divergence profil / code / realm, le code et le realm font foi : signalez l'écart et corrigez le profil.
 2. **Confirmer l'opération et ses impacts.** Précisez avec l'utilisateur : opération (ajouter, renommer, retirer ; rôle, groupe, persona), nom exact (PascalCase pour un rôle ou un groupe, `prenom@local.test` pour un persona), sens métier (une phrase), et pour un rôle ou un groupe la policy ou les endpoints concernés. Annoncez la **liste des fichiers** qui seront modifiés (selon `files-by-model.md`) avant d'écrire. Modèle `Authenticated` : voir la section dédiée plus bas.
-3. **Appliquer le code** selon `references/files-by-model.md` : constante `AppRoles`, propriété `GroupOptions` et sa règle de validation, constante `Policies` et enregistrement dans `AuthorizationSetup.cs`, valeurs de `appsettings.json` (vide) et `appsettings.Development.json` (GUID local). Une policy ne sert à rien tant qu'elle n'est pas appliquée à un endpoint avec `.RequireAuthorization(Policies.X)` : demandez lequel, ou n'en ajoutez un que si l'utilisateur le veut.
+3. **Appliquer le code** selon `references/files-by-model.md` : constante `AppRoles`, propriété `GroupOptions` et sa règle de validation, constante `Policies` et enregistrement dans `AuthorizationSetup.cs`, valeurs de `appsettings.json` (vide) et `appsettings.Development.json` (GUID local). Une policy ne sert à rien tant qu'elle n'est pas appliquée à un endpoint avec `.RequireAuthorization(Policies.X)` : demandez lequel, ou n'en ajoutez un que si l'utilisateur le veut. Un nouvel endpoint dans un nouveau fichier `Map<X>Endpoints` doit être appelé dans `Program.cs` (à côté de `app.MapAdminEndpoints();`). Un rôle sans policy (lecture seule, par exemple) n'a besoin que de la constante et du realm. Le rôle `User` fourni par le template reste en place sauf demande contraire.
 4. **Appliquer le realm** selon `references/realm.md` (si `Realms/template-realm.json` existe) : rôle dans `roles.realm`, groupe avec attribut `objectId` (GUID **neuf**, identique à `appsettings.Development.json`), utilisateur avec `firstName`, `lastName`, `email`, `emailVerified`, `credentials`. Ne référencez que des rôles et groupes existants dans ce realm. Validez le JSON :
    ```bash
-   python -c "import json; json.load(open('src/Web.Template.CQRS.AppHost/Realms/template-realm.json', encoding='utf-8')); print('JSON OK')"
+   pwsh -NoProfile -Command "Get-Content 'src/Web.Template.CQRS.AppHost/Realms/template-realm.json' -Raw | ConvertFrom-Json | Out-Null; 'JSON OK'"
    ```
+   (Linux/macOS sans `pwsh` : `jq . src/Web.Template.CQRS.AppHost/Realms/template-realm.json`.)
 5. **Tests** (si `tests/` existe). Pour un nouveau groupe : ajoutez la constante et le `UseSetting` dans `tests/Web.Template.CQRS.Api.IntegrationTests/Infrastructure/ApiFactory.cs`, **sinon tous les tests d'intégration échouent au démarrage** (`ValidateOnStart`). Ajoutez des tests de policy (rôle accepté, groupe accepté, utilisateur standard refusé en 403, anonyme en 401) dans `tests/Web.Template.CQRS.Api.IntegrationTests/<Nom>/`. Pour un rôle renommé ou retiré, mettez à jour les tests existants qui le citent (`grep -rn "<Ancien>" src tests`).
 6. **Build et tests.**
    ```bash
@@ -46,9 +47,9 @@ Détails (lisez le fichier concerné avant d'écrire) :
 10. **Vérifier un token live** (seulement si l'environnement tourne après l'étape 9) : obtenez un token du persona et décodez le payload ; `roles` et `groups` doivent contenir les valeurs attendues.
     ```bash
     token=$(bash ./scripts/get-token.sh claire)
-    python -c "import sys,json,base64; p=sys.argv[1].split('.')[1]; print(json.dumps(json.loads(base64.urlsafe_b64decode(p+'='*(-len(p)%4))), indent=2))" "$token"
+    TOKEN="$token" pwsh -NoProfile -Command '$p = $env:TOKEN.Split(".")[1].Replace("-","+").Replace("_","/"); $p = $p.PadRight($p.Length + (4 - $p.Length % 4) % 4, "="); [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($p)) | ConvertFrom-Json | Select-Object roles, groups | ConvertTo-Json'
     ```
-    (PowerShell : `$token = ./scripts/get-token.ps1 -Persona claire`.) Le claim `groups` contient le GUID de l'attribut `objectId`, pas le nom du groupe.
+    (PowerShell : `$token = ./scripts/get-token.ps1 -Persona claire`, puis le même décodage sur `$token`. Sans `pwsh` : `echo "$token" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null`, le remplissage `=` est toléré par GNU `base64 -d`.) Le claim `groups` contient le GUID de l'attribut `objectId`, pas le nom du groupe.
 
 ## Retirer ou renommer
 
@@ -58,7 +59,7 @@ Détails (lisez le fichier concerné avant d'écrire) :
 
 ## Modèle `Authenticated`
 
-Le modèle n'a ni rôle, ni groupe, ni policy : tout utilisateur connecté a les mêmes droits. Pour ajouter un rôle ou un groupe, il faut d'abord **changer de modèle d'autorisation**, c'est-à-dire régénérer le projet avec une autre valeur de `--AuthorizationModel` : cela change les claims, le realm et la configuration. Ne tentez pas de le simuler à la main. Expliquez-le à l'utilisateur, renvoyez à `docs/site/identite/modeles-d-autorisation.md` (si présent) et demandez comment il veut procéder. Seuls les **personas** (sans `realmRoles` ni `groups`) restent possibles.
+Le modèle n'a ni rôle, ni groupe, ni policy : tout utilisateur connecté a les mêmes droits. Pour ajouter un rôle ou un groupe, il faut d'abord **changer de modèle d'autorisation**, c'est-à-dire régénérer le projet avec une autre valeur de `--AuthorizationModel` : cela change les claims, le realm et la configuration. Ne tentez pas de le simuler à la main. Expliquez-le à l'utilisateur, renvoyez à https://floriandrevet.github.io/template-CQRS/identite/modeles-d-autorisation/ et demandez comment il veut procéder. Seuls les **personas** (sans `realmRoles` ni `groups`) restent possibles.
 
 ## Terminé quand
 

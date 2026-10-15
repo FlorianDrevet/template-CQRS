@@ -1,6 +1,6 @@
 # Modèles de code pour `add-feature`
 
-Exemple fil rouge : la ressource `Product` (nom unique, prix). Remplacez `Product`/`Products`/`Name`/`Price` par votre ressource. Ces modèles viennent du tutoriel `docs/site/guides/ajouter-une-feature.md`, appliqué à un projet généré (build OK, tests verts, migration créée), plus les cas d'unicité, de conflit et de liste. `Web.Template.CQRS` est le nom de votre projet.
+Exemple fil rouge : la ressource `Product` (nom unique, prix). Remplacez `Product`/`Products`/`Name`/`Price` par votre ressource. Ces modèles viennent du tutoriel https://floriandrevet.github.io/template-CQRS/guides/ajouter-une-feature/, appliqué à un projet généré (build OK, tests verts, migration créée), plus les cas d'unicité, de conflit et de liste. `Web.Template.CQRS` est le nom de votre projet.
 
 Pièges vérifiés :
 

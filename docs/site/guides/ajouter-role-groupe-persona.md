@@ -77,7 +77,7 @@ options.AddPolicy(Policies.RequireEditor, policy =>
 
 `RequireRole` avec plusieurs valeurs accepte l'utilisateur qui en possède **au moins une** : ici un éditeur ou un administrateur. Ajoutez cette instruction dans le délégué de `AddOptions<AuthorizationOptions>().Configure(...)`, qui devient un bloc `{ ... }` si ce n'est pas déjà le cas.
 
-**5. Protéger un endpoint.** Appliquez la policy à la route concernée :
+**5. Protéger un endpoint.** Appliquez la policy à la route concernée. L'extrait se place dans une méthode `Map*Endpoints` (ici `MapAdminEndpoints` d'`AdminController`, ou une nouvelle méthode d'extension de votre ressource), sur le paramètre `endpoints`, avant le `return endpoints;` :
 
 ```csharp title="src/Contoso.Orders.Api/Controllers/AdminController.cs (exemple)"
 endpoints.MapGet("/editor/ping", () => TypedResults.Ok("pong"))

@@ -327,6 +327,8 @@ dotnet ef migrations add InitialCatalog --project src/Contoso.Catalog.Infrastruc
 
 Le résultat se termine par `Done.` et crée trois fichiers dans `src/Contoso.Catalog.Infrastructure/Persistence/Migrations/` : `<horodatage>_InitialCatalog.cs` (la migration), `<horodatage>_InitialCatalog.Designer.cs` (métadonnées) et `ProjectDbContextModelSnapshot.cs` (l'image du modèle, comparée à la prochaine migration). Ouvrez la migration et relisez-la : relire une migration avant de l'appliquer est un réflexe à garder.
 
+Le tutoriel suppose un projet généré avec Aspire (option par défaut), qui fournit le conteneur SQL Server local ; sans Aspire, vous devez configurer vous-même une chaîne de connexion. Attention aussi : si `ASPNETCORE_ENVIRONMENT=Development` est défini dans votre shell quand vous lancez `dotnet ef`, l'outil exécute `Program` au moment de la conception et le bloc `Migrate()` de l'étape 4.4 peut alors s'exécuter.
+
 **Fichier :** `src/Contoso.Catalog.Infrastructure/Persistence/Migrations/<horodatage>_InitialCatalog.cs (méthode Up)`
 
 ```csharp

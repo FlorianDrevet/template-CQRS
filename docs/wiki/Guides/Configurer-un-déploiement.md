@@ -103,6 +103,8 @@ COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Web.Template.CQRS.Api.dll"]
 ```
 
+L'extrait ci-dessus est le Dockerfile de la **source du template** : `Web.Template.CQRS` y devient le nom de votre projet (par exemple `Contoso.Orders`) dans un projet généré.
+
 Points à noter :
 
 - le conteneur s'exécute avec un utilisateur non administrateur (`USER $APP_UID`) et écoute sur le port **8080** ;
@@ -115,7 +117,7 @@ Construisez l'image depuis la racine du projet généré, en désignant le Docke
 docker build -f src/Contoso.Orders.Api/Dockerfile -t contoso-orders-api:1.0.0 .
 ```
 
-Un test local de l'image (en lui fournissant la configuration minimale) :
+Un test local de l'image, avec la configuration minimale pour Entra :
 
 ```bash
 docker run --rm -p 8080:8080 \
@@ -123,6 +125,8 @@ docker run --rm -p 8080:8080 \
   -e ConnectionStrings__projectdb="<chaîne de connexion>" \
   contoso-orders-api:1.0.0
 ```
+
+Si votre modèle d'autorisation utilise des groupes (`Groups` ou `AppRolesAndGroups`), ajoutez `-e Authorization__Groups__Administrators=<object-id>` : sans cette valeur (un GUID), l'API refuse de démarrer.
 
 Poussez ensuite l'image vers votre registre (par exemple Azure Container Registry) avec `docker tag` et `docker push`, puis configurez l'hébergeur pour qu'il exécute cette image avec les variables ci-dessus.
 

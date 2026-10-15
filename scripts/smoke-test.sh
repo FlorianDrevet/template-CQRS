@@ -11,7 +11,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 failures=0
 
 status_of() {
-  curl --silent --output /dev/null --write-out '%{http_code}' "$@" || echo "000"
+  curl --silent --output /dev/null --write-out '%{http_code}' "$@" || true
 }
 
 expect() {

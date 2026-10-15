@@ -28,15 +28,17 @@ Questions, valeurs par défaut et validations : [references/questionnaire.md](re
 4. **Accès.** Lisez `<sortie>/.claude/skills/manage-access/SKILL.md` et appliquez-le **dans `<sortie>`** pour les rôles, groupes et personas du questionnaire, en une seule passe, en situation « projet fraîchement généré » (rien ne tourne : sautez la réimport du realm et la vérification live). Ne dupliquez pas ses règles ici. Modèle `Authenticated` : aucun rôle ni groupe ; seuls des personas simples sont possibles. Sans Aspire : pas de realm, pas de personas, pas de GUID local.
 5. **Profil.** Écrivez `<sortie>/project-profile.json` au format de `<sortie>/.claude/skills/manage-access/references/project-profile.md` (`schemaVersion` 1, options, rôles, groupes, personas, `purpose` renseigné). `manage-access` le crée déjà à son étape 7 : complétez-le plutôt que de l'écraser, puis validez :
    ```bash
-   python -c "import json; json.load(open('<sortie>/project-profile.json', encoding='utf-8')); print('JSON OK')"
+   pwsh -NoProfile -Command "Get-Content '<sortie>/project-profile.json' -Raw | ConvertFrom-Json | Out-Null; 'JSON OK'"
    ```
+   (Linux/macOS sans `pwsh` : `jq . <sortie>/project-profile.json`.)
 6. **Environnement local** (seulement si Aspire).
-   - Secrets de l'AppHost : générez deux valeurs aléatoires fortes (par exemple `openssl rand -base64 24`, ou en PowerShell `[Convert]::ToBase64String((1..24 | ForEach-Object { Get-Random -Maximum 256 }))`) et enregistrez-les dans les user-secrets, **hors dépôt** ; ne les affichez pas, ne les écrivez dans aucun fichier du projet :
+   - Secrets de l'AppHost : générez les deux valeurs **dans la commande elle-même** (jamais de valeur tapée en clair dans un appel, ni de variable affichée) ; le préfixe `Aa1!` garantit la complexité exigée par SQL Server. Elles vont dans les user-secrets, **hors dépôt** ; ne les affichez ni ne les écrivez dans un fichier du projet :
      ```bash
-     dotnet user-secrets set "Parameters:sql-password" "<valeur générée>" --project <sortie>/src/<Nom>.AppHost/<Nom>.AppHost.csproj
-     dotnet user-secrets set "Parameters:keycloak-admin-password" "<valeur générée>" --project <sortie>/src/<Nom>.AppHost/<Nom>.AppHost.csproj
+     dotnet user-secrets set "Parameters:sql-password" "Aa1!$(openssl rand -hex 16)" --project <sortie>/src/<Nom>.AppHost/<Nom>.AppHost.csproj
+     dotnet user-secrets set "Parameters:keycloak-admin-password" "Aa1!$(openssl rand -hex 16)" --project <sortie>/src/<Nom>.AppHost/<Nom>.AppHost.csproj
      ```
-   - Skills et MCP Aspire (prévenez l'utilisateur que cette commande installe des hooks de télémétrie ; l'opt-out est la variable d'environnement `ASPIRE_CLI_TELEMETRY_OPTOUT=true`) :
+     PowerShell : `dotnet user-secrets set "Parameters:sql-password" ("Aa1!" + [Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16))) --project <csproj>` (idem pour `Parameters:keycloak-admin-password`).
+   - Skills et MCP Aspire : cette commande installe des hooks de télémétrie. **Demandez un accord explicite** avant de la lancer, en mentionnant l'opt-out (variable d'environnement `ASPIRE_CLI_TELEMETRY_OPTOUT=true`, rappelée par la CLI après l'init) :
      ```bash
      aspire agent init --non-interactive --workspace-root <sortie> --skill-locations claudecode --skills aspire,aspire-orchestration,aspire-monitoring --mcp
      ```
@@ -70,7 +72,7 @@ Questions, valeurs par défaut et validations : [references/questionnaire.md](re
 
 ## Ne jamais faire sans demander
 
-- Installer un outil (SDK, Aspire CLI, certificat de développement).
+- Installer un outil (SDK, Aspire CLI, certificat de développement) ou lancer `aspire agent init` (hooks de télémétrie).
 - Écraser ou vider un dossier existant (le script refuse, ne le contournez pas).
 - Pousser sur un remote (`git push`).
 - Supprimer des volumes (`--volumes`) ou arrêter des conteneurs d'autres projets (Keycloak sur le port 8080).

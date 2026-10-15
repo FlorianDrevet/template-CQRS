@@ -17,10 +17,11 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
    - Certificat de développement : `dotnet dev-certs https --check --trust` ; s'il n'est pas approuvé, demandez avant de lancer `dotnet dev-certs https --trust` (boîte de dialogue système).
    - Secrets de l'AppHost : `dotnet user-secrets list --project APPHOST` affiche les valeurs, donc ne retenez que la présence des clés `Parameters:sql-password` et `Parameters:keycloak-admin-password` et ne répétez jamais leurs valeurs. Si une clé manque, **demandez d'abord l'accord** de l'utilisateur (c'est une écriture dans son profil), puis posez-la avec une valeur aléatoire acceptée par SQL Server (majuscules, minuscules, chiffres, symbole), sans l'afficher :
      ```bash
-     dotnet user-secrets set "Parameters:sql-password" "Aa1!$(openssl rand -hex 12)" --project APPHOST
-     dotnet user-secrets set "Parameters:keycloak-admin-password" "Aa1!$(openssl rand -hex 12)" --project APPHOST
+     dotnet user-secrets set "Parameters:sql-password" "Aa1!$(openssl rand -hex 16)" --project APPHOST
+     dotnet user-secrets set "Parameters:keycloak-admin-password" "Aa1!$(openssl rand -hex 16)" --project APPHOST
      ```
-     (PowerShell : générez la valeur avec `"Aa1!" + [guid]::NewGuid().ToString('N')`.) Ces mots de passe restent dans le profil de l'utilisateur ; ne les écrivez dans aucun fichier du dépôt.
+     PowerShell : `dotnet user-secrets set "Parameters:sql-password" ("Aa1!" + [Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16))) --project APPHOST` (idem pour `Parameters:keycloak-admin-password`).
+     Ces mots de passe restent dans le profil de l'utilisateur ; ne les écrivez dans aucun fichier du dépôt.
 2. **Port 8080 libre.** `docker ps --filter name=keycloak`. Si un Keycloak d'un **autre** projet occupe le port (conteneur persistant qui survit à `aspire stop`), expliquez-le à l'utilisateur et proposez `aspire stop --apphost <autre csproj> --force` ou `docker stop <conteneur>` ; n'appliquez aucune des deux d'office. Si aucun conteneur ne l'occupe, cherchez le processus (`netstat -ano | grep :8080`).
 3. **Démarrer** (en arrière-plan, rend la main) :
    ```bash

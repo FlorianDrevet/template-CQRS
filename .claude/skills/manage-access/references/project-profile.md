@@ -56,4 +56,4 @@ Fichier à la racine du projet généré. Écrit par `init-project`, maintenu pa
 - `entraObjectId` : renseignez-le seulement si l'utilisateur le fournit.
 - Si le fichier est absent, reconstruisez-le depuis le code et le realm (modèle d'après les fichiers présents, rôles d'après `AppRoles.cs`, groupes d'après `GroupOptions.cs` et le realm, personas d'après le realm), avec `description` / `purpose` vides à compléter (`""`), et dites-le à l'utilisateur.
 - Si le fichier existe mais n'est pas du JSON valide ou a un `schemaVersion` inconnu, ne l'écrasez pas : signalez-le et demandez.
-- Validation : `python -c "import json; json.load(open('project-profile.json', encoding='utf-8')); print('JSON OK')"`.
+- Validation : `pwsh -NoProfile -Command "Get-Content project-profile.json -Raw | ConvertFrom-Json | Out-Null; 'JSON OK'"` (ou `jq . project-profile.json`).

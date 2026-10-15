@@ -14,19 +14,23 @@ remote=""
 
 usage() {
   sed -n '3,4p' "$0" >&2
-  exit 2
+  exit "${1:-2}"
+}
+
+need_value() {
+  [ "$2" -ge 2 ] || { echo "new-project: $1 needs a value" >&2; usage; }
 }
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --name) name="${2:-}"; shift 2 ;;
-    --output) output="${2:-}"; shift 2 ;;
-    --authorization) authorization="${2:-}"; shift 2 ;;
-    --aspire) aspire="${2:-}"; shift 2 ;;
-    --rate-limiting) rate_limiting="${2:-}"; shift 2 ;;
-    --tests) tests="${2:-}"; shift 2 ;;
-    --remote) remote="${2:-}"; shift 2 ;;
-    -h|--help) usage ;;
+    --name) need_value "$1" $#; name="${2:-}"; shift 2 ;;
+    --output) need_value "$1" $#; output="${2:-}"; shift 2 ;;
+    --authorization) need_value "$1" $#; authorization="${2:-}"; shift 2 ;;
+    --aspire) need_value "$1" $#; aspire="${2:-}"; shift 2 ;;
+    --rate-limiting) need_value "$1" $#; rate_limiting="${2:-}"; shift 2 ;;
+    --tests) need_value "$1" $#; tests="${2:-}"; shift 2 ;;
+    --remote) need_value "$1" $#; remote="${2:-}"; shift 2 ;;
+    -h|--help) sed -n '3,4p' "$0"; exit 0 ;;
     *) echo "new-project: unknown option '$1'" >&2; usage ;;
   esac
 done

@@ -45,9 +45,9 @@ Détails (lisez le fichier concerné avant d'écrire) :
    ```
    Le filtre `name=` est une recherche de sous-chaîne : il peut renvoyer les volumes d'autres projets. **Ne supprimez jamais par filtre.** Constat sur l'Aspire CLI 13.6 (l'aide dit pourtant que `--volumes` les supprime) : `<projet>.apphost-<hash>-keycloak-data` et `…-sqlserver-data` restent, donc le realm n'est pas réimporté. S'ils restent, affichez à l'utilisateur les **noms exacts** de ce projet, obtenez son accord explicite sur cette liste, puis `docker volume rm <nom> <nom>`. Ensuite :
    ```bash
-   aspire start
-   aspire wait keycloak --timeout 300
-   aspire wait api --timeout 300
+   aspire start --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
+   aspire wait keycloak --timeout 300 --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
+   aspire wait api --timeout 300 --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
    ```
    Si le port 8080 reste occupé par un conteneur Keycloak persistant d'un autre projet, expliquez-le à l'utilisateur et proposez une remédiation sans l'appliquer d'office. Sans accord, laissez le fichier modifié et dites que le changement ne sera visible qu'après réinitialisation. Si rien ne tourne ou si le projet vient d'être généré : passez cette étape.
 10. **Vérifier un token live** (seulement si l'environnement tourne après l'étape 9) : obtenez un token du persona et décodez le payload ; `roles` et `groups` doivent contenir les valeurs attendues.

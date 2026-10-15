@@ -80,5 +80,7 @@ jobs:
         displayName: Install .NET SDK from global.json
         inputs:
           useGlobalJson: true
+      - bash: python3 -m pip install --user pyyaml
+        displayName: Install PyYAML (frontmatter check)
       - bash: bash eng/verify-template.sh $(auth) $(aspire) $(rateLimiting) $(tests)
         displayName: verify-template $(auth) aspire=$(aspire) rl=$(rateLimiting) tests=$(tests)

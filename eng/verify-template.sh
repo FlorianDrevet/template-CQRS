@@ -49,9 +49,17 @@ grep -q "Ci.Generated" AGENTS.md || fail "AGENTS.md is not the generated project
 if grep -q "init-project" AGENTS.md; then
   fail "AGENTS.md is the template maintainers' file."
 fi
-if grep -q "<!--#" AGENTS.md; then
-  fail "AGENTS.md contains unprocessed template directives."
-fi
+for doc in AGENTS.md .github/copilot-instructions.md; do
+  if grep -q "<!--#" "$doc"; then
+    fail "$doc contains unprocessed template directives."
+  fi
+done
+for entry in .claude/*; do
+  case "$(basename "$entry")" in
+    skills|agents) ;;
+    *) fail "unexpected '$entry' in the generated .claude/ folder." ;;
+  esac
+done
 for skill in .claude/skills/*/SKILL.md; do
   head -1 "$skill" | grep -q '^---$' || fail "$skill has no YAML frontmatter."
   grep -q '^name: ' "$skill" || fail "$skill has no name."
@@ -69,6 +77,9 @@ else
   done
   if grep -qiE "aspire|keycloak" AGENTS.md; then
     fail "AGENTS.md mentions Aspire or Keycloak in a project generated without Aspire."
+  fi
+  if grep -qiE "aspire|keycloak|7246" .github/copilot-instructions.md; then
+    fail "copilot-instructions.md mentions Aspire, Keycloak or 7246 in a project generated without Aspire."
   fi
 fi
 py=""

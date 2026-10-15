@@ -4,6 +4,8 @@ Ce dépôt est un template `dotnet new` (`templatewebcqrs`) pour une API ASP.NET
 
 Pour créer un projet client à partir de ce template, utilisez le skill `init-project`.
 
+Les skills `add-feature`, `manage-access` et `run-local` ciblent les projets **générés** : ne les lancez jamais sur ce dépôt (ils retireraient les directives de template des fichiers).
+
 ## Structure
 
 - `.template.config/template.json` : symboles (`EnableAspire`, `EnableRateLimiting`, `EnableTests`, `AuthorizationModel` et les calculés `UseAppRoles`, `UseGroups`, `UseAuthorizationPolicies`), exclusions et renommages.

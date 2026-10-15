@@ -89,7 +89,7 @@ Ces scripts ne sont pas copiés dans un projet généré : ils servent à créer
 bash eng/init/new-project.sh --name Contoso.Orders --authorization AppRolesAndGroups
 ```
 
-Le script refuse un nom qui n'est pas en PascalCase avec des points (`Contoso.Orders`) et un dossier cible existant et non vide (code de sortie `1`, rien n'est modifié). Par défaut le projet est créé dans `../<Nom>`.
+Le script refuse un nom qui n'est pas en PascalCase avec des points (`Contoso.Orders`) et un dossier cible existant et non vide (code de sortie `1`, rien n'est modifié). Par défaut le projet est créé dans `../<Nom>`. La version PowerShell (`pwsh -NoProfile -File eng/init/new-project.ps1 -Name Contoso.Demo -Aspire false`) prend `-Aspire`, `-RateLimiting` et `-Tests` sous forme de chaîne `true` ou `false`.
 
 ## `eng/verify-template.sh` : générer, vérifier, compiler, tester
 

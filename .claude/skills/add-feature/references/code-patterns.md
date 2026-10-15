@@ -534,7 +534,7 @@ public sealed class ListProductsQueryValidator : AbstractValidator<ListProductsQ
 {
     public ListProductsQueryValidator()
     {
-        RuleFor(query => query.Page).GreaterThanOrEqualTo(1);
+        RuleFor(query => query.Page).InclusiveBetween(1, 10_000); // bornée : (Page - 1) * PageSize ne doit pas déborder
         RuleFor(query => query.PageSize).InclusiveBetween(1, 100);
     }
 }
@@ -725,7 +725,7 @@ public sealed class CreateProductCommandHandlerTests
 }
 ```
 
-Intégration. `ApiFactory` fournit une base EF InMemory **partagée par tous les tests de l'assembly d'intégration** (nom de base constant dans `ApiFactory`, donc commune à toutes les classes de tests) : utilisez des noms uniques (`Guid`) pour que les tests ne se gênent pas, et n'affirmez jamais qu'une liste est vide ou de taille exacte, seulement qu'elle contient vos éléments. `AsUser` crée l'identité (en-têtes `X-Test-User`, `X-Test-Roles`) ; avec le modèle groupes, utilisez `groups: [ApiFactory.AdministratorsGroupId]` à la place de `roles:`.
+Intégration. `ApiFactory` fournit une base EF InMemory **partagée par tous les tests de l'assembly d'intégration** (nom de base constant dans `ApiFactory`, donc commune à toutes les classes de tests) : utilisez des noms uniques (`Guid`) pour que les tests ne se gênent pas, et n'affirmez jamais qu'une liste est vide ou de taille exacte, seulement qu'elle contient vos éléments. `AsUser` crée l'identité (en-têtes `X-Test-User`, `X-Test-Roles`) ; avec le modèle groupes, utilisez `groups: [ApiFactory.AdministratorsGroupId]` à la place de `roles:`. Modèle groupes seul (`AppRoles` n'existe pas) : l'utilisateur standard est `AsUser("user-1")` sans rôle ni groupe, et l'administrateur `AsUser("admin-1", groups: [ApiFactory.AdministratorsGroupId])` ; adaptez `Admin()` et `StandardUser()` en conséquence et retirez le `using` d'`Authorization` devenu inutile.
 
 ```csharp
 // tests/Web.Template.CQRS.Api.IntegrationTests/Products/ProductEndpointTests.cs

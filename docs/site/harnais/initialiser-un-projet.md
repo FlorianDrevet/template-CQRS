@@ -85,7 +85,7 @@ Le skill s'appuie sur un script que vous pouvez lancer seul, depuis la racine du
     ./eng/init/new-project.ps1 -Name Contoso.Orders -Authorization AppRolesAndGroups
     ```
 
-Options du script Bash : `--name` (obligatoire), `--output` (par défaut `../<Nom>`), `--authorization` (par défaut `AppRoles`), `--aspire`, `--rate-limiting` et `--tests` (`true` ou `false`, par défaut `true`) et `--remote <url git>`. Voici sa partie génération :
+Options du script Bash : `--name` (obligatoire), `--output` (par défaut `../<Nom>`), `--authorization` (par défaut `AppRoles`), `--aspire`, `--rate-limiting` et `--tests` (`true` ou `false`, par défaut `true`) et `--remote <url git>`. Le script PowerShell a les mêmes options en `-Name`, `-Output`, `-Authorization`, `-Aspire`, `-RateLimiting`, `-Tests`, `-Remote` ; les trois options booléennes prennent la chaîne `true` ou `false` (par exemple `-Aspire false`, pas `$false`), ce qui fonctionne aussi avec `pwsh -File` depuis Bash. Voici sa partie génération :
 
 ```bash title="eng/init/new-project.sh"
 --8<-- "eng/init/new-project.sh" start='root="$(cd' end='echo "new-project: created'

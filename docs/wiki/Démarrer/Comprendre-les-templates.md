@@ -118,6 +118,10 @@ Le fichier complet est reproduit ci-dessous (dépliez l'encadré). Les symboles 
 >         {
 >           "exclude": [
 >             ".idea/**",
+>             ".claude/settings.local.json",
+>             ".claude/*.local.*",
+>             ".claude/worktrees/**",
+>             "graphify-out/**",
 >             ".superpowers/**",
 >             "eng/**",
 >             "docs/**",

@@ -159,6 +159,10 @@ Voici le bloc `sources` de `template.json`, source de vérité de tout ce qui pr
       {
         "exclude": [
           ".idea/**",
+          ".claude/settings.local.json",
+          ".claude/*.local.*",
+          ".claude/worktrees/**",
+          "graphify-out/**",
           ".superpowers/**",
           "eng/**",
           "docs/**",

@@ -15,22 +15,23 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
    - Docker tourne : `docker info` (sinon, dites-le à l'utilisateur).
    - CLI Aspire : `aspire --version`.
    - Certificat de développement : `dotnet dev-certs https --check --trust` ; s'il n'est pas approuvé, demandez avant de lancer `dotnet dev-certs https --trust` (boîte de dialogue système).
-   - Secrets de l'AppHost : `dotnet user-secrets list --project APPHOST` affiche les valeurs, donc ne retenez que la présence des clés `Parameters:sql-password` et `Parameters:keycloak-admin-password` et ne répétez jamais leurs valeurs. Si une clé manque, **demandez d'abord l'accord** de l'utilisateur (c'est une écriture dans son profil), puis posez-la avec une valeur aléatoire acceptée par SQL Server (majuscules, minuscules, chiffres, symbole), sans l'afficher :
+   - Secrets de l'AppHost : listez les clés **sans les valeurs** : `dotnet user-secrets list --project APPHOST | sed 's/ = .*//'` (PowerShell : `dotnet user-secrets list --project APPHOST | ForEach-Object { ($_ -split ' = ')[0] }`). Ne retenez que la présence des clés `Parameters:sql-password` et `Parameters:keycloak-admin-password` et ne répétez jamais leurs valeurs. Si une clé manque, **demandez d'abord l'accord** de l'utilisateur (c'est une écriture dans son profil), puis posez-la avec une valeur aléatoire acceptée par SQL Server (majuscules, minuscules, chiffres, symbole), sans l'afficher :
      ```bash
-     dotnet user-secrets set "Parameters:sql-password" "Aa1!$(openssl rand -hex 16)" --project APPHOST
-     dotnet user-secrets set "Parameters:keycloak-admin-password" "Aa1!$(openssl rand -hex 16)" --project APPHOST
+     command -v openssl >/dev/null || { echo "openssl introuvable : utilisez la commande PowerShell" >&2; }
+     dotnet user-secrets set "Parameters:sql-password" "Aa1_$(openssl rand -hex 16)" --project APPHOST
+     dotnet user-secrets set "Parameters:keycloak-admin-password" "Aa1_$(openssl rand -hex 16)" --project APPHOST
      ```
-     PowerShell : `dotnet user-secrets set "Parameters:sql-password" ("Aa1!" + [Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16))) --project APPHOST` (idem pour `Parameters:keycloak-admin-password`).
+     PowerShell : `dotnet user-secrets set "Parameters:sql-password" ("Aa1_" + [Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16))) --project APPHOST` (idem pour `Parameters:keycloak-admin-password`).
      Ces mots de passe restent dans le profil de l'utilisateur ; ne les écrivez dans aucun fichier du dépôt.
-2. **Port 8080 libre.** `docker ps --filter name=keycloak`. Si un Keycloak d'un **autre** projet occupe le port (conteneur persistant qui survit à `aspire stop`), expliquez-le à l'utilisateur et proposez `aspire stop --apphost <autre csproj> --force` ou `docker stop <conteneur>` ; n'appliquez aucune des deux d'office. Arrêter le conteneur ne suffit pas toujours : le proxy du `dcp` d'un **autre AppHost encore en marche** garde les ports 8080 et 7246 (`netstat -ano | grep -E ":(8080|7246) "` puis `aspire ps` pour repérer l'AppHost). Dans ce cas, seul `aspire stop --apphost <autre csproj>` libère les ports : proposez-le, n'appliquez rien d'office. Un seul projet généré à la fois peut tourner sur ces ports fixes.
+2. **Port 8080 libre.** `docker ps --filter name=keycloak`. Si un Keycloak d'un **autre** projet occupe le port (conteneur persistant qui survit à `aspire stop`), expliquez-le à l'utilisateur et proposez `aspire stop --apphost <autre csproj> --force` ou `docker stop <conteneur>` ; n'appliquez aucune des deux d'office. Arrêter le conteneur ne suffit pas toujours : le proxy du `dcp` d'un **autre AppHost encore en marche** garde les ports 8080 et 7246 (`netstat -ano | grep -E ":(8080|7246) "` (macOS/Linux : `lsof -iTCP:8080 -sTCP:LISTEN`) puis `aspire ps` pour repérer l'AppHost). Dans ce cas, seul `aspire stop --apphost <autre csproj>` libère les ports : proposez-le, n'appliquez rien d'office. Un seul projet généré à la fois peut tourner sur ces ports fixes.
 3. **Démarrer** (en arrière-plan, rend la main) :
    ```bash
    aspire start --apphost APPHOST
    ```
    Le résultat donne l'URL du dashboard (elle contient un jeton : ne la republiez pas). Attendez ensuite que l'API soit saine, puis contrôlez :
    ```bash
-   aspire wait keycloak --timeout 300
-   aspire wait api --timeout 300
+   aspire wait keycloak --timeout 300 --apphost APPHOST
+   aspire wait api --timeout 300 --apphost APPHOST
    aspire ps
    aspire describe
    ```

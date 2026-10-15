@@ -78,6 +78,10 @@
         {
           "exclude": [
             ".idea/**",
+            ".claude/settings.local.json",
+            ".claude/*.local.*",
+            ".claude/worktrees/**",
+            "graphify-out/**",
             ".superpowers/**",
             "eng/**",
             "docs/**",

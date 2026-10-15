@@ -13,7 +13,11 @@ Documentation : https://floriandrevet.github.io/template-CQRS/
 | `src/Web.Template.CQRS.Application` | Queries, commandes, handlers, validateurs, interfaces | Domain |
 | `src/Web.Template.CQRS.Contracts` | Types JSON échangés avec les clients (`*Response`) | Domain |
 | `src/Web.Template.CQRS.Infrastructure` | EF Core, stockage blob, horloge (implémente les interfaces d'Application) | Application |
+<!--#if (EnableAspire) -->
+| `src/Web.Template.CQRS.Api` | Endpoints, authentification, autorisation, erreurs (racine de composition) | Application, Infrastructure, Contracts, ServiceDefaults |
+<!--#else -->
 | `src/Web.Template.CQRS.Api` | Endpoints, authentification, autorisation, erreurs (racine de composition) | Application, Infrastructure, Contracts |
+<!--#endif -->
 <!--#if (EnableAspire) -->
 | `src/Web.Template.CQRS.ServiceDefaults` | OpenTelemetry, health checks, résilience | paquets NuGet |
 | `src/Web.Template.CQRS.AppHost` | Orchestration locale (SQL Server, Azurite, Keycloak, API) | déclare l'API |
@@ -65,6 +69,8 @@ aspire start --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.c
 aspire stop --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
 ./scripts/get-token.ps1 -Persona admin      # ou : bash ./scripts/get-token.sh admin
 ./scripts/smoke-test.ps1                    # ou : bash ./scripts/smoke-test.sh
+<!--#else -->
+dotnet run --project src/Web.Template.CQRS.Api --launch-profile https
 <!--#endif -->
 ```
 

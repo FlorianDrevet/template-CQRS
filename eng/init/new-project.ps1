@@ -11,9 +11,12 @@ param(
     [string]$Output,
     [ValidateSet('Authenticated', 'AppRoles', 'Groups', 'AppRolesAndGroups')]
     [string]$Authorization = 'AppRoles',
-    [bool]$Aspire = $true,
-    [bool]$RateLimiting = $true,
-    [bool]$Tests = $true,
+    [ValidateSet('true', 'false')]
+    [string]$Aspire = 'true',
+    [ValidateSet('true', 'false')]
+    [string]$RateLimiting = 'true',
+    [ValidateSet('true', 'false')]
+    [string]$Tests = 'true',
     [string]$Remote
 )
 
@@ -34,17 +37,15 @@ if ((Test-Path $Output) -and (Get-ChildItem -Force $Output | Select-Object -Firs
     exit 1
 }
 
-$toFlag = { param([bool]$value) $value.ToString().ToLowerInvariant() }
-
 Invoke-Checked 'dotnet' @('new', 'install', $root, '--force')
 Invoke-Checked 'dotnet' @(
     'new', 'templatewebcqrs',
     '--name', $Name,
     '--output', $Output,
     '--AuthorizationModel', $Authorization,
-    '--EnableAspire', (& $toFlag $Aspire),
-    '--EnableRateLimiting', (& $toFlag $RateLimiting),
-    '--EnableTests', (& $toFlag $Tests))
+    '--EnableAspire', $Aspire,
+    '--EnableRateLimiting', $RateLimiting,
+    '--EnableTests', $Tests)
 Invoke-Checked 'git' @('-C', $Output, 'init', '--quiet')
 if ($Remote) { Invoke-Checked 'git' @('-C', $Output, 'remote', 'add', 'origin', $Remote) }
 

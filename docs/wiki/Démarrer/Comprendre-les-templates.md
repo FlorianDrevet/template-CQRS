@@ -118,6 +118,10 @@ Le fichier complet est reproduit ci-dessous (dépliez l'encadré). Les symboles 
 >         {
 >           "exclude": [
 >             ".idea/**",
+>             ".claude/settings.local.json",
+>             ".claude/*.local.*",
+>             ".claude/worktrees/**",
+>             "graphify-out/**",
 >             ".superpowers/**",
 >             "eng/**",
 >             "docs/**",
@@ -132,10 +136,13 @@ Le fichier complet est reproduit ci-dessous (dépliez l'encadré). Les symboles 
 >             ".github/workflows/docs.yml",
 >             "Directory.Build.props",
 >             "mkdocs.yml",
->             "README.md"
+>             "README.md",
+>             "AGENTS.md",
+>             ".claude/skills/init-project/**"
 >           ],
 >           "rename": {
->             "README.generated.md": "README.md"
+>             "README.generated.md": "README.md",
+>             "AGENTS.generated.md": "AGENTS.md"
 >           }
 >         },
 >         {
@@ -144,7 +151,10 @@ Le fichier complet est reproduit ci-dessous (dépliez l'encadré). Les symboles 
 >             "src/Web.Template.CQRS.AppHost/**",
 >             "src/Web.Template.CQRS.ServiceDefaults/**",
 >             "scripts/**",
->             "Web.Template.CQRS.slnx"
+>             "Web.Template.CQRS.slnx",
+>             ".mcp.json",
+>             ".vscode/mcp.json",
+>             ".claude/skills/run-local/**"
 >           ],
 >           "rename": {
 >             "Web.Template.CQRS.Core.slnx": "Web.Template.CQRS.slnx"

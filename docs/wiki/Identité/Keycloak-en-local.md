@@ -363,13 +363,9 @@ Cet utilisateur vit dans le **volume** de Keycloak : il survit aux redémarrages
 
 C'est le piège le plus fréquent. Keycloak importe le dossier `Realms` **uniquement quand le realm n'existe pas encore**, c'est-à-dire au premier démarrage avec un volume vide. Une fois le volume rempli, **modifier `template-realm.json` n'a aucun effet** : Keycloak considère le realm comme déjà importé et ne le relit pas.
 
-Pour appliquer vos changements, réinitialisez les volumes. Cela efface aussi la base SQL locale :
+Pour appliquer vos changements, réinitialisez les volumes. Cela efface aussi la base SQL locale. La procédure complète (`aspire stop … --force --volumes`, contrôle des volumes restants, suppression par nom exact, `aspire start`) est décrite une seule fois dans [Émulateurs](/Aspire/Émulateurs.md#reinitialiser-les-donnees) : l'Aspire CLI 13.6 laisse parfois les volumes en place, et le realm n'est alors pas réimporté.
 
-```bash
-aspire stop --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj --force --volumes
-```
-
-Au prochain lancement, Keycloak repart d'un volume vide et réimporte le realm. Pour ne réinitialiser que Keycloak sans perdre la base SQL, utilisez la méthode Docker de la page [Émulateurs](/Aspire/Émulateurs.md).
+Au prochain lancement avec un volume vide, Keycloak réimporte le realm. Pour ne réinitialiser que Keycloak sans perdre la base SQL, utilisez la méthode Docker de la même page.
 
 ### HTTPS et certificat de développement
 

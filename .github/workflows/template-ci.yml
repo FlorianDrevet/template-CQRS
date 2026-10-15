@@ -38,6 +38,11 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install PyYAML (frontmatter check)
+        run: python -m pip install pyyaml
       - name: Generate, build and test
         run: bash eng/verify-template.sh ${{ matrix.auth }} ${{ matrix.aspire }} ${{ matrix.rateLimiting }} ${{ matrix.tests }}
 

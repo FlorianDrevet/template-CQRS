@@ -279,13 +279,7 @@ Le mot de passe `Passw0rd!` est public (écrit dans le dépôt) : il ne sert que
 
 ### Réimporter le realm
 
-Keycloak n'importe le realm qu'au premier démarrage d'un volume vide : modifier `template-realm.json` n'a **aucun effet** tant que le volume existe. Pour appliquer vos changements, réinitialisez les volumes, ce qui efface aussi la base SQL locale :
-
-```bash
-aspire stop --apphost src/Contoso.Orders.AppHost/Contoso.Orders.AppHost.csproj --force --volumes
-```
-
-Relancez ensuite avec `aspire start`. Pour ne réinitialiser que Keycloak, voir la méthode Docker de la page [Émulateurs](../aspire/emulateurs.md).
+Keycloak n'importe le realm qu'au premier démarrage d'un volume vide : modifier `template-realm.json` n'a **aucun effet** tant que le volume existe. Pour appliquer vos changements, réinitialisez les volumes, ce qui efface aussi la base SQL locale. Suivez la procédure de la page [Émulateurs](../aspire/emulateurs.md#reinitialiser-les-donnees) : `aspire stop --apphost src/Contoso.Orders.AppHost/Contoso.Orders.AppHost.csproj --force --volumes`, puis contrôle des volumes restants (`docker volume ls --filter name=contoso.orders.apphost` ; l'Aspire CLI 13.6 les laisse parfois, à supprimer alors par nom exact), puis `aspire start` et `aspire wait`. Pour ne réinitialiser que Keycloak, voir la méthode Docker de la même page.
 
 Vérifiez enfin le résultat en demandant un token pour le nouveau persona et en décodant ses claims (voir [Keycloak en local](../identite/keycloak-local.md)) :
 

@@ -4,7 +4,7 @@ Ce template génère une API ASP.NET Core (.NET 10) organisée en CQRS : chaque 
 
 Cette documentation est à la fois un guide d'utilisation et un support de cours. Elle s'adresse à des développeurs débutants ou juniors en .NET, à ceux qui découvrent CQRS, Aspire ou OAuth2, et aux personnes qui forment une équipe avec ce template. Chaque notion est expliquée depuis zéro, puis illustrée par le code réel du dépôt, puis mise en pratique dans un encadré « À essayer ».
 
-## Trois parcours de lecture
+## Quatre parcours de lecture
 
 ### Je veux créer une API maintenant
 
@@ -20,6 +20,13 @@ Cette documentation est à la fois un guide d'utilisation et un support de cours
 3. [Fonctionnalités](fonctionnalites/index.md) : observabilité, health checks, rate limiting, OpenAPI.
 4. [Aspire](aspire/index.md) : l'orchestration locale.
 5. [Identité](identite/index.md) : OAuth2, Entra ID, Keycloak.
+
+### Je travaille avec un agent IA
+
+1. [Harnais agentique](harnais/index.md) : ce que sont un agent de code, `AGENTS.md`, un skill, un agent et le MCP.
+2. [Initialiser un projet](harnais/initialiser-un-projet.md) : créer un projet client avec Claude Code ou Copilot.
+3. [Skills de développement](harnais/skills-de-developpement.md) : ajouter une feature, gérer les accès, lancer en local.
+4. [MCP Aspire](harnais/mcp-aspire.md) : laisser l'agent observer l'application qui tourne.
 
 ### Je forme une équipe
 

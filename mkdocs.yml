@@ -87,6 +87,13 @@ nav:
       - Ajouter une feature: guides/ajouter-une-feature.md
       - Rôles, groupes et personas: guides/ajouter-role-groupe-persona.md
       - Configurer un déploiement: guides/configurer-un-deploiement.md
+  - Harnais agentique:
+      - harnais/index.md
+      - Initialiser un projet: harnais/initialiser-un-projet.md
+      - Skills de développement: harnais/skills-de-developpement.md
+      - Agent de revue: harnais/agent-de-revue.md
+      - MCP Aspire: harnais/mcp-aspire.md
+      - Personnaliser le harnais: harnais/personnaliser-le-harnais.md
   - Référence:
       - reference/index.md
       - Options du template: reference/options-du-template.md

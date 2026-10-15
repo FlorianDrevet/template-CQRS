@@ -37,6 +37,66 @@ grep -q "Ci.Generated" README.md || fail "README.md is not the generated project
 if grep -q "dotnet new install" README.md; then
   fail "README.md is the template repository README."
 fi
+for required in AGENTS.md CLAUDE.md .github/copilot-instructions.md \
+  .claude/skills/add-feature/SKILL.md .claude/skills/manage-access/SKILL.md \
+  .claude/agents/reviewer.md .github/agents/reviewer.agent.md; do
+  [ -f "$required" ] || fail "harness file '$required' is missing."
+done
+for leaked in .claude/skills/init-project AGENTS.generated.md eng/init; do
+  [ ! -e "$leaked" ] || fail "'$leaked' leaked into the generated project."
+done
+grep -q "Ci.Generated" AGENTS.md || fail "AGENTS.md is not the generated project's instructions."
+if grep -q "init-project" AGENTS.md; then
+  fail "AGENTS.md is the template maintainers' file."
+fi
+for doc in AGENTS.md .github/copilot-instructions.md; do
+  if grep -q "<!--#" "$doc"; then
+    fail "$doc contains unprocessed template directives."
+  fi
+done
+for entry in .claude/*; do
+  case "$(basename "$entry")" in
+    skills|agents) ;;
+    *) fail "unexpected '$entry' in the generated .claude/ folder." ;;
+  esac
+done
+for skill in .claude/skills/*/SKILL.md; do
+  head -1 "$skill" | grep -q '^---$' || fail "$skill has no YAML frontmatter."
+  grep -q '^name: ' "$skill" || fail "$skill has no name."
+  grep -q '^description: ' "$skill" || fail "$skill has no description."
+done
+if [ "$aspire" = "true" ]; then
+  for required in .claude/skills/run-local/SKILL.md .mcp.json .vscode/mcp.json scripts/smoke-test.sh scripts/smoke-test.ps1; do
+    [ -f "$required" ] || fail "harness file '$required' is missing."
+  done
+  python3 -m json.tool .mcp.json > /dev/null 2>&1 || python -m json.tool .mcp.json > /dev/null || fail ".mcp.json is not valid JSON."
+  python3 -m json.tool .vscode/mcp.json > /dev/null 2>&1 || python -m json.tool .vscode/mcp.json > /dev/null || fail ".vscode/mcp.json is not valid JSON."
+else
+  for leaked in .claude/skills/run-local .mcp.json .vscode/mcp.json scripts; do
+    [ ! -e "$leaked" ] || fail "'$leaked' must not be generated without Aspire."
+  done
+  if grep -qiE "aspire|keycloak" AGENTS.md; then
+    fail "AGENTS.md mentions Aspire or Keycloak in a project generated without Aspire."
+  fi
+  if grep -qiE "aspire|keycloak|7246" .github/copilot-instructions.md; then
+    fail "copilot-instructions.md mentions Aspire, Keycloak or 7246 in a project generated without Aspire."
+  fi
+fi
+py=""
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c "import yaml" >/dev/null 2>&1; then
+    py="$candidate"
+    break
+  fi
+done
+if [ -n "$py" ]; then
+  for file in .claude/skills/*/SKILL.md .claude/agents/*.md .github/agents/*.agent.md; do
+    "$py" -c "import sys,yaml; yaml.safe_load(open(sys.argv[1],encoding='utf-8').read().split('---')[1])" "$file" \
+      || fail "$file has invalid YAML frontmatter."
+  done
+else
+  echo "verify-template: PyYAML not available, skipping frontmatter YAML parsing"
+fi
 if find . -name TestResults -type d | grep -q .; then
   fail "TestResults folders leaked into the generated project."
 fi

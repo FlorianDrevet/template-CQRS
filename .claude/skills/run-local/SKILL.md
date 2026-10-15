@@ -15,7 +15,7 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
    - Docker tourne : `docker info` (sinon, dites-le à l'utilisateur).
    - CLI Aspire : `aspire --version`.
    - Certificat de développement : `dotnet dev-certs https --check --trust` ; s'il n'est pas approuvé, demandez avant de lancer `dotnet dev-certs https --trust` (boîte de dialogue système).
-   - Secrets de l'AppHost : `dotnet user-secrets list --project APPHOST` affiche les valeurs, donc ne retenez que la présence des clés `Parameters:sql-password` et `Parameters:keycloak-admin-password` et ne répétez jamais leurs valeurs. Si une clé manque, posez-la avec une valeur aléatoire acceptée par SQL Server (majuscules, minuscules, chiffres, symbole), sans l'afficher :
+   - Secrets de l'AppHost : `dotnet user-secrets list --project APPHOST` affiche les valeurs, donc ne retenez que la présence des clés `Parameters:sql-password` et `Parameters:keycloak-admin-password` et ne répétez jamais leurs valeurs. Si une clé manque, **demandez d'abord l'accord** de l'utilisateur (c'est une écriture dans son profil), puis posez-la avec une valeur aléatoire acceptée par SQL Server (majuscules, minuscules, chiffres, symbole), sans l'afficher :
      ```bash
      dotnet user-secrets set "Parameters:sql-password" "Aa1!$(openssl rand -hex 12)" --project APPHOST
      dotnet user-secrets set "Parameters:keycloak-admin-password" "Aa1!$(openssl rand -hex 12)" --project APPHOST
@@ -80,6 +80,7 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
 - `aspire stop ... --force --volumes` ou toute suppression de volume ou de conteneur : efface la base et le realm.
 - Arrêter ou supprimer le conteneur Keycloak (ou toute ressource) d'un autre projet.
 - Modifier le realm Keycloak : il faut ensuite le réimporter (voir `manage-access`).
+- Écrire des user-secrets manquants (`dotnet user-secrets set`) : accord préalable, valeurs jamais affichées.
 - Approuver le certificat de développement (`dotnet dev-certs https --trust`).
 - Afficher, journaliser ou committer un secret ou un token.
 - Envoyer les identifiants des personas ailleurs que vers l'API et Keycloak locaux.

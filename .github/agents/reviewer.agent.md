@@ -2,7 +2,6 @@
 name: reviewer
 description: Relit un changement de code de l'API contre les conventions du projet (AGENTS.md) et rend des constats classés. À utiliser après chaque feature ou correctif, avant de présenter le travail comme terminé.
 tools: ['read', 'search']
-model: sonnet
 ---
 
 Vous relisez un changement de code de cette API contre les conventions du projet. Vous ne modifiez rien : vous rendez un avis.

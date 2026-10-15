@@ -418,12 +418,23 @@ public sealed record CreateProductOutcome(ProductResult? Created)
 ```
 
 ```csharp
-// .../CreateProduct/CreateProductCommand.cs
+// .../CreateProduct/CreateProductCommand.cs (remplace le fichier entier)
+using Mediator;
+
+namespace Web.Template.CQRS.Application.Products.Commands.CreateProduct;
+
 public sealed record CreateProductCommand(string Name, decimal Price) : ICommand<CreateProductOutcome>;
 ```
 
 ```csharp
-// .../CreateProduct/CreateProductCommandHandler.cs
+// .../CreateProduct/CreateProductCommandHandler.cs (remplace le fichier entier)
+using Mediator;
+using Web.Template.CQRS.Application.Common.Interfaces.Persistence;
+using Web.Template.CQRS.Application.Products.Common;
+using Web.Template.CQRS.Domain.Products;
+
+namespace Web.Template.CQRS.Application.Products.Commands.CreateProduct;
+
 public sealed class CreateProductCommandHandler(IProductRepository products)
     : ICommandHandler<CreateProductCommand, CreateProductOutcome>
 {
@@ -447,13 +458,12 @@ public sealed class CreateProductCommandHandler(IProductRepository products)
 }
 ```
 
-Le validateur ne change pas (il reste la source des 400). Pour un format précis (par exemple un code à 13 chiffres), ajoutez des règles au validateur : `.Matches(@"^\d{13}$")`, ou `.Must(IsValidChecksum)` pour une somme de contrôle, avec `.WithMessage(...)`. Le validateur s'exécute avant le handler, donc un format invalide donne 400 et jamais 409.
+Le validateur ne change pas (il reste la source des 400). Pour un format précis (par exemple un code à 13 chiffres), ajoutez des règles au validateur : `.Matches(@"^\d{13}$")`, ou `.Must(IsValidChecksum)` pour une somme de contrôle, avec `.WithMessage(...)`. Le validateur s'exécute avant le handler, donc un format invalide donne 400 et jamais 409. Une valeur vide viole alors `NotEmpty()` **et** la règle de format : dans les tests du validateur, cherchez l'erreur de la propriété (`Assert.Contains(result.Errors, f => f.PropertyName == ...)`) plutôt que `Assert.Single`, ou ajoutez `.Cascade(CascadeMode.Stop)` à la propriété.
 
-Endpoint de création avec 409 (toutes les branches en `Results.*`, `HttpContext` injecté pour le `traceId`) :
+Endpoint de création avec 409 (toutes les branches en `Results.*`, `HttpContext` injecté pour le `traceId`). Il remplace le `createEndpoint` de la section 6 dans `MapProductEndpoints` ; ajoutez `using System.Diagnostics;` en tête de `ProductsController.cs` (les autres `using` de la section 6 restent nécessaires) :
 
 ```csharp
-using System.Diagnostics;
-// ...
+// dans MapProductEndpoints (à la place du createEndpoint de la section 6)
 var createEndpoint = endpoints.MapPost("/products", async (
         CreateProductRequest request,
         IMediator mediator,
@@ -491,6 +501,7 @@ Le `title` ne doit pas contenir la valeur fournie ni le message d'une exception.
 Faux repository pour les tests unitaires (ajoutez ces deux méthodes à `FakeProductRepository`) :
 
 ```csharp
+// dans FakeProductRepository (aucun using de plus : System.Linq est implicite)
 public Task<bool> ExistsByNameAsync(string name) =>
     Task.FromResult(Products.Any(product => product.Name == name));
 
@@ -714,7 +725,7 @@ public sealed class CreateProductCommandHandlerTests
 }
 ```
 
-Intégration. `ApiFactory` fournit une base EF InMemory **partagée par tous les tests de la classe** : utilisez des noms uniques (`Guid`) pour que les tests ne se gênent pas, et n'affirmez jamais qu'une liste est vide ou de taille exacte, seulement qu'elle contient vos éléments. `AsUser` crée l'identité (en-têtes `X-Test-User`, `X-Test-Roles`) ; avec le modèle groupes, utilisez `groups: [ApiFactory.AdministratorsGroupId]` à la place de `roles:`.
+Intégration. `ApiFactory` fournit une base EF InMemory **partagée par tous les tests de l'assembly d'intégration** (nom de base constant dans `ApiFactory`, donc commune à toutes les classes de tests) : utilisez des noms uniques (`Guid`) pour que les tests ne se gênent pas, et n'affirmez jamais qu'une liste est vide ou de taille exacte, seulement qu'elle contient vos éléments. `AsUser` crée l'identité (en-têtes `X-Test-User`, `X-Test-Roles`) ; avec le modèle groupes, utilisez `groups: [ApiFactory.AdministratorsGroupId]` à la place de `roles:`.
 
 ```csharp
 // tests/Web.Template.CQRS.Api.IntegrationTests/Products/ProductEndpointTests.cs
@@ -821,8 +832,10 @@ public sealed class ProductEndpointTests(ApiFactory factory) : IClassFixture<Api
     public async Task List_AsStandardUser_ReturnsCreatedProducts()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
-        var name = UniqueName();
-        await Admin().PostAsJsonAsync("/products", new CreateProductRequest(name, 3m), cancellationToken);
+        // Préfixe "0-" : trié avant les noms "Product-..." des autres tests, donc toujours dans la première page.
+        var name = $"0-List-{Guid.NewGuid():N}";
+        var created = await Admin().PostAsJsonAsync("/products", new CreateProductRequest(name, 3m), cancellationToken);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
 
         var list = await StandardUser().GetFromJsonAsync<List<ProductResponse>>("/products?pageSize=100", cancellationToken);
 
@@ -848,4 +861,6 @@ public sealed class ProductEndpointTests(ApiFactory factory) : IClassFixture<Api
 }
 ```
 
-Avec la pagination par défaut (50) et un nom unique, `List_AsStandardUser_ReturnsCreatedProducts` demande `pageSize=100` : le nom unique est trié parmi tous les produits de la classe, ce qui reste sous 100 tant que la classe de tests reste petite. Pour un test de pagination strict, créez les éléments avec un préfixe commun connu et filtrez la réponse sur ce préfixe.
+Valeur unique à format contraint (ISBN, code à somme de contrôle) : un `Guid` ne passe pas le validateur. Ajoutez au test d'intégration un petit générateur de valeurs valides et aléatoires (par exemple `UniqueIsbn()` : préfixe fixe, chiffres aléatoires, chiffre de contrôle calculé) pour que chaque test crée sa propre valeur.
+
+Le test de liste nomme son élément avec un préfixe qui se trie avant tous les autres (`0-List-...`) : le tri par `Name` le place dans la première page, même si d'autres tests de l'assembly ont créé de nombreux éléments. Si plusieurs tests de liste coexistent, gardez ce préfixe réservé à un seul d'entre eux par ordre de tri, ou filtrez la réponse sur un préfixe commun. Pour un test de pagination strict, créez les éléments avec un préfixe commun connu et filtrez la réponse sur ce préfixe.

@@ -32,6 +32,7 @@ Dans ce skill, `<Feature>` est le nom pluriel du dossier (`Products`), `<Entity>
        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
    </PackageReference>
    ```
+   Ne définissez jamais `ASPNETCORE_ENVIRONMENT=Development` dans le shell pour `dotnet ef` : l'outil exécute `Program` à la conception, donc le bloc `Database.Migrate()` du mode `Development` tenterait de migrer une base réelle.
    Relisez la méthode `Up` de la migration générée : table, colonnes, index unique. Ne l'appliquez pas à une base partagée sans accord (voir « Application de la migration »).
 6. **Application.** Dans `src/Web.Template.CQRS.Application/<Feature>/` : `Common/<Entity>Result.cs`, puis par opération `Commands|Queries/<Nom>/` avec le record, son **validateur** et son handler. Toute query qui prend un identifiant a un validateur `NotEmpty()` sur cet identifiant (sinon `new <Entity>Id(Guid.Empty)` lève une exception, donc une 500). Un échec métier attendu (doublon, état interdit) n'est **pas** une exception : le handler le renvoie dans son résultat (voir « Conflits et unicité »).
 7. **Contrats.** Dans `src/Web.Template.CQRS.Contracts/<Feature>/` : `Create<Entity>Request` et `<Entity>Response` (records). Ne renvoyez jamais l'entité ni le `*Result` tel quel.
@@ -81,7 +82,7 @@ Reprenez le modèle de `AGENTS.md`.
 
 - Écriture réservée aux administrateurs : `.RequireAuthorization(Policies.RequireAdmin)`. La policy n'existe qu'avec des rôles ou des groupes.
 - Lecture pour tout utilisateur connecté : `.RequireAuthorization()` sans policy.
-- Modèle « utilisateur authentifié uniquement » : pas de policy, donc pas de 403. Dites à l'utilisateur que la distinction admin/utilisateur n'existe pas dans ce modèle et proposez le skill `manage-access`.
+- Modèle « utilisateur authentifié uniquement » : pas de policy, donc pas de 403. Utilisez `.RequireAuthorization()` seul sur toutes les routes, **supprimez** des modèles de `code-patterns.md` les tests de rôle/403 et tout `Policies.RequireAdmin`, `AppRoles` ou `roles:`/`groups:`. Dites à l'utilisateur que la distinction admin/utilisateur n'existe pas dans ce modèle et proposez le skill `manage-access`.
 - Dans les tests : avec rôles `AsUser("id", roles: [AppRoles.Admin])`, avec groupes `AsUser("id", groups: [ApiFactory.AdministratorsGroupId])`.
 
 ## Application de la migration

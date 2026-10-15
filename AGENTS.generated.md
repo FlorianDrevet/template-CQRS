@@ -31,7 +31,8 @@ Les dépendances pointent vers l'intérieur : Domain ne référence rien, Applic
 - Endpoints en minimal API, regroupés dans des classes `*Controller` (`Map*Endpoints`) du dossier `Api/Controllers`, retours en `TypedResults`. Un endpoint ne contient pas de logique métier : il envoie la query ou la commande à `IMediator`.
 - `*Result` (type du cas d'usage, dans Application) et `*Response` (contrat public, dans Contracts) restent deux types distincts.
 - Validation avec FluentValidation : un validateur à côté de la commande ou de la query ; `ValidationBehavior` l'exécute avant le handler.
-- Erreurs en Problem Details (RFC 9457) avec `code` (`VALIDATION`, `INTERNAL`, `RATE_LIMITED`) et `traceId`. Ne jamais renvoyer le message d'une exception.
+- Erreurs en Problem Details (RFC 9457) avec `code` (`VALIDATION`, `INTERNAL`, `RATE_LIMITED`, `CONFLICT` pour un 409) et `traceId`. Ne jamais renvoyer le message d'une exception.
+- Un endpoint qui mélange un succès `Created` et un `Problem` (409) utilise `Results.*` pour toutes ses branches (ou une union typée `Results<...>`) : `TypedResults.Created` et `Results.Problem` ne se mélangent pas.
 - Autorisation explicite sur chaque endpoint : `RequireAuthorization()` ou `RequireAuthorization(Policies.*)`. Une politique de repli exige un utilisateur authentifié.
 <!--#if (EnableRateLimiting) -->
 - Limitation de débit : chaque endpoint déclare une politique `RateLimitingPolicies.*` (`Read`, `Write`, `Generate`, `Publish`) via `RequireRateLimiting`.
@@ -73,7 +74,7 @@ L'API écoute uniquement sur `https://localhost:7246`. Keycloak local : `https:/
 <!--#endif -->
 ## Skills et agent
 
-- `add-feature` : ajouter une query ou une commande de bout en bout (Application, Contracts, Api, tests).
+- `add-feature` : ajouter une fonctionnalité en tranche verticale complète (Domain, Infrastructure, Application, Contracts, Api, tests).
 - `manage-access` : ajouter ou modifier un rôle, un groupe ou une politique d'autorisation.
 <!--#if (EnableAspire) -->
 - `run-local` : démarrer l'environnement local, obtenir un token, lancer le smoke test.

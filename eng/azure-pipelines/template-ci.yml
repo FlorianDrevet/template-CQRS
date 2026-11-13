@@ -74,6 +74,12 @@ jobs:
           aspire: true
           rateLimiting: true
           tests: false
+        app_roles_podman:
+          auth: AppRoles
+          aspire: true
+          rateLimiting: true
+          tests: true
+          runtime: Podman
     steps:
       - checkout: self
       - task: UseDotNet@2
@@ -86,5 +92,7 @@ jobs:
           versionSpec: '3.13'
       - bash: python -m pip install pyyaml
         displayName: Install PyYAML (frontmatter check)
-      - bash: bash eng/verify-template.sh $(auth) $(aspire) $(rateLimiting) $(tests)
-        displayName: verify-template $(auth) aspire=$(aspire) rl=$(rateLimiting) tests=$(tests)
+      - bash: bash eng/verify-template.sh $(auth) $(aspire) $(rateLimiting) $(tests) "${CONTAINER_RUNTIME:-Docker}"
+        displayName: verify-template $(auth) aspire=$(aspire) rl=$(rateLimiting) tests=$(tests) runtime=$(runtime)
+        env:
+          CONTAINER_RUNTIME: $(runtime)

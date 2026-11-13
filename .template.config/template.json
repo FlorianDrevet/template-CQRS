@@ -57,6 +57,45 @@
       "defaultValue": "true",
       "description": "Ajoute les projets de tests unitaires et d'intégration."
     },
+    "ContainerRuntime": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "Docker",
+      "description": "Moteur de conteneurs utilisé par Aspire en local (sans effet si EnableAspire vaut false).",
+      "choices": [
+        {
+          "choice": "Docker",
+          "description": "Docker Desktop ou Docker Engine."
+        },
+        {
+          "choice": "Podman",
+          "description": "Podman (ASPIRE_CONTAINER_RUNTIME=podman dans le profil de lancement de l'AppHost)."
+        }
+      ]
+    },
+    "UsePodman": {
+      "type": "computed",
+      "value": "(ContainerRuntime == \"Podman\")"
+    },
+    "ContainerCli": {
+      "type": "generated",
+      "generator": "switch",
+      "parameters": {
+        "evaluator": "C++",
+        "datatype": "string",
+        "cases": [
+          {
+            "condition": "(UsePodman && EnableAspire)",
+            "value": "podman"
+          },
+          {
+            "condition": "(!(UsePodman && EnableAspire))",
+            "value": "docker"
+          }
+        ]
+      },
+      "replaces": "docker"
+    },
     "UseAppRoles": {
       "type": "computed",
       "value": "(AuthorizationModel == \"AppRoles\" || AuthorizationModel == \"AppRolesAndGroups\")"

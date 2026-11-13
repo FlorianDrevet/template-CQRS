@@ -365,7 +365,7 @@ C'est le piège le plus fréquent. Keycloak importe le dossier `Realms` **unique
 
 Pour appliquer vos changements, réinitialisez les volumes. Cela efface aussi la base SQL locale. La procédure complète (`aspire stop … --force --volumes`, contrôle des volumes restants, suppression par nom exact, `aspire start`) est décrite une seule fois dans [Émulateurs](/Aspire/Émulateurs.md#reinitialiser-les-donnees) : l'Aspire CLI 13.6 laisse parfois les volumes en place, et le realm n'est alors pas réimporté.
 
-Au prochain lancement avec un volume vide, Keycloak réimporte le realm. Pour ne réinitialiser que Keycloak sans perdre la base SQL, utilisez la méthode Docker de la même page.
+Au prochain lancement avec un volume vide, Keycloak réimporte le realm. Pour ne réinitialiser que Keycloak sans perdre la base SQL, utilisez la méthode par volume de la même page (avec `docker` ou `podman` selon votre moteur).
 
 ### HTTPS et certificat de développement
 

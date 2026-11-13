@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 # Generates a project from this template with the given options, then checks, builds and tests it.
-# Usage: eng/verify-template.sh [AuthorizationModel] [EnableAspire] [EnableRateLimiting] [EnableTests]
+# Usage: eng/verify-template.sh [AuthorizationModel] [EnableAspire] [EnableRateLimiting] [EnableTests] [ContainerRuntime]
 set -euo pipefail
 
 auth="${1:-AppRoles}"
 aspire="${2:-true}"
 rate_limiting="${3:-true}"
 tests="${4:-true}"
+runtime="${5:-Docker}"
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
-echo "==> Generate AuthorizationModel=$auth EnableAspire=$aspire EnableRateLimiting=$rate_limiting EnableTests=$tests"
+echo "==> Generate AuthorizationModel=$auth EnableAspire=$aspire EnableRateLimiting=$rate_limiting EnableTests=$tests ContainerRuntime=$runtime"
 dotnet new install "$root" --force
 dotnet new templatewebcqrs \
   --name Ci.Generated \
@@ -20,7 +21,8 @@ dotnet new templatewebcqrs \
   --AuthorizationModel "$auth" \
   --EnableAspire "$aspire" \
   --EnableRateLimiting "$rate_limiting" \
-  --EnableTests "$tests"
+  --EnableTests "$tests" \
+  --ContainerRuntime "$runtime"
 
 cd "$work/Ci.Generated"
 
@@ -71,6 +73,18 @@ if [ "$aspire" = "true" ]; then
   done
   python3 -m json.tool .mcp.json > /dev/null 2>&1 || python -m json.tool .mcp.json > /dev/null || fail ".mcp.json is not valid JSON."
   python3 -m json.tool .vscode/mcp.json > /dev/null 2>&1 || python -m json.tool .vscode/mcp.json > /dev/null || fail ".vscode/mcp.json is not valid JSON."
+  runtime_lower="$(echo "$runtime" | tr '[:upper:]' '[:lower:]')"
+  grep -q "\"ASPIRE_CONTAINER_RUNTIME\": \"$runtime_lower\"" src/Ci.Generated.AppHost/Properties/launchSettings.json \
+    || fail "the AppHost launch profile does not set ASPIRE_CONTAINER_RUNTIME=$runtime_lower."
+  if [ "$runtime" = "Podman" ]; then
+    if grep -rIniE "docker" --include='*.md' --include='*.json' --include='*.sh' --include='*.ps1' . | grep -v '^./\.git/' | grep -q .; then
+      fail "a project generated with ContainerRuntime=Podman still mentions docker."
+    fi
+  else
+    if grep -rIniE "podman" --include='*.md' --include='*.json' --include='*.sh' --include='*.ps1' . | grep -q .; then
+      fail "a project generated with ContainerRuntime=Docker mentions podman."
+    fi
+  fi
 else
   for leaked in .claude/skills/run-local .mcp.json .vscode/mcp.json scripts; do
     [ ! -e "$leaked" ] || fail "'$leaked' must not be generated without Aspire."
@@ -117,4 +131,4 @@ dotnet build Ci.Generated.slnx
 if [ "$tests" = "true" ]; then
   dotnet test --solution Ci.Generated.slnx
 fi
-echo "verify-template: OK ($auth, aspire=$aspire, rateLimiting=$rate_limiting, tests=$tests)"
+echo "verify-template: OK ($auth, aspire=$aspire, rateLimiting=$rate_limiting, tests=$tests, runtime=$runtime)"

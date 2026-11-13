@@ -45,8 +45,8 @@ Les termes sont classés par thème. La dernière colonne renvoie vers la page q
 | AppHost | Projet qui décrit les ressources à démarrer (base, stockage, identité, API) | [AppHost](aspire/apphost.md) |
 | ServiceDefaults | Projet partagé qui configure télémétrie, health checks et résilience | [Aspire](aspire/index.md) |
 | émulateur | Programme local qui imite un service cloud (Azurite pour le stockage Azure) | [Émulateurs](aspire/emulateurs.md) |
-| conteneur | Processus isolé et reproductible, lancé par Docker à partir d'une image | [Émulateurs](aspire/emulateurs.md) |
-| volume | Espace disque Docker qui conserve les données d'un conteneur | [Paramètres et secrets](aspire/parametres-et-secrets.md) |
+| conteneur | Processus isolé et reproductible, lancé par Docker ou Podman à partir d'une image | [Émulateurs](aspire/emulateurs.md) |
+| volume | Espace disque géré par le moteur de conteneurs qui conserve les données d'un conteneur | [Paramètres et secrets](aspire/parametres-et-secrets.md) |
 
 ## Identité et autorisation
 

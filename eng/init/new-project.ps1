@@ -17,6 +17,8 @@ param(
     [string]$RateLimiting = 'true',
     [ValidateSet('true', 'false')]
     [string]$Tests = 'true',
+    [ValidateSet('Docker', 'Podman')]
+    [string]$ContainerRuntime = 'Docker',
     [string]$Remote
 )
 
@@ -45,7 +47,8 @@ Invoke-Checked 'dotnet' @(
     '--AuthorizationModel', $Authorization,
     '--EnableAspire', $Aspire,
     '--EnableRateLimiting', $RateLimiting,
-    '--EnableTests', $Tests)
+    '--EnableTests', $Tests,
+    '--ContainerRuntime', $ContainerRuntime)
 Invoke-Checked 'git' @('-C', $Output, 'init', '--quiet')
 if ($Remote) { Invoke-Checked 'git' @('-C', $Output, 'remote', 'add', 'origin', $Remote) }
 

@@ -77,6 +77,7 @@ Le fichier `AGENTS.md` d'un projet généré est dérivé de `AGENTS.generated.m
 ```markdown
 ## Skills et agent
 
+- `ponytail` : réduire le code superflu et les suppositions ; disponible dans `.agents/skills/` pour Codex et `.claude/skills/` pour Claude Code.
 - `add-feature` : ajouter une fonctionnalité en tranche verticale complète (Domain, Infrastructure, Application, Contracts, Api, tests).
 - `manage-access` : ajouter ou modifier un rôle, un groupe ou une politique d'autorisation.
 <!--#if (EnableAspire) -->

@@ -31,6 +31,7 @@ Les dépendances pointent vers l'intérieur : Domain ne référence rien, Applic
 
 ## Conventions
 
+- Pour toute tâche de code, appliquez Ponytail (`.agents/skills/ponytail/SKILL.md`) en mode `full` par défaut : privilégiez le changement le plus petit qui résout complètement la demande. Lisez le code touché et suivez ses appels, tests, fixtures et configurations. Vérifiez les APIs et conventions dans le code ou la documentation de référence, sans les deviner. Ne sacrifiez jamais la validation, la gestion des erreurs, la sécurité ni l'accessibilité ; toute logique non triviale doit avoir un test ciblé.
 - CQRS avec la bibliothèque Mediator : `IQuery<T>` / `ICommand<T>`, un handler par opération, retour en `ValueTask`. Un cas d'usage = un record + un handler dans `Application/<Feature>/Queries|Commands/<Nom>/`.
 - Endpoints en minimal API, regroupés dans des classes `*Controller` (`Map*Endpoints`) du dossier `Api/Controllers`, retours en `TypedResults`. Un endpoint ne contient pas de logique métier : il envoie la query ou la commande à `IMediator`.
 - `*Result` (type du cas d'usage, dans Application) et `*Response` (contrat public, dans Contracts) restent deux types distincts.
@@ -80,6 +81,7 @@ L'API écoute uniquement sur `https://localhost:7246`. Keycloak local : `https:/
 <!--#endif -->
 ## Skills et agent
 
+- `ponytail` : réduire le code superflu et les suppositions ; disponible dans `.agents/skills/` pour Codex et `.claude/skills/` pour Claude Code.
 - `add-feature` : ajouter une fonctionnalité en tranche verticale complète (Domain, Infrastructure, Application, Contracts, Api, tests).
 - `manage-access` : ajouter ou modifier un rôle, un groupe ou une politique d'autorisation.
 <!--#if (EnableAspire) -->

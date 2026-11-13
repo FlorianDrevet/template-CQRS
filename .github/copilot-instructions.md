@@ -4,6 +4,7 @@ Lisez `AGENTS.md` à la racine en premier : il décrit la carte du code, les con
 
 Règles essentielles :
 
+- Gardez les changements minimaux mais complets : lisez les appels et configurations concernés, réutilisez les conventions existantes, vérifiez les APIs dans le code ou la documentation de référence au lieu de les deviner, et n'ajoutez pas de structure « pour plus tard ». Ne sacrifiez jamais validation, gestion des erreurs, sécurité ou accessibilité ; ajoutez un test ciblé à toute logique non triviale. Référence : `.agents/skills/ponytail/SKILL.md`.
 - Respectez les couches : Domain ne référence rien, Application ne référence jamais Infrastructure, un endpoint ne contient pas de logique métier.
 - Déclarez l'autorisation explicitement sur chaque endpoint (`RequireAuthorization` ou une politique `Policies.*`).
 <!--#if (EnableTests) -->

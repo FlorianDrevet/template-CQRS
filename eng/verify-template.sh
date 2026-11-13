@@ -40,7 +40,9 @@ if grep -q "dotnet new install" README.md; then
   fail "README.md is the template repository README."
 fi
 for required in AGENTS.md CLAUDE.md .github/copilot-instructions.md \
+  .agents/skills/ponytail/SKILL.md \
   .claude/skills/add-feature/SKILL.md .claude/skills/manage-access/SKILL.md \
+  .claude/skills/ponytail/SKILL.md \
   .claude/agents/reviewer.md .github/agents/reviewer.agent.md; do
   [ -f "$required" ] || fail "harness file '$required' is missing."
 done
@@ -62,7 +64,7 @@ for entry in .claude/*; do
     *) fail "unexpected '$entry' in the generated .claude/ folder." ;;
   esac
 done
-for skill in .claude/skills/*/SKILL.md; do
+for skill in .agents/skills/*/SKILL.md .claude/skills/*/SKILL.md; do
   head -1 "$skill" | grep -q '^---$' || fail "$skill has no YAML frontmatter."
   grep -q '^name: ' "$skill" || fail "$skill has no name."
   grep -q '^description: ' "$skill" || fail "$skill has no description."
@@ -104,7 +106,7 @@ for candidate in python3 python; do
   fi
 done
 if [ -n "$py" ]; then
-  for file in .claude/skills/*/SKILL.md .claude/agents/*.md .github/agents/*.agent.md; do
+  for file in .agents/skills/*/SKILL.md .claude/skills/*/SKILL.md .claude/agents/*.md .github/agents/*.agent.md; do
     "$py" -c "import sys,yaml; yaml.safe_load(open(sys.argv[1],encoding='utf-8').read().split('---')[1])" "$file" \
       || fail "$file has invalid YAML frontmatter."
   done

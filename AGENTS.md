@@ -13,10 +13,12 @@ Les skills `add-feature`, `manage-access` et `run-local` ciblent les projets **g
 - `src/Web.Template.CQRS.AppHost/RealmVariants/` : un realm Keycloak par modèle d'autorisation.
 - Fichiers `*.generated.md` (`README.generated.md`, `AGENTS.generated.md`) : renommés à la génération ; `README.md` et `AGENTS.md` du dépôt sont exclus.
 - `.claude/` est livré aux projets générés, sauf `.claude/skills/init-project/`. Sans Aspire, `run-local`, `.mcp.json`, `.vscode/mcp.json` et `scripts/` sont exclus.
+- Le skill Ponytail est livré aux projets générés dans `.agents/skills/` (Codex) et `.claude/skills/` (Claude Code).
 - `docs/site` : documentation source ; `docs/wiki` est généré, ne jamais l'éditer.
 
 ## Règles
 
+- Pour toute tâche de code sur ce dépôt, appliquez le skill Ponytail en mode `full` par défaut (`.agents/skills/ponytail/SKILL.md`).
 - Toute modification du code template doit garder compilables les quatre modèles d'autorisation et les options du template.
 - Vérifiez les combinaisons touchées : `bash eng/verify-template.sh <AuthorizationModel> <EnableAspire> <EnableRateLimiting> <EnableTests> <ContainerRuntime>`.
 - Dans les fichiers livrés, le mot `docker` en minuscules est remplacé par `podman` quand `ContainerRuntime=Podman` (symbole `ContainerCli`) : ne l'écrivez que pour désigner le moteur de conteneurs ; la prose (« Docker ») se règle avec `<!--#if (UsePodman) -->`.

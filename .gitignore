@@ -491,3 +491,6 @@ fabric.properties
 # Documentation build outputs
 /build/
 /site/
+
+# Mutation testing (Stryker.NET)
+StrykerOutput/

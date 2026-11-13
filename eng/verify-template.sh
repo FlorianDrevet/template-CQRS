@@ -127,6 +127,26 @@ if [ "$aspire" = "true" ] && [ ! -f src/Ci.Generated.AppHost/Realms/template-rea
   fail "the Keycloak realm is missing."
 fi
 
+if [ "$tests" = "true" ]; then
+  skill=.claude/skills/add-feature/SKILL.md
+  checklist=.claude/skills/add-feature/references/checklist.md
+  line_of() { grep -n -m1 -F -- "$2" "$1" 2>/dev/null | cut -d: -f1 || true; }
+  first_tests="$(line_of "$skill" "**Tests d'abord")"
+  first_impl="$(line_of "$skill" "**Implémentation par couche")"
+  first_mutation="$(line_of "$skill" "**Mutation**")"
+  [ -n "$first_tests" ] || fail "add-feature has no test-first step (TDD)."
+  [ -n "$first_impl" ] && [ "$first_tests" -lt "$first_impl" ] \
+    || fail "add-feature must write the tests before the implementation."
+  [ -n "$first_mutation" ] && [ "$first_impl" -lt "$first_mutation" ] \
+    || fail "add-feature must run the mutation step after the implementation."
+  grep -q -E 'dotnet stryker -s .* -t mtp' "$skill" \
+    || fail "add-feature does not run Stryker.NET with the MTP runner (-t mtp)."
+  grep -q -F "Écrits avant le code" "$checklist" \
+    || fail "the add-feature checklist does not require the tests before the code."
+  grep -q -F "Stryker.NET lancé" "$checklist" \
+    || fail "the add-feature checklist has no mutation check."
+fi
+
 dotnet build Ci.Generated.slnx
 if [ "$tests" = "true" ]; then
   dotnet test --solution Ci.Generated.slnx

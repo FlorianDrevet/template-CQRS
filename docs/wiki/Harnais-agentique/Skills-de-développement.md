@@ -42,7 +42,7 @@ Ajoute une ressource Book avec un titre, un ISBN unique et un auteur ; seuls les
 Crée un endpoint de liste paginée des commandes.
 ```
 
-**Ce que fait l'agent** : il lit `AGENTS.md` et `project-profile.json`, vous pose les questions manquantes (champs, règles d'unicité, qui a le droit de quoi) et annonce un plan court avec la liste des fichiers. Puis il construit la tranche verticale dans l'ordre : domaine, infrastructure (configuration EF, repository, injection), migration, application (record, validateur, handler), contrats, endpoint, tests unitaires et d'intégration. Il lance `dotnet build` et `dotnet test`, propose une vérification en direct avec `run-local` si le projet a Aspire, et termine par une relecture de l'agent `reviewer`. Le tutoriel [Ajouter une feature](/Guides/Ajouter-une-feature.md) détaille les mêmes étapes à la main.
+**Ce que fait l'agent** : il lit `AGENTS.md` et `project-profile.json`, vous pose les questions manquantes (champs, règles d'unicité, qui a le droit de quoi) et annonce un plan court : fichiers à créer et à modifier, tests à écrire. Si le projet a des tests, il écrit ensuite les tests et les voit échouer, puis construit la tranche verticale couche par couche jusqu'à ce qu'ils passent : domaine, infrastructure (configuration EF, repository, injection), application (record, validateur, handler), contrats, endpoint, puis migration. Il lance `dotnet build` et `dotnet test`, puis, si le projet a des tests, Stryker.NET sur les fichiers de la feature pour vérifier que les tests détectent les régressions. Il propose une vérification en direct avec `run-local` si le projet a Aspire, et termine par une relecture de l'agent `reviewer`. Le tutoriel [Ajouter une feature](/Guides/Ajouter-une-feature.md) détaille les mêmes couches à la main.
 
 **Critères de fin et interdits**
 
@@ -52,7 +52,9 @@ Crée un endpoint de liste paginée des commandes.
 ## Terminé quand
 
 - `dotnet build` sans erreur et `dotnet test` entièrement vert.
-- Les nouveaux tests couvrent les cas 2xx/400/401/403/404/409 pertinents pour les routes ajoutées.
+- Si `tests/` existe : les tests ont été écrits avant le code et vus rouges à l'étape 3, pour la bonne raison, et aucun `NotImplementedException` ne subsiste dans `src/`.
+- Si `tests/` existe : les nouveaux tests couvrent les cas 2xx/400/401/403/404/409 pertinents pour les routes ajoutées, et les bornes sont testées explicitement.
+- Si `tests/` existe : la mutation (étape 7) a été lancée sur les fichiers de la feature ; chaque survivant est traité par un test ou justifié dans la réponse.
 - Chaque route a une autorisation explicite et, si disponible, une politique de rate limiting.
 - Une migration existe et a été relue.
 - La revue de l'agent `reviewer` n'a plus de constat bloquant.

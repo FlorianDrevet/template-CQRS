@@ -7,19 +7,30 @@ description: "Ajouter une fonctionnalité métier complète à l'API (entité, p
 
 Tranche verticale : Domain, Infrastructure, Application, Contracts, Api, tests. Les conventions sont dans `AGENTS.md`. Les exemples de code complets sont dans [references/code-patterns.md](references/code-patterns.md) : lisez-le avant d'écrire du code et recopiez-le plutôt que de réinventer. La check-list finale est dans [references/checklist.md](references/checklist.md).
 
-Dans ce skill, `<Feature>` est le nom pluriel du dossier (`Products`), `<Entity>` le nom singulier (`Product`). Les chemins s'écrivent avec `Web.Template.CQRS` : c'est le nom de votre projet.
+Dans ce skill, `<Feature>` est le nom pluriel du dossier (`Products`), `<Entity>` le nom singulier (`Product`), `<Nom>` le nom de l'opération (`CreateProduct`). Les chemins s'écrivent avec `Web.Template.CQRS` : c'est le nom de votre projet.
+
+Si le projet a des tests (`tests/`), le travail suit un cycle TDD : les tests d'abord, vus rouges ; puis le code, couche par couche, jusqu'au vert ; puis la mutation, pour vérifier que les tests attrapent les régressions.
 
 ## Étapes
 
 1. **Comprendre le besoin.** Lisez `project-profile.json` (racine) s'il existe, et la section « Modèle d'autorisation » de `AGENTS.md`. Établissez : la ressource et ses champs (types, longueurs, formats), les opérations (créer, lire un, lister, modifier, supprimer), les règles métier (unicité, bornes), qui a le droit de quoi, le quota. Posez les questions manquantes à l'utilisateur ; ne devinez pas une règle d'accès.
-2. **Choisir les codes de retour** avant de coder (tableau plus bas), puis **annoncer un plan court** : liste des fichiers à créer et à modifier.
-3. **Domain.** Dans `src/Web.Template.CQRS.Domain/<Feature>/` : `<Entity>Id` (`ValueObject`, refuse `Guid.Empty`) et l'entité (`AggregateRoot<<Entity>Id>`) avec constantes de longueur (`NameMaxLength`), constructeur privé, constructeur vide privé pour EF, fabrique `Create` qui vérifie les invariants.
-4. **Infrastructure.**
-   - `src/Web.Template.CQRS.Application/Common/Interfaces/Persistence/I<Entity>Repository.cs` : hérite `IRepository<<Entity>>` ; y déclarer les requêtes spécifiques (existence, page).
-   - `src/Web.Template.CQRS.Infrastructure/Persistence/Configurations/<Entity>Configuration.cs` : table, clé avec `HasConversion` de l'identifiant, longueurs, **index unique** si une valeur doit être unique.
-   - `DbSet<<Entity>>` dans `src/Web.Template.CQRS.Infrastructure/Persistence/ProjectDbContext.cs`.
-   - `src/Web.Template.CQRS.Infrastructure/Persistence/Repositories/<Entity>Repository.cs` : hérite `BaseRepository<<Entity>, ProjectDbContext>`.
-   - `services.AddScoped<I<Entity>Repository, <Entity>Repository>();` dans `src/Web.Template.CQRS.Infrastructure/DependencyInjection.cs` (avec les `using`).
+2. **Choisir les codes de retour** avant de coder (tableau plus bas), puis **annoncer un plan court** : liste des fichiers à créer et à modifier et, si `tests/` existe, liste des tests à écrire (cas 2xx, 400, 401, 403, 404, 409 selon les routes ; règles du validateur ; bornes ; invariants du domaine).
+3. **Tests d'abord, rouges** (si le dossier `tests/` existe). Écrivez les tests du plan avant tout code de production :
+   - Unitaires (`tests/Web.Template.CQRS.Application.UnitTests/<Feature>/`) : validateur (valide, chaque règle violée, bornes exactes : longueur maximale acceptée, maximale + 1 refusée), handler avec un faux repository (cas nominal, introuvable, conflit), invariants du domaine. Un faux repository va dans `tests/Web.Template.CQRS.Application.UnitTests/Fakes/`.
+   - Intégration (`tests/Web.Template.CQRS.Api.IntegrationTests/<Feature>/`, `ApiFactory`, `AsUser`) : cas passant, 403, 401, 400, 404, 409 selon les routes.
+
+   Les types n'existent pas encore : créez-les en squelettes (signatures, corps `throw new NotImplementedException();`) pour que la solution compile. Lancez ensuite les tests de la feature, par exemple `dotnet test --solution Web.Template.CQRS.slnx --filter-class "*<Entity>*"`, et constatez qu'ils échouent pour la bonne raison : un échec d'assertion ou `NotImplementedException`, pas une erreur de compilation. Un nouveau test qui passe déjà ne prouve rien : revoyez-le avant de coder.
+4. **Implémentation par couche, jusqu'au vert.** Ordre : domaine, infrastructure, application, contrats, endpoint. Si `tests/` existe, après chaque couche, lancez les tests de cette couche et corrigez le code : invariants après le domaine, validateurs et handlers après l'application, tests d'intégration une fois l'endpoint en place (ils ne peuvent pas passer avant). Un test ne se modifie que s'il est faux, par exemple un squelette mal deviné : dans ce cas, dites-le dans la réponse. Une fois l'endpoint en place, toute la feature doit être verte.
+   - **Domain.** Dans `src/Web.Template.CQRS.Domain/<Feature>/` : `<Entity>Id` (`ValueObject`, refuse `Guid.Empty`) et l'entité (`AggregateRoot<<Entity>Id>`) avec constantes de longueur (`NameMaxLength`), constructeur privé, constructeur vide privé pour EF, fabrique `Create` qui vérifie les invariants.
+   - **Infrastructure.**
+     - `src/Web.Template.CQRS.Application/Common/Interfaces/Persistence/I<Entity>Repository.cs` : hérite `IRepository<<Entity>>` ; y déclarer les requêtes spécifiques (existence, page).
+     - `src/Web.Template.CQRS.Infrastructure/Persistence/Configurations/<Entity>Configuration.cs` : table, clé avec `HasConversion` de l'identifiant, longueurs, **index unique** si une valeur doit être unique.
+     - `DbSet<<Entity>>` dans `src/Web.Template.CQRS.Infrastructure/Persistence/ProjectDbContext.cs`.
+     - `src/Web.Template.CQRS.Infrastructure/Persistence/Repositories/<Entity>Repository.cs` : hérite `BaseRepository<<Entity>, ProjectDbContext>`.
+     - `services.AddScoped<I<Entity>Repository, <Entity>Repository>();` dans `src/Web.Template.CQRS.Infrastructure/DependencyInjection.cs` (avec les `using`).
+   - **Application.** Dans `src/Web.Template.CQRS.Application/<Feature>/` : `Common/<Entity>Result.cs`, puis par opération `Commands|Queries/<Nom>/` avec le record, son **validateur** et son handler. Toute query qui prend un identifiant a un validateur `NotEmpty()` sur cet identifiant (sinon `new <Entity>Id(Guid.Empty)` lève une exception, donc une 500). Un échec métier attendu (doublon, état interdit) n'est **pas** une exception : le handler le renvoie dans son résultat (voir « Conflits et unicité »).
+   - **Contrats.** Dans `src/Web.Template.CQRS.Contracts/<Feature>/` : `Create<Entity>Request` et `<Entity>Response` (records). Ne renvoyez jamais l'entité ni le `*Result` tel quel.
+   - **Endpoint.** `src/Web.Template.CQRS.Api/Controllers/<Feature>Controller.cs` (classe statique, méthode `Map<Entity>Endpoints`), puis `app.Map<Entity>Endpoints();` dans `src/Web.Template.CQRS.Api/Program.cs`, **avant** `app.MapFallback(...)`. Sur chaque route : `.WithName(...)`, `.RequireAuthorization(...)` explicite, et `RequireRateLimiting(RateLimitingPolicies.*)` si ce type existe dans le projet (`Read` pour les lectures, `Write` pour les écritures). Le corps ne contient que : envoyer à `IMediator`, traduire le résultat en `TypedResults`/`Results`.
 5. **Migration.** Une fois la solution compilée :
    ```bash
    dotnet tool update --global dotnet-ef
@@ -34,20 +45,27 @@ Dans ce skill, `<Feature>` est le nom pluriel du dossier (`Products`), `<Entity>
    ```
    Ne définissez jamais `ASPNETCORE_ENVIRONMENT=Development` dans le shell pour `dotnet ef` : l'outil exécute `Program` à la conception, donc le bloc `Database.Migrate()` du mode `Development` tenterait de migrer une base réelle.
    Relisez la méthode `Up` de la migration générée : table, colonnes, index unique. Ne l'appliquez pas à une base partagée sans accord (voir « Application de la migration »).
-6. **Application.** Dans `src/Web.Template.CQRS.Application/<Feature>/` : `Common/<Entity>Result.cs`, puis par opération `Commands|Queries/<Nom>/` avec le record, son **validateur** et son handler. Toute query qui prend un identifiant a un validateur `NotEmpty()` sur cet identifiant (sinon `new <Entity>Id(Guid.Empty)` lève une exception, donc une 500). Un échec métier attendu (doublon, état interdit) n'est **pas** une exception : le handler le renvoie dans son résultat (voir « Conflits et unicité »).
-7. **Contrats.** Dans `src/Web.Template.CQRS.Contracts/<Feature>/` : `Create<Entity>Request` et `<Entity>Response` (records). Ne renvoyez jamais l'entité ni le `*Result` tel quel.
-8. **Endpoint.** `src/Web.Template.CQRS.Api/Controllers/<Feature>Controller.cs` (classe statique, méthode `Map<Entity>Endpoints`), puis `app.Map<Entity>Endpoints();` dans `src/Web.Template.CQRS.Api/Program.cs`, **avant** `app.MapFallback(...)`. Sur chaque route : `.WithName(...)`, `.RequireAuthorization(...)` explicite, et `RequireRateLimiting(RateLimitingPolicies.*)` si ce type existe dans le projet (`Read` pour les lectures, `Write` pour les écritures). Le corps ne contient que : envoyer à `IMediator`, traduire le résultat en `TypedResults`/`Results`.
-9. **Tests** (si le dossier `tests/` existe).
-   - Unitaires (`tests/Web.Template.CQRS.Application.UnitTests/<Feature>/`) : validateur (valide, chaque règle violée, bornes exactes), handler avec un faux repository, y compris le cas de conflit. Un faux repository va dans `tests/Web.Template.CQRS.Application.UnitTests/Fakes/`.
-   - Intégration (`tests/Web.Template.CQRS.Api.IntegrationTests/<Feature>/`, `ApiFactory`, `AsUser`) : cas passant, 403, 401, 400, 404, 409 selon les routes.
-10. **Build et tests.**
-    ```bash
-    dotnet build Web.Template.CQRS.slnx
-    dotnet test --solution Web.Template.CQRS.slnx
-    ```
-    Corrigez la cause d'un échec ; ne supprimez ni n'assouplissez un test pour le faire passer. Pour cibler : `dotnet test --solution Web.Template.CQRS.slnx --filter-method "*Product*"`.
-11. **Vérification live (facultative)** avec le skill `run-local`, si le projet a Aspire : créer avec le persona admin, relire avec le persona user, constater 403 puis 401.
-12. **Relecture.** Lancez l'agent `reviewer` sur le diff, corrigez les constats bloquants, relancez l'étape 10.
+6. **Build et tests.**
+   ```bash
+   dotnet build Web.Template.CQRS.slnx
+   dotnet test --solution Web.Template.CQRS.slnx
+   ```
+   Corrigez la cause d'un échec ; ne supprimez ni n'assouplissez un test pour le faire passer. Pour cibler : `dotnet test --solution Web.Template.CQRS.slnx --filter-method "*Product*"`.
+7. **Mutation** (si le dossier `tests/` existe). Stryker.NET modifie le code de la feature (inverse une condition, retire un appel, change une chaîne) et vérifie qu'un test échoue à chaque fois. Un mutant qui survit est un comportement que les tests ne vérifient pas.
+
+   Installez l'outil une fois, comme `dotnet-ef` à l'étape 5 : `dotnet tool install --global dotnet-stryker --version 5.1.0` (ou `dotnet tool update --global dotnet-stryker --version 5.1.0` s'il est déjà installé). Puis lancez-le sur les fichiers métier du plan, un `-m` par fichier :
+   ```bash
+   dotnet stryker -s Web.Template.CQRS.slnx -t mtp -r json -r html -m '**/<Nom>Command.cs' -m '**/<Nom>CommandHandler.cs' -m '**/<Nom>CommandValidator.cs' -m '**/<Entity>.cs' -m '**/<Entity>Id.cs' -m '**/<Entity>Repository.cs' -m '**/<Feature>Controller.cs'
+   ```
+   Remplacez les placeholders (`<Nom>` vaut par exemple `CreateProduct`) et ne gardez que les fichiers réellement créés par le plan. Pour une query, remplacez `Command` par `Query` dans les noms (`<Nom>QueryHandler.cs`, `<Nom>QueryValidator.cs`). Règles :
+   - Mutez uniquement le code métier de la feature : entité et identifiant du domaine, validateurs, handlers, repository (couvert par les tests d'intégration InMemory), contrôleur. Ne mutez pas `DependencyInjection.cs`, `Program.cs`, les configurations EF ni les migrations : leurs mutants sont surtout du câblage, peu informatif et souvent sans test qui les touche.
+   - Ne lancez pas Stryker sans `-m` pendant le travail sur une feature : sur toute la solution, c'est nettement plus lent.
+   - Ouvrez le rapport `StrykerOutput/*/reports/mutation-report.json` (ou le rapport HTML) et listez les mutants `Survived` et `NoCoverage` : fichier, ligne, mutateur.
+   - Pour chaque survivant : soit un test qui le tue (un test du comportement, qui échoue sur le mutant et passe sur le code réel), soit une justification écrite dans votre réponse (mutant équivalent, message de log, etc.). N'ajoutez pas de test seulement pour faire monter le score.
+   - Relancez sur le même périmètre, au plus deux fois.
+   - Limite (vérifiée avec Stryker.NET 5.1.0) : Stryker ne mute pas les littéraux passés à FluentValidation (`MaximumLength(50)`, `GreaterThan(0m)`). Les bornes sont donc couvertes par les tests explicites de l'étape 3, pas par la mutation.
+8. **Vérification live (facultative)** avec le skill `run-local`, si le projet a Aspire : créer avec le persona admin, relire avec le persona user, constater 403 puis 401.
+9. **Relecture.** Lancez l'agent `reviewer` sur le diff, corrigez les constats bloquants, relancez les étapes 6 et 7.
 
 ## Choisir le code de retour
 
@@ -92,7 +110,9 @@ Avec Aspire (base SQL Server locale fournie), ajoutez dans `Program.cs`, après 
 ## Terminé quand
 
 - `dotnet build` sans erreur et `dotnet test` entièrement vert.
-- Les nouveaux tests couvrent les cas 2xx/400/401/403/404/409 pertinents pour les routes ajoutées.
+- Si `tests/` existe : les tests ont été écrits avant le code et vus rouges à l'étape 3, pour la bonne raison, et aucun `NotImplementedException` ne subsiste dans `src/`.
+- Si `tests/` existe : les nouveaux tests couvrent les cas 2xx/400/401/403/404/409 pertinents pour les routes ajoutées, et les bornes sont testées explicitement.
+- Si `tests/` existe : la mutation (étape 7) a été lancée sur les fichiers de la feature ; chaque survivant est traité par un test ou justifié dans la réponse.
 - Chaque route a une autorisation explicite et, si disponible, une politique de rate limiting.
 - Une migration existe et a été relue.
 - La revue de l'agent `reviewer` n'a plus de constat bloquant.

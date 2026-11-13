@@ -32,11 +32,15 @@ Cochez chaque ligne avant de déclarer la feature terminée. Une ligne non appli
 
 ## Tests
 
-- [ ] Validateur : cas valide, chaque règle violée, bornes exactes (longueur maximale acceptée, maximale + 1 refusée).
+- [ ] Écrits avant le code (étape 3) et vus rouges pour la bonne raison : échec d'assertion ou `NotImplementedException`, pas erreur de compilation ni test qui passait déjà.
+- [ ] Validateur : cas valide, chaque règle violée, bornes exactes (longueur maximale acceptée, maximale + 1 refusée), écrites explicitement : la mutation ne les vérifie pas.
 - [ ] Handler : cas nominal, cas de conflit, introuvable.
+- [ ] Invariants du domaine : cas valide et invariant violé.
 - [ ] Intégration : autorisé (2xx), refusé (403), anonyme (401), invalide (400 avec `code` `VALIDATION`), introuvable (404), doublon (409 avec `code` `CONFLICT`), liste.
 - [ ] Les tests n'ont pas de dépendance à l'ordre d'exécution ni à une base vide (noms uniques).
 - [ ] `dotnet test --solution Web.Template.CQRS.slnx` : tout est vert, aucun test supprimé ou ignoré.
+- [ ] Aucun `NotImplementedException` ne subsiste dans `src/`.
+- [ ] Stryker.NET lancé (étape 7) sur les fichiers de la feature ; chaque mutant `Survived` ou `NoCoverage` est traité par un test ou justifié dans la réponse.
 
 ## Migration
 

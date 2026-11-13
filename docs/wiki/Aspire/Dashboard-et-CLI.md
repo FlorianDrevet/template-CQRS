@@ -26,6 +26,8 @@ Sans ces outils, comprendre pourquoi l'API ne démarre pas revient à ouvrir cin
 
 La lecture des logs, traces et métriques est détaillée dans [Observabilité](/Fonctionnalités/Observabilité.md#lire-la-telemetrie-dans-le-dashboard-aspire). L'API envoie sa télémétrie au dashboard grâce à `ServiceDefaults`, qui active l'export OpenTelemetry quand Aspire fournit l'endpoint (variable `OTEL_EXPORTER_OTLP_ENDPOINT`).
 
+Depuis Aspire 13.6, le dashboard conserve l'historique des dix dernières exécutions et permet de consulter en lecture seule les ressources et la télémétrie des exécutions terminées. Le terminal intégré peut aussi lancer `sqlcmd` sur la ressource SQL Server du template : ouvrez la commande **REPL** de `sqlserver`, puis terminez chaque lot SQL par `GO`. Cette commande est activée par `WithRepl()` dans l'AppHost ; elle s'exécute avec le compte `sa`, peut modifier ou supprimer des données et, si cette fonction est activée dans l'image, exécuter des commandes système côté serveur. N'exposez pas le dashboard à des personnes non fiables. Voir la [documentation SQL Server d'Aspire](https://aspire.dev/integrations/databases/sql-server/sql-server-host/#open-an-interactive-repl).
+
 > 💡 **Premier réflexe en cas de problème**
 >
 > Ouvrez la page **Ressources**. Une ressource en échec ou qui reste à l'état « démarrage » est le suspect : ouvrez sa **Console** pour lire l'erreur. L'API attend ses dépendances (`WaitFor`) : si `keycloak` n'est pas prêt, l'API ne démarre pas.

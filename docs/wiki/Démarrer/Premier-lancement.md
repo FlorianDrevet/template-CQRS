@@ -23,7 +23,8 @@ var sqlPassword = builder.AddParameter("sql-password", secret: true);
 var sqlServer = builder
     .AddSqlServer("sqlserver", password: sqlPassword)
     .WithDataVolume()
-    .WithLifetime(ContainerLifetime.Persistent);
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithRepl();
 var projectDatabase = sqlServer.AddDatabase("projectdb");
 
 var blobs = builder

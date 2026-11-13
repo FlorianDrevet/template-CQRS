@@ -12,7 +12,7 @@ jobs:
   realm-json:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Validate Keycloak realm files
         run: |
           for file in src/Web.Template.CQRS.AppHost/Realms/*.json src/Web.Template.CQRS.AppHost/RealmVariants/*.json; do
@@ -35,23 +35,23 @@ jobs:
           - { auth: AppRoles, aspire: true, rateLimiting: true, tests: true, runtime: Podman }
     name: generate (${{ matrix.auth }}, aspire=${{ matrix.aspire }}, rl=${{ matrix.rateLimiting }}, tests=${{ matrix.tests }}, runtime=${{ matrix.runtime || 'Docker' }})
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
-          python-version: "3.13"
+          python-version: "3.14"
       - name: Install PyYAML (frontmatter check)
-        run: python -m pip install pyyaml
+        run: python -m pip install PyYAML==6.0.3
       - name: Generate, build and test
         run: bash eng/verify-template.sh ${{ matrix.auth }} ${{ matrix.aspire }} ${{ matrix.rateLimiting }} ${{ matrix.tests }} ${{ matrix.runtime || 'Docker' }}
 
   template-repository:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - name: Build and test the template sources

@@ -159,7 +159,7 @@ Déclencheurs : `push` sur `main` et toute `pull_request`. Deux jobs :
 
 | Job | Quand | Étapes |
 |-----|-------|--------|
-| `check` | toujours | installe Python 3.13 et les dépendances, lance `python -m pytest eng/docs/tests -q`, puis `python eng/docs/docs.py check` et `python eng/docs/docs.py build` (le build strict du site échoue donc dès la pull request en cas de lien ou de page cassés) |
+| `check` | toujours | installe Python 3.14 et les dépendances, lance `python -m pytest eng/docs/tests -q`, puis `python eng/docs/docs.py check` et `python eng/docs/docs.py build` (le build strict du site échoue donc dès la pull request en cas de lien ou de page cassés) |
 | `deploy` | seulement sur `push` vers `main`, après `check` | `python eng/docs/docs.py build`, puis publication du dossier `site` sur GitHub Pages |
 
 ```mermaid
@@ -179,7 +179,7 @@ Ils se trouvent dans `eng/azure-pipelines/` et reproduisent les workflows GitHub
 | Fichier | Équivalent GitHub | Contenu |
 |---------|-------------------|---------|
 | `template-ci.yml` | `template-ci.yml` | jobs `realm_json`, `template_repository` et `generate` (matrice de sept combinaisons) ; installe le SDK .NET depuis `global.json` |
-| `docs-ci.yml` | job `check` de `docs.yml` | Python 3.13, dépendances, tests de l'outillage, `docs.py check` ; **pas de déploiement** |
+| `docs-ci.yml` | job `check` de `docs.yml` | Python 3.12, dépendances, tests de l'outillage, `docs.py check` ; **pas de déploiement** |
 
 Les deux se déclenchent sur `main` (`trigger`) et déclarent un déclencheur `pr`. Ils utilisent un agent `ubuntu-latest`.
 

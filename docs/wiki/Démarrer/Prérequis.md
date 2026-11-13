@@ -27,7 +27,7 @@ Le dépôt fixe la version du SDK dans `global.json` :
 ```json
 {
   "sdk": {
-    "version": "10.0.203",
+    "version": "10.0.404",
     "rollForward": "latestMajor",
     "allowPrerelease": true
   },
@@ -37,7 +37,7 @@ Le dépôt fixe la version du SDK dans `global.json` :
 }
 ```
 
-`rollForward: latestMajor` autorise une version plus récente que 10.0.203, et `allowPrerelease` accepte les préversions. Le bloc `test` demande le runner `Microsoft.Testing.Platform` pour `dotnet test`.
+`rollForward: latestMajor` autorise une version plus récente que 10.0.404, et `allowPrerelease` accepte les préversions. Le bloc `test` demande le runner `Microsoft.Testing.Platform` pour `dotnet test`.
 
 ### Un moteur de conteneurs : Docker ou Podman
 
@@ -200,7 +200,7 @@ dotnet dev-certs https --trust
 
 1. Lancez les commandes de vérification de votre onglet et notez celle qui échoue, s'il y en a une.
 2. Arrêtez Docker Desktop puis relancez `docker version` : observez l'erreur que vous obtiendrez si vous oubliez de le démarrer.
-3. Ouvrez `global.json` et changez temporairement `rollForward` en `disable` : que dit `dotnet --version` si votre SDK n'est pas exactement 10.0.203 ? Remettez la valeur d'origine ensuite.
+3. Ouvrez `global.json` et changez temporairement `rollForward` en `disable` : que dit `dotnet --version` si votre SDK n'est pas exactement 10.0.404 ? Remettez la valeur d'origine ensuite.
 
 Poursuivez avec [Créer un projet](/Démarrer/Créer-un-projet.md).
 

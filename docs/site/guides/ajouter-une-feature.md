@@ -271,13 +271,13 @@ dotnet build Contoso.Catalog.slnx
 
 Une **migration** est un fichier C# qui décrit un changement de schéma (ici : créer la table `Products`). EF Core la génère en comparant votre modèle à l'état précédent, puis l'applique à la base.
 
-**4.1. Installer l'outil `dotnet-ef`.** C'est un outil en ligne de commande, installé une fois pour toute la machine :
+**4.1. Installer l'outil `dotnet-ef`.** C'est un outil en ligne de commande à aligner sur la version d'EF Core du projet (.NET 10) :
 
 ```bash
-dotnet tool install --global dotnet-ef
+dotnet tool install --global dotnet-ef --version 10.0.15
 ```
 
-Si l'outil est déjà installé, mettez-le à jour avec `dotnet tool update --global dotnet-ef` : un avertissement `The Entity Framework tools version ... is older than that of the runtime` signale une version trop ancienne.
+Si l'outil est déjà installé, mettez-le à jour avec `dotnet tool update --global dotnet-ef --version 10.0.15`. Le numéro majeur doit rester aligné sur le runtime EF Core du projet.
 
 **4.2. Donner à l'API le paquet de conception d'EF Core.** L'outil exécute l'application pour lire sa configuration : il lui faut le paquet `Microsoft.EntityFrameworkCore.Design` dans le **projet de démarrage** (ici `Api`). Le template ne l'ajoute qu'à `Infrastructure`, et sans lui la commande échoue :
 

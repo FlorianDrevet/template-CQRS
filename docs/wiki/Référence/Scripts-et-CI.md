@@ -188,15 +188,15 @@ generate:
         - { auth: AppRoles, aspire: true, rateLimiting: true, tests: true, runtime: Podman }
   name: generate (${{ matrix.auth }}, aspire=${{ matrix.aspire }}, rl=${{ matrix.rateLimiting }}, tests=${{ matrix.tests }}, runtime=${{ matrix.runtime || 'Docker' }})
   steps:
-    - uses: actions/checkout@v5
-    - uses: actions/setup-dotnet@v5
+    - uses: actions/checkout@v7
+    - uses: actions/setup-dotnet@v6
       with:
         global-json-file: global.json
-    - uses: actions/setup-python@v6
+    - uses: actions/setup-python@v7
       with:
-        python-version: "3.13"
+        python-version: "3.14"
     - name: Install PyYAML (frontmatter check)
-      run: python -m pip install pyyaml
+      run: python -m pip install PyYAML==6.0.3
     - name: Generate, build and test
       run: bash eng/verify-template.sh ${{ matrix.auth }} ${{ matrix.aspire }} ${{ matrix.rateLimiting }} ${{ matrix.tests }} ${{ matrix.runtime || 'Docker' }}
 ```
@@ -209,7 +209,7 @@ Déclencheurs : `push` sur `main` et toute `pull_request`. Deux jobs :
 
 | Job | Quand | Étapes |
 |-----|-------|--------|
-| `check` | toujours | installe Python 3.13 et les dépendances, lance `python -m pytest eng/docs/tests -q`, puis `python eng/docs/docs.py check` et `python eng/docs/docs.py build` (le build strict du site échoue donc dès la pull request en cas de lien ou de page cassés) |
+| `check` | toujours | installe Python 3.14 et les dépendances, lance `python -m pytest eng/docs/tests -q`, puis `python eng/docs/docs.py check` et `python eng/docs/docs.py build` (le build strict du site échoue donc dès la pull request en cas de lien ou de page cassés) |
 | `deploy` | seulement sur `push` vers `main`, après `check` | `python eng/docs/docs.py build`, puis publication du dossier `site` sur GitHub Pages |
 
 ```mermaid
@@ -229,7 +229,7 @@ Ils se trouvent dans `eng/azure-pipelines/` et reproduisent les workflows GitHub
 | Fichier | Équivalent GitHub | Contenu |
 |---------|-------------------|---------|
 | `template-ci.yml` | `template-ci.yml` | jobs `realm_json`, `template_repository` et `generate` (matrice de sept combinaisons) ; installe le SDK .NET depuis `global.json` |
-| `docs-ci.yml` | job `check` de `docs.yml` | Python 3.13, dépendances, tests de l'outillage, `docs.py check` ; **pas de déploiement** |
+| `docs-ci.yml` | job `check` de `docs.yml` | Python 3.12, dépendances, tests de l'outillage, `docs.py check` ; **pas de déploiement** |
 
 Les deux se déclenchent sur `main` (`trigger`) et déclarent un déclencheur `pr`. Ils utilisent un agent `ubuntu-latest`.
 

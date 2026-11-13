@@ -33,10 +33,10 @@ Si le projet a des tests (`tests/`), le travail suit un cycle TDD : les tests d'
    - **Endpoint.** `src/Web.Template.CQRS.Api/Controllers/<Feature>Controller.cs` (classe statique, méthode `Map<Entity>Endpoints`), puis `app.Map<Entity>Endpoints();` dans `src/Web.Template.CQRS.Api/Program.cs`, **avant** `app.MapFallback(...)`. Sur chaque route : `.WithName(...)`, `.RequireAuthorization(...)` explicite, et `RequireRateLimiting(RateLimitingPolicies.*)` si ce type existe dans le projet (`Read` pour les lectures, `Write` pour les écritures). Le corps ne contient que : envoyer à `IMediator`, traduire le résultat en `TypedResults`/`Results`.
 5. **Migration.** Une fois la solution compilée :
    ```bash
-   dotnet tool update --global dotnet-ef
+   dotnet tool update --global dotnet-ef --version 10.0.15
    dotnet ef migrations add <Nom> --project src/Web.Template.CQRS.Infrastructure --startup-project src/Web.Template.CQRS.Api --output-dir Persistence/Migrations
    ```
-   (si l'outil n'est pas installé : `dotnet tool install --global dotnet-ef`.) Si l'outil répond que le projet de démarrage ne référence pas `Microsoft.EntityFrameworkCore.Design`, ajoutez dans `src/Web.Template.CQRS.Api/Web.Template.CQRS.Api.csproj`, dans l'`ItemGroup` des `PackageReference` (la version est déjà dans `Directory.Packages.props` : n'écrivez aucun `Version`) :
+   (si l'outil n'est pas installé : `dotnet tool install --global dotnet-ef --version 10.0.15`.) Gardez l'outil EF Core au même numéro majeur et à la même version que les paquets EF du projet. Si l'outil répond que le projet de démarrage ne référence pas `Microsoft.EntityFrameworkCore.Design`, ajoutez dans `src/Web.Template.CQRS.Api/Web.Template.CQRS.Api.csproj`, dans l'`ItemGroup` des `PackageReference` (la version est déjà dans `Directory.Packages.props` : n'écrivez aucun `Version`) :
    ```xml
    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
        <PrivateAssets>all</PrivateAssets>

@@ -29,7 +29,7 @@ L'AppHost est la **source de vérité de l'environnement local**. Si un port, un
 **Fichier :** `src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj`
 
 ```xml
-<Project Sdk="Aspire.AppHost.Sdk/13.5.3">
+<Project Sdk="Aspire.AppHost.Sdk/13.6.5">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -52,7 +52,7 @@ L'AppHost est la **source de vérité de l'environnement local**. Si un port, un
 - `Sdk="Aspire.AppHost.Sdk/…"` : un SDK MSBuild spécial pour les AppHost. Il fournit l'outillage de build propre à Aspire (par exemple la génération d'une classe `Projects.<NomDuProjet>` pour les projets référencés ; le template n'en a pas besoin, car il désigne le projet de l'API par son chemin, voir plus bas).
 - `AspireUseCliBundle` : un réglage du SDK Aspire, laissé tel que généré (vous n'avez pas à le modifier).
 - `OutputType` `Exe` : l'AppHost est un programme exécutable.
-- Les trois `PackageReference` sont les **intégrations d'hébergement** : `Aspire.Hosting.SqlServer`, `Aspire.Hosting.Azure.Storage` et `Aspire.Hosting.Keycloak`. Elles apportent les méthodes `AddSqlServer`, `AddAzureStorage` et `AddKeycloak`. Leurs versions sont centralisées dans `Directory.Packages.props`. Attention : `Aspire.Hosting.Keycloak` est un paquet en **préversion** (`13.5.3-preview…`), son API peut encore évoluer.
+- Les trois `PackageReference` sont les **intégrations d'hébergement** : `Aspire.Hosting.SqlServer`, `Aspire.Hosting.Azure.Storage` et `Aspire.Hosting.Keycloak`. Elles apportent les méthodes `AddSqlServer`, `AddAzureStorage` et `AddKeycloak`. Leurs versions sont centralisées dans `Directory.Packages.props`. Attention : `Aspire.Hosting.Keycloak` reste un paquet en **préversion** (`13.6.5-preview…`), son API peut encore évoluer.
 - `UserSecretsId` : identifie le fichier de secrets de l'AppHost (voir [Paramètres et secrets](/Aspire/Paramètres-et-secrets.md)).
 
 ### Le point d'entrée
@@ -76,7 +76,8 @@ var sqlPassword = builder.AddParameter("sql-password", secret: true);
 var sqlServer = builder
     .AddSqlServer("sqlserver", password: sqlPassword)
     .WithDataVolume()
-    .WithLifetime(ContainerLifetime.Persistent);
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithRepl();
 var projectDatabase = sqlServer.AddDatabase("projectdb");
 ```
 
@@ -84,6 +85,7 @@ var projectDatabase = sqlServer.AddDatabase("projectdb");
 - `AddSqlServer("sqlserver", password: sqlPassword)` démarre un **conteneur** SQL Server. `"sqlserver"` est le nom de la ressource (celui que vous voyez dans le dashboard). Le mot de passe est le paramètre déclaré juste avant.
 - `WithDataVolume()` attache un **volume Docker** au conteneur : les fichiers de la base sont stockés dans ce volume, pas dans le conteneur.
 - `WithLifetime(ContainerLifetime.Persistent)` demande à Aspire de **ne pas détruire** le conteneur à l'arrêt de l'AppHost. Le démarrage suivant est plus rapide et la base est conservée.
+- `WithRepl()` ajoute une commande SQL Server au dashboard Aspire 13.6 : elle ouvre `sqlcmd` dans le terminal intégré, déjà connecté, sans installer de client local ni recopier la chaîne de connexion. Elle n'est disponible que pendant l'exécution locale. Le client se connecte comme `sa`, peut supprimer les données et, si cette fonction est activée dans l'image, exécuter des commandes système côté serveur ; gardez le dashboard accessible uniquement à des personnes de confiance.
 - `AddDatabase("projectdb")` déclare une **base logique** `projectdb` sur ce serveur. C'est elle que l'API utilise, et son nom (`projectdb`) devient le nom de la chaîne de connexion.
 
 ### Le stockage de blobs

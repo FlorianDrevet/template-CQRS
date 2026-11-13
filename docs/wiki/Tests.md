@@ -67,7 +67,7 @@ Les tests utilisent **xUnit v3** (paquet `xunit.v3`). Avec xUnit v3, chaque proj
 ```json
 {
   "sdk": {
-    "version": "10.0.203",
+    "version": "10.0.404",
     "rollForward": "latestMajor",
     "allowPrerelease": true
   },

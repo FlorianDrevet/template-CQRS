@@ -87,10 +87,10 @@ jobs:
         inputs:
           useGlobalJson: true
       - task: UsePythonVersion@0
-        displayName: Use Python 3.13
+        displayName: Use Python 3.12
         inputs:
-          versionSpec: '3.13'
-      - bash: python -m pip install pyyaml
+          versionSpec: '3.12'
+      - bash: python -m pip install PyYAML==6.0.3
         displayName: Install PyYAML (frontmatter check)
       - bash: bash eng/verify-template.sh $(auth) $(aspire) $(rateLimiting) $(tests) "${CONTAINER_RUNTIME:-Docker}"
         displayName: verify-template $(auth) aspire=$(aspire) rl=$(rateLimiting) tests=$(tests) runtime=$(runtime)

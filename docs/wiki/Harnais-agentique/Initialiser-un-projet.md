@@ -40,7 +40,7 @@ Le skill enchaîne neuf étapes. À chaque échec, l'agent s'arrête, explique l
 
 | # | Étape | Ce qui se passe |
 |---|-------|-----------------|
-| 1 | Prérequis | vérifie le SDK .NET, Docker, le CLI Aspire et le certificat de développement ; propose les commandes d'installation manquantes et demande votre accord |
+| 1 | Environnement local et prérequis | demande d'abord si vous voulez Aspire, puis **Docker ou Podman** ; vérifie le SDK .NET, le CLI Aspire, le certificat de développement et le moteur choisi (`aspire doctor`) ; si quelque chose manque, **propose de tout installer et configurer** (Podman, Podman Desktop en option, machine Podman, variable `ASPIRE_CONTAINER_RUNTIME`), après votre accord et une étape à la fois |
 | 2 | Questionnaire | pose les questions, explique chaque choix, affiche un récapitulatif et attend votre confirmation avant d'écrire quoi que ce soit |
 | 3 | Génération | lance `eng/init/new-project.sh` (ou `.ps1`) ; le script refuse un dossier cible non vide |
 | 4 | Accès | applique vos rôles, groupes et personas en suivant le skill `manage-access` du projet généré |
@@ -50,11 +50,11 @@ Le skill enchaîne neuf étapes. À chaque échec, l'agent s'arrête, explique l
 | 8 | Git | premier commit ; aucun `git push` sans accord |
 | 9 | Passation | résumé : dossier créé, options, personas, commandes utiles, étapes Entra restantes |
 
-Le questionnaire couvre : le nom du projet (PascalCase avec points, par exemple `Contoso.Orders`), le dossier cible (par défaut `../<Nom>`), le modèle d'autorisation (`Authenticated`, `AppRoles`, `Groups`, `AppRolesAndGroups`), Aspire, le rate limiting, les tests, les rôles, les groupes, les personas locaux et l'URL d'un remote git (facultative). Les questions qui ne s'appliquent pas aux options choisies sont sautées.
+Le questionnaire couvre : le nom du projet (PascalCase avec points, par exemple `Contoso.Orders`), le dossier cible (par défaut `../<Nom>`), le modèle d'autorisation (`Authenticated`, `AppRoles`, `Groups`, `AppRolesAndGroups`), le rate limiting, les tests, les rôles, les groupes, les personas locaux et l'URL d'un remote git (facultative). Aspire et le moteur de conteneurs sont posés avant, à l'étape 1. Les questions qui ne s'appliquent pas aux options choisies sont sautées. La procédure complète d'installation du moteur (Windows, macOS, Linux) est dans `.claude/skills/init-project/references/container-runtime.md` et dans [Prérequis](/Démarrer/Prérequis.md).
 
 > ⚠️ **Ce qui demande toujours votre accord**
 >
-> Le skill ne fait jamais sans demander : installer un outil ou lancer `aspire agent init`, écraser un dossier existant, pousser sur un remote, supprimer des volumes ou arrêter les conteneurs d'un autre projet, écrire un secret dans le dépôt.
+> Le skill ne fait jamais sans demander : installer un outil (Docker, Podman, Podman Desktop, WSL), créer ou démarrer la machine Podman, poser la variable d'environnement `ASPIRE_CONTAINER_RUNTIME` ou lancer `aspire agent init`, écraser un dossier existant, pousser sur un remote, supprimer des volumes ou arrêter les conteneurs d'un autre projet, écrire un secret dans le dépôt.
 
 Les critères de fin et les interdits du skill, tels qu'il les contient :
 
@@ -71,7 +71,7 @@ Les critères de fin et les interdits du skill, tels qu'il les contient :
 
 ## Ne jamais faire sans demander
 
-- Installer un outil (SDK, Aspire CLI, certificat de développement) ou lancer `aspire agent init` (hooks de télémétrie).
+- Installer un outil (SDK, Aspire CLI, certificat de développement, Docker, Podman, Podman Desktop, WSL), créer ou démarrer la machine Podman, poser une variable d'environnement permanente (`ASPIRE_CONTAINER_RUNTIME`), ou lancer `aspire agent init` (hooks de télémétrie). Les installations de Podman, Podman Desktop et Docker peuvent demander une élévation (UAC), `sudo` ou un redémarrage : annoncez-le avant l'accord.
 - Écraser ou vider un dossier existant (le script refuse, ne le contournez pas).
 - Pousser sur un remote (`git push`).
 - Supprimer des volumes (`--volumes`) ou arrêter des conteneurs d'autres projets (Keycloak sur le port 8080).
@@ -107,7 +107,7 @@ bash eng/init/new-project.sh --name Contoso.Orders --authorization AppRolesAndGr
 ./eng/init/new-project.ps1 -Name Contoso.Orders -Authorization AppRolesAndGroups
 ```
 
-Options du script Bash : `--name` (obligatoire), `--output` (par défaut `../<Nom>`), `--authorization` (par défaut `AppRoles`), `--aspire`, `--rate-limiting` et `--tests` (`true` ou `false`, par défaut `true`) et `--remote <url git>`. Le script PowerShell a les mêmes options en `-Name`, `-Output`, `-Authorization`, `-Aspire`, `-RateLimiting`, `-Tests`, `-Remote` ; les trois options booléennes prennent la chaîne `true` ou `false` (par exemple `-Aspire false`, pas `$false`), ce qui fonctionne aussi avec `pwsh -File` depuis Bash. Voici sa partie génération :
+Options du script Bash : `--name` (obligatoire), `--output` (par défaut `../<Nom>`), `--authorization` (par défaut `AppRoles`), `--aspire`, `--rate-limiting` et `--tests` (`true` ou `false`, par défaut `true`), `--container-runtime` (`Docker` ou `Podman`, par défaut `Docker`) et `--remote <url git>`. Le script PowerShell a les mêmes options en `-Name`, `-Output`, `-Authorization`, `-Aspire`, `-RateLimiting`, `-Tests`, `-ContainerRuntime`, `-Remote` ; les trois options booléennes prennent la chaîne `true` ou `false` (par exemple `-Aspire false`, pas `$false`), ce qui fonctionne aussi avec `pwsh -File` depuis Bash. Voici sa partie génération :
 
 **Fichier :** `eng/init/new-project.sh`
 
@@ -126,7 +126,8 @@ dotnet new templatewebcqrs \
   --AuthorizationModel "$authorization" \
   --EnableAspire "$aspire" \
   --EnableRateLimiting "$rate_limiting" \
-  --EnableTests "$tests"
+  --EnableTests "$tests" \
+  --ContainerRuntime "$container_runtime"
 
 git -C "$output" init --quiet
 if [ -n "$remote" ]; then

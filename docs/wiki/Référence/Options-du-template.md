@@ -4,7 +4,7 @@ Cette page décrit les options acceptées par `dotnet new templatewebcqrs`, ce q
 
 ## Les options
 
-Quatre options existent. Elles se passent en ligne de commande sous la forme `--Option valeur`, et `dotnet new templatewebcqrs --help` en affiche la liste.
+Cinq options existent. Elles se passent en ligne de commande sous la forme `--Option valeur`, et `dotnet new templatewebcqrs --help` en affiche la liste.
 
 | Option | Type | Valeurs | Défaut | Rôle |
 |--------|------|---------|--------|------|
@@ -12,8 +12,9 @@ Quatre options existent. Elles se passent en ligne de commande sous la forme `--
 | `EnableRateLimiting` | booléen | `true`, `false` | `true` | Ajoute les politiques de limitation de débit de l'API |
 | `AuthorizationModel` | choix | `Authenticated`, `AppRoles`, `Groups`, `AppRolesAndGroups` | `AppRoles` | Modèle d'autorisation Entra ID, reproduit localement par Keycloak |
 | `EnableTests` | booléen | `true`, `false` | `true` | Ajoute les projets de tests unitaires et d'intégration |
+| `ContainerRuntime` | choix | `Docker`, `Podman` | `Docker` | Moteur de conteneurs d'Aspire en local ; sans effet si `EnableAspire` vaut `false` |
 
-Les quatre options sont indépendantes : toutes les combinaisons sont permises. La CI du dépôt en génère six, représentatives, à chaque modification (voir [Scripts et CI](/Référence/Scripts-et-CI.md)).
+Les cinq options sont indépendantes : toutes les combinaisons sont permises. La CI du dépôt en génère sept, représentatives, à chaque modification (voir [Scripts et CI](/Référence/Scripts-et-CI.md)).
 
 ```bash
 dotnet new templatewebcqrs --name Contoso.Orders --output Contoso.Orders \
@@ -22,7 +23,7 @@ dotnet new templatewebcqrs --name Contoso.Orders --output Contoso.Orders \
 
 ## Les symboles tels que le template les déclare
 
-Voici le bloc `symbols` de `.template.config/template.json`. Les trois symboles `computed` ne se saisissent jamais : ils sont calculés à partir de `AuthorizationModel`.
+Voici le bloc `symbols` de `.template.config/template.json`. Les symboles `computed` et `generated` ne se saisissent jamais : ils sont calculés à partir de `AuthorizationModel` et de `ContainerRuntime`.
 
 **Fichier :** `.template.config/template.json`
 
@@ -70,6 +71,45 @@ Voici le bloc `symbols` de `.template.config/template.json`. Les trois symboles 
     "defaultValue": "true",
     "description": "Ajoute les projets de tests unitaires et d'intégration."
   },
+  "ContainerRuntime": {
+    "type": "parameter",
+    "datatype": "choice",
+    "defaultValue": "Docker",
+    "description": "Moteur de conteneurs utilisé par Aspire en local (sans effet si EnableAspire vaut false).",
+    "choices": [
+      {
+        "choice": "Docker",
+        "description": "Docker Desktop ou Docker Engine."
+      },
+      {
+        "choice": "Podman",
+        "description": "Podman (ASPIRE_CONTAINER_RUNTIME=podman dans le profil de lancement de l'AppHost)."
+      }
+    ]
+  },
+  "UsePodman": {
+    "type": "computed",
+    "value": "(ContainerRuntime == \"Podman\")"
+  },
+  "ContainerCli": {
+    "type": "generated",
+    "generator": "switch",
+    "parameters": {
+      "evaluator": "C++",
+      "datatype": "string",
+      "cases": [
+        {
+          "condition": "(UsePodman && EnableAspire)",
+          "value": "podman"
+        },
+        {
+          "condition": "(!(UsePodman && EnableAspire))",
+          "value": "docker"
+        }
+      ]
+    },
+    "replaces": "docker"
+  },
   "UseAppRoles": {
     "type": "computed",
     "value": "(AuthorizationModel == \"AppRoles\" || AuthorizationModel == \"AppRolesAndGroups\")"
@@ -90,6 +130,9 @@ Voici le bloc `symbols` de `.template.config/template.json`. Les trois symboles 
 | `UseAppRoles` | `AuthorizationModel` vaut `AppRoles` ou `AppRolesAndGroups` | garder `AppRoles.cs` et la prise en compte du claim `roles` |
 | `UseGroups` | `AuthorizationModel` vaut `Groups` ou `AppRolesAndGroups` | garder `GroupOptions.cs`, la clé `Authorization:Groups:Administrators` et les tests associés |
 | `UseAuthorizationPolicies` | `AuthorizationModel` n'est pas `Authenticated` | garder la policy `RequireAdmin`, `/admin/ping` et ce qui s'y rattache |
+| `UsePodman` | `ContainerRuntime` vaut `Podman` | choisir les textes propres à Podman dans les fichiers Markdown livrés |
+
+Le symbole `generated` `ContainerCli` vaut `podman` ou `docker` et **remplace le mot `docker`** (en minuscules) dans tous les fichiers livrés : la valeur `ASPIRE_CONTAINER_RUNTIME` du profil de lancement de l'AppHost et les commandes des skills deviennent `podman` avec `ContainerRuntime=Podman`. N'écrivez donc `docker` en minuscules dans un fichier livré que pour désigner ce moteur ; le texte en prose (« Docker ») se règle avec `UsePodman`.
 
 ## Valeurs de `AuthorizationModel`
 

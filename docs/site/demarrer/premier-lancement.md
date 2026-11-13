@@ -35,7 +35,7 @@ Choisissez des mots de passe qui respectent la politique de SQL Server (longueur
 aspire start --apphost src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj
 ```
 
-Docker doit être lancé. Le premier démarrage télécharge les images des conteneurs, ce qui peut prendre quelques minutes.
+Votre moteur de conteneurs (Docker, ou Podman si vous avez généré avec `--ContainerRuntime Podman`) doit être lancé ; `aspire doctor` le confirme (voir [Prérequis](prerequis.md)). Le premier démarrage télécharge les images des conteneurs, ce qui peut prendre quelques minutes.
 
 ### Étape 3 : ce qui démarre
 

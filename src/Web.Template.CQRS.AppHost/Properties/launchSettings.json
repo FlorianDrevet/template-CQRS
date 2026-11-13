@@ -8,7 +8,8 @@
       "applicationUrl": "https://localhost:17101;http://localhost:15214",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_ENVIRONMENT": "Development"
+        "DOTNET_ENVIRONMENT": "Development",
+        "ASPIRE_CONTAINER_RUNTIME": "docker"
       }
     }
   }

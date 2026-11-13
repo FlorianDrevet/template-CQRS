@@ -13,7 +13,11 @@ Documentation complète (cours, guides, référence) : https://floriandrevet.git
 <!--#if (EnableAspire) -->
 ## Lancer en local
 
+<!--#if (UsePodman) -->
+Prérequis : SDK .NET 10, Podman (machine démarrée), Aspire CLI, certificat de développement approuvé (`dotnet dev-certs https --trust`). Le profil de lancement de l'AppHost définit `ASPIRE_CONTAINER_RUNTIME=podman` ; si vous lancez l'AppHost autrement (IDE, `dotnet run` avec un autre profil), définissez cette variable vous-même.
+<!--#else -->
 Prérequis : SDK .NET 10, Docker, Aspire CLI, certificat de développement approuvé (`dotnet dev-certs https --trust`).
+<!--#endif -->
 
 ```powershell
 dotnet user-secrets set "Parameters:sql-password" "Choose-A-Strong-Local-Password!" --project src/Web.Template.CQRS.AppHost/Web.Template.CQRS.AppHost.csproj

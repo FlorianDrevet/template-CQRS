@@ -12,7 +12,11 @@ Dans les commandes, `APPHOST` désigne `src/Web.Template.CQRS.AppHost/Web.Templa
 ## Étapes
 
 1. **Prérequis.**
+<!--#if (UsePodman) -->
+   - Podman tourne (machine démarrée) : `docker info` (sinon, dites-le à l'utilisateur). Le moteur est choisi par `ASPIRE_CONTAINER_RUNTIME=podman`, posé dans le profil de lancement de l'AppHost.
+<!--#else -->
    - Docker tourne : `docker info` (sinon, dites-le à l'utilisateur).
+<!--#endif -->
    - CLI Aspire : `aspire --version`.
    - Certificat de développement : `dotnet dev-certs https --check --trust` ; s'il n'est pas approuvé, demandez avant de lancer `dotnet dev-certs https --trust` (boîte de dialogue système).
    - Secrets de l'AppHost : listez les clés **sans les valeurs** : `dotnet user-secrets list --project APPHOST | sed 's/ = .*//'` (PowerShell : `dotnet user-secrets list --project APPHOST | ForEach-Object { ($_ -split ' = ')[0] }`). Ne retenez que la présence des clés `Parameters:sql-password` et `Parameters:keycloak-admin-password` et ne répétez jamais leurs valeurs. Si une clé manque, **demandez d'abord l'accord** de l'utilisateur (c'est une écriture dans son profil), puis posez-la avec une valeur aléatoire acceptée par SQL Server (majuscules, minuscules, chiffres, symbole), sans l'afficher :

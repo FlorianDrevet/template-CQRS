@@ -6,7 +6,7 @@ Créer un projet se fait en deux temps : installer le template une fois sur votr
 
 ## Pourquoi c'est important
 
-Chaque option retire de la complexité. Une API interne simple n'a pas besoin de groupes de sécurité ; un environnement sans Docker ne peut pas utiliser Aspire. Choisir les bonnes options au départ évite de supprimer à la main des dizaines de fichiers.
+Chaque option retire de la complexité. Une API interne simple n'a pas besoin de groupes de sécurité ; un environnement sans Docker ni Podman ne peut pas utiliser Aspire. Choisir les bonnes options au départ évite de supprimer à la main des dizaines de fichiers.
 
 ## Comment le template le fait
 
@@ -30,6 +30,7 @@ La seconde commande affiche toutes les options avec leur description, lue dans `
 | `--EnableRateLimiting` | `true`, `false` | `true` | Ajoute les politiques de limitation de débit de l'API |
 | `--AuthorizationModel` | `Authenticated`, `AppRoles`, `Groups`, `AppRolesAndGroups` | `AppRoles` | Choisit le modèle d'autorisation Entra ID reproduit localement par Keycloak |
 | `--EnableTests` | `true`, `false` | `true` | Ajoute les projets de tests unitaires et d'intégration |
+| `--ContainerRuntime` | `Docker`, `Podman` | `Docker` | Choisit le moteur de conteneurs d'Aspire en local (sans effet avec `--EnableAspire false`) |
 
 ### Ce que chaque option ajoute ou retire
 
@@ -38,6 +39,7 @@ La seconde commande affiche toutes les options avec leur description, lue dans `
 | `EnableAspire = false` | Projets `AppHost` et `ServiceDefaults`, dossier `scripts/`. La solution `Web.Template.CQRS.Core.slnx` est renommée `Web.Template.CQRS.slnx` |
 | `EnableRateLimiting = false` | Dossier `Common/RateLimiting` de l'API et ses tests d'intégration |
 | `EnableTests = false` | Dossier `tests/` |
+| `ContainerRuntime = Podman` | Rien ne disparaît : le profil de lancement de l'AppHost définit `ASPIRE_CONTAINER_RUNTIME=podman` et les commandes `docker` des skills et du README deviennent `podman` |
 | `AuthorizationModel = Authenticated` | `Authorization/Policies.cs`, `AdminController`, la feature `Admin` (Application et Contracts) et ses tests ; le realm Keycloak ne contient plus de rôles ni de groupes |
 | `AuthorizationModel = Groups` | `Authorization/AppRoles.cs` |
 | `AuthorizationModel = AppRoles` | `Authorization/GroupOptions.cs` et les tests d'autorisation par groupes |

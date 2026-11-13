@@ -4,7 +4,7 @@ Cette section rassemble les informations à consulter plutôt qu'à lire : table
 
 | Page | Vous y trouvez | Utile quand |
 |------|----------------|-------------|
-| [Options du template](/Référence/Options-du-template.md) | les quatre options de `dotnet new`, leurs valeurs, les symboles calculés, les fichiers ajoutés ou retirés | vous choisissez comment générer le projet |
+| [Options du template](/Référence/Options-du-template.md) | les cinq options de `dotnet new`, leurs valeurs, les symboles calculés, les fichiers ajoutés ou retirés | vous choisissez comment générer le projet |
 | [Configuration](/Référence/Configuration.md) | toutes les clés de configuration, leur type, leur défaut et la variable d'environnement équivalente | vous configurez un environnement ou diagnostiquez un démarrage qui échoue |
 | [Endpoints](/Référence/Endpoints.md) | chaque route, son authentification, sa policy, sa limite de débit et ses réponses | vous appelez l'API ou écrivez un client |
 | [Scripts et CI](/Référence/Scripts-et-CI.md) | `get-token`, `verify-template.sh`, les workflows GitHub et les pipelines Azure DevOps, le développement du template lui-même | vous automatisez, vous branchez la CI ou vous contribuez au template |

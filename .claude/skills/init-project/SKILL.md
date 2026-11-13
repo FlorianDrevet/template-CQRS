@@ -11,20 +11,23 @@ Questions, valeurs par défaut et validations : [references/questionnaire.md](re
 
 ## Étapes
 
-1. **Prérequis.** Vérifiez, sans rien installer :
-   ```bash
-   dotnet --version          # doit satisfaire global.json (SDK 10.0.x)
-   docker info               # Docker doit tourner (seulement si Aspire)
-   aspire --version          # Aspire CLI (seulement si Aspire)
-   dotnet dev-certs https --check --trust
-   ```
-   Pour chaque prérequis manquant, donnez la commande d'installation (`dotnet dev-certs https --trust`, installation de l'Aspire CLI, démarrage de Docker Desktop) et **demandez l'accord** avant de l'exécuter. Sans accord, arrêtez-vous.
-2. **Questionnaire.** Posez les questions de `references/questionnaire.md` (nom, dossier cible, modèle d'autorisation, Aspire, rate limiting, tests, rôles, groupes, personas, remote git). Expliquez chaque choix à un débutant. Affichez un **récapitulatif** et attendez une confirmation explicite avant toute écriture.
+1. **Environnement local et prérequis.**
+   - **Choix du moteur, avant toute vérification.** Demandez d'abord si l'utilisateur veut **Aspire** (questionnaire, question 4) ; si oui, demandez **Docker ou Podman** (question 5) en suivant [references/container-runtime.md](references/container-runtime.md) § 1. Ces deux réponses sont retenues pour le questionnaire : ne les reposez pas à l'étape 2. Sans Aspire, il n'y a ni moteur de conteneurs ni Aspire CLI à vérifier.
+   - **Vérification**, sans rien installer :
+     ```bash
+     dotnet --version          # doit satisfaire global.json (SDK 10.0.x)
+     aspire --version          # Aspire CLI (seulement si Aspire)
+     dotnet dev-certs https --check --trust   # seulement si Aspire
+     aspire doctor             # (seulement si Aspire) section « Container Runtime » : le moteur choisi doit être `running` et `← active`
+     ```
+     Avec Aspire, vérifiez aussi le moteur lui-même (`docker info` ou `podman info`, `podman machine list`) comme dans `container-runtime.md` § 2.
+   - **Si quelque chose manque**, ne vous contentez pas de le signaler : **proposez de tout configurer** (SDK, Aspire CLI, certificat, et pour le moteur choisi son installation, sa machine virtuelle et la variable `ASPIRE_CONTAINER_RUNTIME` ; Podman Desktop en option) selon `container-runtime.md` § 3 à 5. Listez d'abord l'ensemble des actions avec leurs commandes exactes, **demandez l'accord**, puis exécutez une étape à la fois en redemandant avant celles qui touchent le système (administrateur, redémarrage, `sudo`, variable d'environnement permanente). Ordre : Aspire CLI (`dotnet tool install -g Aspire.Cli`), moteur, puis `aspire doctor`. Sans accord, ne contournez pas : proposez de générer **sans Aspire** (`--aspire false`) ou d'arrêter pour que l'utilisateur configure lui-même. Ne passez à l'étape 2 que lorsque `aspire doctor` confirme le moteur choisi.
+2. **Questionnaire.** Posez les questions de `references/questionnaire.md` (nom, dossier cible, modèle d'autorisation, rate limiting, tests, rôles, groupes, personas, remote git ; Aspire et le moteur de conteneurs ont déjà été posés à l'étape 1 et figurent seulement au récapitulatif). Expliquez chaque choix à un débutant. Affichez un **récapitulatif** et attendez une confirmation explicite avant toute écriture.
 3. **Génération.** Depuis la racine du template (le script refuse un dossier cible non vide et ne change alors rien) :
    ```bash
-   bash eng/init/new-project.sh --name <Nom> --output <sortie> --authorization <Modèle> --aspire <true|false> --rate-limiting <true|false> --tests <true|false> [--remote <url>]
+   bash eng/init/new-project.sh --name <Nom> --output <sortie> --authorization <Modèle> --aspire <true|false> --container-runtime <Docker|Podman> --rate-limiting <true|false> --tests <true|false> [--remote <url>]
    ```
-   PowerShell : `pwsh -NoProfile -File eng/init/new-project.ps1 -Name <Nom> -Output <sortie> -Authorization <Modèle> -Aspire <true|false> -RateLimiting <true|false> -Tests <true|false> [-Remote <url>]`. Dans le projet généré, `Web.Template.CQRS` est remplacé par `<Nom>` dans tous les chemins.
+   PowerShell : `pwsh -NoProfile -File eng/init/new-project.ps1 -Name <Nom> -Output <sortie> -Authorization <Modèle> -Aspire <true|false> -ContainerRuntime <Docker|Podman> -RateLimiting <true|false> -Tests <true|false> [-Remote <url>]`. Dans le projet généré, `Web.Template.CQRS` est remplacé par `<Nom>` dans tous les chemins.
 4. **Accès.** Lisez `<sortie>/.claude/skills/manage-access/SKILL.md` et appliquez-le **dans `<sortie>`** pour les rôles, groupes et personas du questionnaire, en une seule passe, en situation « projet fraîchement généré » (rien ne tourne : sautez la réimport du realm et la vérification live). Ne dupliquez pas ses règles ici. Modèle `Authenticated` : aucun rôle ni groupe ; seuls des personas simples sont possibles. Sans Aspire : pas de realm, pas de personas, pas de GUID local.
 5. **Profil.** Écrivez `<sortie>/project-profile.json` au format de `<sortie>/.claude/skills/manage-access/references/project-profile.md` (`schemaVersion` 1, options, rôles, groupes, personas, `purpose` renseigné). `manage-access` le crée déjà à son étape 7 : complétez-le plutôt que de l'écraser, puis validez :
    ```bash
@@ -55,7 +58,7 @@ Questions, valeurs par défaut et validations : [references/questionnaire.md](re
    bash scripts/smoke-test.sh        # PowerShell : ./scripts/smoke-test.ps1
    aspire stop --apphost src/<Nom>.AppHost/<Nom>.AppHost.csproj
    ```
-   Si le port 8080 est déjà pris, la cause probable est un conteneur Keycloak persistant d'un autre projet : expliquez-le (`docker ps --filter publish=8080`) et proposez de l'arrêter, **sans le faire** sans accord. Si le port reste pris après `docker stop`, un autre AppHost tourne (`aspire ps`) : demandez l'accord de l'arrêter (`aspire stop --apphost <csproj>`) ou arrêtez-vous. Ne passez jamais `--volumes` ici.
+   Si le port 8080 est déjà pris, la cause probable est un conteneur Keycloak persistant d'un autre projet : expliquez-le (`docker ps --filter publish=8080`, ou `podman ps` avec Podman) et proposez de l'arrêter, **sans le faire** sans accord. Si le port reste pris après `docker stop` (`podman stop` avec Podman), un autre AppHost tourne (`aspire ps`) : demandez l'accord de l'arrêter (`aspire stop --apphost <csproj>`) ou arrêtez-vous. Ne passez jamais `--volumes` ici.
 8. **Git.** Dans `<sortie>` (le dépôt a déjà été initialisé et le remote ajouté par le script) :
    ```bash
    git add -A
@@ -74,7 +77,7 @@ Questions, valeurs par défaut et validations : [references/questionnaire.md](re
 
 ## Ne jamais faire sans demander
 
-- Installer un outil (SDK, Aspire CLI, certificat de développement) ou lancer `aspire agent init` (hooks de télémétrie).
+- Installer un outil (SDK, Aspire CLI, certificat de développement, Docker, Podman, Podman Desktop, WSL), créer ou démarrer la machine Podman, poser une variable d'environnement permanente (`ASPIRE_CONTAINER_RUNTIME`), ou lancer `aspire agent init` (hooks de télémétrie). Les installations de Podman, Podman Desktop et Docker peuvent demander une élévation (UAC), `sudo` ou un redémarrage : annoncez-le avant l'accord.
 - Écraser ou vider un dossier existant (le script refuse, ne le contournez pas).
 - Pousser sur un remote (`git push`).
 - Supprimer des volumes (`--volumes`) ou arrêter des conteneurs d'autres projets (Keycloak sur le port 8080).

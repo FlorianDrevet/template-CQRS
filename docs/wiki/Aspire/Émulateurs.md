@@ -18,7 +18,7 @@ Notez la nuance : SQL Server en conteneur est **le vrai moteur SQL Server**, tan
 
 ### Qu'est-ce qu'un conteneur ?
 
-Un **conteneur** est un processus isolé qui embarque tout ce dont il a besoin (programme, bibliothèques, configuration) : on le démarre à partir d'une **image** téléchargée une fois. Docker est le programme qui les fait tourner sur votre poste. L'analogie est celle d'un appareil électroménager livré dans sa boîte, branché tel quel : vous n'installez rien de SQL Server sur Windows, vous « branchez » son conteneur.
+Un **conteneur** est un processus isolé qui embarque tout ce dont il a besoin (programme, bibliothèques, configuration) : on le démarre à partir d'une **image** téléchargée une fois. Un moteur de conteneurs (Docker, ou Podman si vous l'avez choisi à la génération) est le programme qui les fait tourner sur votre poste. Les commandes `docker` de cette page s'écrivent avec `podman` ; le comportement exact des volumes n'a pas été vérifié avec Podman. L'analogie est celle d'un appareil électroménager livré dans sa boîte, branché tel quel : vous n'installez rien de SQL Server sur Windows, vous « branchez » son conteneur.
 
 Un conteneur est **jetable** : si on le supprime, tout ce qu'il contenait disparaît. D'où la notion de volume.
 
@@ -84,7 +84,7 @@ aspire wait api --timeout 300 --apphost src/Web.Template.CQRS.AppHost/Web.Templa
 
 `--force` supprime les ressources persistantes ; `--volumes` (qui exige `--force`) est censé supprimer aussi leurs volumes, et l'aide de la commande le dit. Constat sur l'Aspire CLI 13.6 : la commande se termine avec succès mais les volumes `<apphost>-<hash>-keycloak-data` et `<apphost>-<hash>-sqlserver-data` **restent**, donc le realm n'est pas réimporté. Le filtre `name=` accepte toute sous-chaîne et peut afficher les volumes d'autres projets : ne supprimez jamais « tout ce que le filtre renvoie », seulement les noms exacts de votre projet.
 
-**Réinitialiser une seule ressource avec Docker**, par exemple Keycloak pour réimporter le realm sans perdre la base SQL. Les volumes s'appellent `<nom de l'AppHost en minuscules>-<hash>-<ressource>-data`, par exemple `web.template.cqrs.apphost-1a2b3c4d5e-keycloak-data` (le hash diffère chez vous) :
+**Réinitialiser une seule ressource avec les volumes**, par exemple Keycloak pour réimporter le realm sans perdre la base SQL. Les volumes s'appellent `<nom de l'AppHost en minuscules>-<hash>-<ressource>-data`, par exemple `web.template.cqrs.apphost-1a2b3c4d5e-keycloak-data` (le hash diffère chez vous) :
 
 ```bash
 # 1. repérer le volume

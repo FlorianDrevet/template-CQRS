@@ -18,7 +18,8 @@ Les skills `add-feature`, `manage-access` et `run-local` ciblent les projets **g
 ## Règles
 
 - Toute modification du code template doit garder compilables les quatre modèles d'autorisation et les options du template.
-- Vérifiez les combinaisons touchées : `bash eng/verify-template.sh <AuthorizationModel> <EnableAspire> <EnableRateLimiting> <EnableTests>`.
+- Vérifiez les combinaisons touchées : `bash eng/verify-template.sh <AuthorizationModel> <EnableAspire> <EnableRateLimiting> <EnableTests> <ContainerRuntime>`.
+- Dans les fichiers livrés, le mot `docker` en minuscules est remplacé par `podman` quand `ContainerRuntime=Podman` (symbole `ContainerCli`) : ne l'écrivez que pour désigner le moteur de conteneurs ; la prose (« Docker ») se règle avec `<!--#if (UsePodman) -->`.
 - Tests du dépôt : `dotnet test --solution Web.Template.CQRS.slnx`.
 - Directives dans les `.md` du template : `<!--#if (Symbole) -->`, `<!--#else -->`, `<!--#endif -->` chacune seule sur sa ligne.
 - Après toute modification de `docs/site` : `python eng/docs/docs.py wiki && python eng/docs/docs.py check && python eng/docs/docs.py build`.

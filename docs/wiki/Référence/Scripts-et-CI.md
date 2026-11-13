@@ -108,14 +108,14 @@ Ces scripts ne sont pas copiés dans un projet généré : ils servent à créer
 bash eng/init/new-project.sh --name Contoso.Orders --authorization AppRolesAndGroups
 ```
 
-Le script refuse un nom qui n'est pas en PascalCase avec des points (`Contoso.Orders`) et un dossier cible existant et non vide (code de sortie `1`, rien n'est modifié). Par défaut le projet est créé dans `../<Nom>`. La version PowerShell (`pwsh -NoProfile -File eng/init/new-project.ps1 -Name Contoso.Demo -Aspire false`) prend `-Aspire`, `-RateLimiting` et `-Tests` sous forme de chaîne `true` ou `false`.
+Le script refuse un nom qui n'est pas en PascalCase avec des points (`Contoso.Orders`) et un dossier cible existant et non vide (code de sortie `1`, rien n'est modifié). Par défaut le projet est créé dans `../<Nom>`. La version PowerShell (`pwsh -NoProfile -File eng/init/new-project.ps1 -Name Contoso.Demo -Aspire false`) prend `-Aspire`, `-RateLimiting` et `-Tests` sous forme de chaîne `true` ou `false`, et `-ContainerRuntime` (`Docker` ou `Podman`).
 
 ## `eng/verify-template.sh` : générer, vérifier, compiler, tester
 
 Le script génère un projet depuis le template avec des options données, vérifie qu'aucun fichier du dépôt n'a fuité, puis compile et teste le projet généré. C'est ce que la CI exécute pour chaque combinaison.
 
 ```bash
-bash eng/verify-template.sh [AuthorizationModel] [EnableAspire] [EnableRateLimiting] [EnableTests]
+bash eng/verify-template.sh [AuthorizationModel] [EnableAspire] [EnableRateLimiting] [EnableTests] [ContainerRuntime]
 ```
 
 | Position | Argument | Défaut |
@@ -124,6 +124,7 @@ bash eng/verify-template.sh [AuthorizationModel] [EnableAspire] [EnableRateLimit
 | 2 | `EnableAspire` (`true` ou `false`) | `true` |
 | 3 | `EnableRateLimiting` | `true` |
 | 4 | `EnableTests` | `true` |
+| 5 | `ContainerRuntime` (`Docker` ou `Podman`) | `Docker` |
 
 Exemple : `bash eng/verify-template.sh Groups true false true`.
 
@@ -144,6 +145,7 @@ Les contrôles du projet généré :
 | `TestResults`, `bin`, `obj` | un de ces dossiers est présent |
 | nom source | `Web.Template.CQRS` subsiste dans un fichier `.cs`, `.csproj`, `.slnx` ou `.json` |
 | `tests/` | présent alors que `EnableTests` vaut `false` |
+| moteur de conteneurs | `ASPIRE_CONTAINER_RUNTIME` du profil de lancement de l'AppHost ne correspond pas à `ContainerRuntime`, ou `docker` subsiste avec `Podman` (ou `podman` avec `Docker`) dans les fichiers Markdown, JSON et scripts |
 | realm Keycloak | `Realms/template-realm.json` absent alors que `EnableAspire` vaut `true` |
 
 **Fichier :** `eng/verify-template.sh`
@@ -165,7 +167,7 @@ Déclencheurs : `push` sur `main` et toute `pull_request`. Trois jobs indépenda
 | Job | Rôle |
 |-----|------|
 | `realm-json` | vérifie avec `python3 -m json.tool` que chaque fichier de `Realms/` et `RealmVariants/` est un JSON valide |
-| `generate` | matrice de six combinaisons d'options ; chaque entrée exécute `eng/verify-template.sh` |
+| `generate` | matrice de sept combinaisons d'options ; chaque entrée exécute `eng/verify-template.sh` |
 | `template-repository` | compile et teste les sources du dépôt (`dotnet test --solution Web.Template.CQRS.slnx`) |
 
 **Fichier :** `.github/workflows/template-ci.yml`
@@ -183,7 +185,8 @@ generate:
         - { auth: AppRolesAndGroups, aspire: true, rateLimiting: true, tests: true }
         - { auth: AppRoles, aspire: false, rateLimiting: true, tests: true }
         - { auth: AppRoles, aspire: true, rateLimiting: true, tests: false }
-  name: generate (${{ matrix.auth }}, aspire=${{ matrix.aspire }}, rl=${{ matrix.rateLimiting }}, tests=${{ matrix.tests }})
+        - { auth: AppRoles, aspire: true, rateLimiting: true, tests: true, runtime: Podman }
+  name: generate (${{ matrix.auth }}, aspire=${{ matrix.aspire }}, rl=${{ matrix.rateLimiting }}, tests=${{ matrix.tests }}, runtime=${{ matrix.runtime || 'Docker' }})
   steps:
     - uses: actions/checkout@v5
     - uses: actions/setup-dotnet@v5
@@ -195,10 +198,10 @@ generate:
     - name: Install PyYAML (frontmatter check)
       run: python -m pip install pyyaml
     - name: Generate, build and test
-      run: bash eng/verify-template.sh ${{ matrix.auth }} ${{ matrix.aspire }} ${{ matrix.rateLimiting }} ${{ matrix.tests }}
+      run: bash eng/verify-template.sh ${{ matrix.auth }} ${{ matrix.aspire }} ${{ matrix.rateLimiting }} ${{ matrix.tests }} ${{ matrix.runtime || 'Docker' }}
 ```
 
-Les six combinaisons couvrent les quatre modèles d'autorisation, une génération sans Aspire, une sans tests et une sans limitation de débit.
+Les sept combinaisons couvrent les quatre modèles d'autorisation, une génération sans Aspire, une sans tests, une sans limitation de débit et une avec Podman.
 
 ### `docs.yml`
 
@@ -225,7 +228,7 @@ Ils se trouvent dans `eng/azure-pipelines/` et reproduisent les workflows GitHub
 
 | Fichier | Équivalent GitHub | Contenu |
 |---------|-------------------|---------|
-| `template-ci.yml` | `template-ci.yml` | jobs `realm_json`, `template_repository` et `generate` (matrice de six combinaisons) ; installe le SDK .NET depuis `global.json` |
+| `template-ci.yml` | `template-ci.yml` | jobs `realm_json`, `template_repository` et `generate` (matrice de sept combinaisons) ; installe le SDK .NET depuis `global.json` |
 | `docs-ci.yml` | job `check` de `docs.yml` | Python 3.13, dépendances, tests de l'outillage, `docs.py check` ; **pas de déploiement** |
 
 Les deux se déclenchent sur `main` (`trigger`) et déclarent un déclencheur `pr`. Ils utilisent un agent `ubuntu-latest`.

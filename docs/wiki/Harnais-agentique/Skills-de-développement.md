@@ -128,7 +128,7 @@ Démarre l'environnement local et vérifie que l'API répond pour le persona use
 J'ai une 500 sur POST /books : trouve la cause.
 ```
 
-**Ce que fait l'agent** : il vérifie les prérequis (Docker, CLI Aspire, certificat, secrets de l'AppHost sans jamais afficher leurs valeurs), contrôle que le port 8080 est libre, démarre avec `aspire start`, attend que l'API soit saine, obtient un token avec `scripts/get-token.*` et appelle l'API sur `https://localhost:7246`. Pour une erreur, il relève le `traceId` du Problem Details et lit la trace correspondante, par le [serveur MCP Aspire](/Harnais-agentique/MCP-Aspire.md) s'il est disponible, sinon avec `aspire otel`. Il termine en annonçant l'état final de l'environnement.
+**Ce que fait l'agent** : il vérifie les prérequis (Docker ou Podman, CLI Aspire, certificat, secrets de l'AppHost sans jamais afficher leurs valeurs), contrôle que le port 8080 est libre, démarre avec `aspire start`, attend que l'API soit saine, obtient un token avec `scripts/get-token.*` et appelle l'API sur `https://localhost:7246`. Pour une erreur, il relève le `traceId` du Problem Details et lit la trace correspondante, par le [serveur MCP Aspire](/Harnais-agentique/MCP-Aspire.md) s'il est disponible, sinon avec `aspire otel`. Il termine en annonçant l'état final de l'environnement.
 
 **Critères de fin et interdits**
 

@@ -26,6 +26,7 @@ Cochez chaque ligne avant de déclarer la feature terminée. Une ligne non appli
 - [ ] Chaque commande a un validateur (obligatoire, formats, longueurs avec les constantes du domaine).
 - [ ] Chaque query à identifiant a un validateur `NotEmpty()` sur cet identifiant.
 - [ ] Une liste paginée borne `page` et `pageSize` ; le tri est déterministe.
+- [ ] Pagination, filtres, tri et recherche sont appliqués en SQL (jamais `GetAllAsync()` puis LINQ sur une collection qui peut croître) ; lecture en `AsNoTracking`, index dans la configuration EF et la migration (skill `perf-guardrails`).
 - [ ] Une règle d'unicité est vérifiée dans le handler (409 `CONFLICT` en Problem Details) et protégée par un index unique.
 - [ ] Aucune exception lancée pour un cas attendu ; aucun message d'exception renvoyé au client.
 - [ ] Les codes de retour correspondent au tableau du skill : 201/200, 400, 401, 403, 404, 409.

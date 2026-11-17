@@ -92,7 +92,7 @@ Le niveau 1 est indispensable : les tests d'intégration utilisent EF InMemory, 
 
 ## Listes
 
-Un endpoint de liste est une query (`IQuery<IReadOnlyList<...>>`) sur `GET /<route>`. Triez toujours de façon déterministe. Si la collection peut croître, paginez (`page`, `pageSize` bornés par le validateur : 400 hors bornes) ; sinon `GetAllAsync()` suffit. Modèle dans `code-patterns.md`, section « Liste ».
+Un endpoint de liste est une query (`IQuery<IReadOnlyList<...>>`) sur `GET /<route>`. Triez toujours de façon déterministe. Si la collection peut croître, paginez **côté serveur** (`page`, `pageSize` bornés par le validateur : 400 hors bornes) ; filtres, tri et recherche aussi, dans la requête SQL, selon le skill `perf-guardrails` (règle A1). `GetAllAsync()` ne convient qu'à une collection bornée par nature, signalée par un commentaire. Modèle dans `code-patterns.md`, section « Liste ».
 
 ## Autorisation
 

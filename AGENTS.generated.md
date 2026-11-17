@@ -42,6 +42,7 @@ Les dépendances pointent vers l'intérieur : Domain ne référence rien, Applic
 <!--#if (EnableRateLimiting) -->
 - Limitation de débit : chaque endpoint déclare une politique `RateLimitingPolicies.*` (`Read`, `Write`, `Generate`, `Publish`) via `RequireRateLimiting`.
 <!--#endif -->
+- Performance : appliquez `perf-guardrails` (`.agents/skills/perf-guardrails/SKILL.md`) à tout endpoint de liste ou de recherche, requête EF, import, export et appel sortant. Pagination, filtre, tri et recherche sont **toujours côté serveur** (page et taille bornées par le validateur). Les options payantes ou d'infrastructure (Redis, palier de base, réplicas) ne se proposent qu'en une ligne et ne se mettent jamais en place sans accord.
 - Options validées au démarrage (`ValidateOnStart`).
 - Identité courante via `ICurrentUser` (jamais `HttpContext` dans un handler). Claims Entra : `oid`, `roles`, `groups`.
 
@@ -83,6 +84,7 @@ L'API écoute uniquement sur `https://localhost:7246`. Keycloak local : `https:/
 
 - `ponytail` : réduire le code superflu et les suppositions ; disponible dans `.agents/skills/` pour Codex et `.claude/skills/` pour Claude Code.
 - `add-feature` : ajouter une fonctionnalité en tranche verticale complète (Domain, Infrastructure, Application, Contracts, Api, tests).
+- `perf-guardrails` : règles de performance absolues (pagination, lectures EF, index, timeouts) et recommandations payantes à proposer sans les imposer ; disponible dans `.agents/skills/` pour Codex et `.claude/skills/` pour Claude Code.
 - `manage-access` : ajouter ou modifier un rôle, un groupe ou une politique d'autorisation.
 <!--#if (EnableAspire) -->
 - `run-local` : démarrer l'environnement local, obtenir un token, lancer le smoke test.

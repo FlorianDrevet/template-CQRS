@@ -103,7 +103,7 @@ public interface IProductRepository : IRepository<Product>
 {
     Task<bool> ExistsByNameAsync(string name);
 
-    Task<IReadOnlyList<Product>> ListAsync(int skip, int take);
+    Task<IReadOnlyList<Product>> ListAsync(int skip, int take, CancellationToken cancellationToken);
 }
 ```
 
@@ -162,12 +162,13 @@ public sealed class ProductRepository(ProjectDbContext context)
     public Task<bool> ExistsByNameAsync(string name) =>
         Context.Set<Product>().AnyAsync(product => product.Name == name);
 
-    public async Task<IReadOnlyList<Product>> ListAsync(int skip, int take) =>
+    public async Task<IReadOnlyList<Product>> ListAsync(int skip, int take, CancellationToken cancellationToken) =>
         await Context.Set<Product>()
+            .AsNoTracking() // lecture seule : pas de suivi des entités (perf-guardrails A3)
             .OrderBy(product => product.Name) // colonne comparable ; pas l'Id (ValueObject)
             .Skip(skip)
             .Take(take)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 }
 ```
 
@@ -505,7 +506,7 @@ Faux repository pour les tests unitaires (ajoutez ces deux méthodes à `FakePro
 public Task<bool> ExistsByNameAsync(string name) =>
     Task.FromResult(Products.Any(product => product.Name == name));
 
-public Task<IReadOnlyList<Product>> ListAsync(int skip, int take) =>
+public Task<IReadOnlyList<Product>> ListAsync(int skip, int take, CancellationToken cancellationToken) =>
     Task.FromResult<IReadOnlyList<Product>>(
         Products.OrderBy(product => product.Name).Skip(skip).Take(take).ToList());
 ```
@@ -555,7 +556,7 @@ public sealed class ListProductsQueryHandler(IProductRepository products)
         ListProductsQuery query,
         CancellationToken cancellationToken)
     {
-        var page = await products.ListAsync((query.Page - 1) * query.PageSize, query.PageSize);
+        var page = await products.ListAsync((query.Page - 1) * query.PageSize, query.PageSize, cancellationToken);
 
         return page
             .Select(product => new ProductResult(product.Id.Value, product.Name, product.Price))
@@ -676,7 +677,7 @@ public sealed class FakeProductRepository : IProductRepository
     public Task<bool> ExistsByNameAsync(string name) =>
         Task.FromResult(Products.Any(product => product.Name == name));
 
-    public Task<IReadOnlyList<Product>> ListAsync(int skip, int take) =>
+    public Task<IReadOnlyList<Product>> ListAsync(int skip, int take, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Product>>(
             Products.OrderBy(product => product.Name).Skip(skip).Take(take).ToList());
 }

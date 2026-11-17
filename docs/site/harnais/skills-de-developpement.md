@@ -1,6 +1,6 @@
 # Skills de développement
 
-Un projet généré contient trois skills pour le travail de tous les jours : `add-feature`, `manage-access` et `run-local`. Cette page dit quand les utiliser, comment les demander, ce que fait l'agent et à quoi vous reconnaissez que la tâche est vraiment terminée.
+Un projet généré contient quatre skills pour le travail de tous les jours : `add-feature`, `manage-access`, `perf-guardrails` et `run-local`. Cette page dit quand les utiliser, comment les demander, ce que fait l'agent et à quoi vous reconnaissez que la tâche est vraiment terminée.
 
 ## Le concept simplement
 
@@ -20,9 +20,10 @@ Chaque skill suit la même trame : des étapes numérotées avec les commandes e
 |-------|------------|--------|
 | `add-feature` | toujours | ajouter une fonctionnalité métier de bout en bout |
 | `manage-access` | toujours | ajouter, renommer ou retirer un rôle, un groupe ou un persona |
+| `perf-guardrails` | toujours | appliquer les règles de performance de l'API et proposer les options payantes |
 | `run-local` | Aspire activé | lancer, tester et diagnostiquer l'environnement local |
 
-Les trois skills sont lus par Claude Code et par Copilot (dossier `.claude/skills/`). Le skill `init-project`, lui, reste dans le dépôt du template : voir [Initialiser un projet](initialiser-un-projet.md).
+Les skills sont lus par Claude Code et par Copilot (dossier `.claude/skills/`) ; `perf-guardrails` l'est aussi par Codex (dossier `.agents/skills/`). Le skill `init-project`, lui, reste dans le dépôt du template : voir [Initialiser un projet](initialiser-un-projet.md).
 
 ### `add-feature`
 
@@ -69,6 +70,25 @@ Renomme le rôle Admin en Administrator.
 ```markdown title=".claude/skills/manage-access/SKILL.md"
 --8<-- ".claude/skills/manage-access/SKILL.md" start="## Terminé quand"
 ```
+
+### `perf-guardrails`
+
+**Quand** : dès qu'une demande touche un endpoint de liste ou de recherche, une requête EF Core, un import, un export, un appel HTTP sortant ou un envoi de blob. `add-feature` et l'agent `reviewer` s'y réfèrent.
+
+```yaml title=".claude/skills/perf-guardrails/SKILL.md"
+--8<-- ".claude/skills/perf-guardrails/SKILL.md" start="name: perf-guardrails" end="description:"
+```
+
+**Ce que fait l'agent** : il applique sans demander les règles absolues et gratuites : pagination, filtre, tri et recherche **toujours côté serveur** (page et taille bornées par le validateur), lectures EF en `AsNoTracking`, pas de N+1, index livrés dans la même migration, timeouts et `CancellationToken` sur les appels sortants, imports par lots, exports en flux. Pour tout ce qui a un coût (cache Redis, palier de base plus élevé, réplicas, worker, CDN), il **propose en une ligne** le gain, le coût et le déclencheur, puis attend votre réponse : rien n'est mis en place sans accord. Le skill est une synthèse critique d'un guide tiers de 31 correctifs : il dit aussi ce qui a été écarté et pourquoi.
+
+**Exemples de demandes**
+
+```text
+Ajoute un endpoint de recherche des produits avec filtre par catégorie et tri.
+Importe un fichier CSV de 50 000 lignes.
+```
+
+**Critères de fin** : la section « Vérification » du skill : plafond de page testé, nombre de requêtes SQL constant, plan d'exécution vérifié sur la base locale (EF InMemory ne prouve rien sur la performance), index relus dans la migration.
 
 ### `run-local`
 

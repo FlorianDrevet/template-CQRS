@@ -18,6 +18,7 @@ Règles essentielles :
 Skills disponibles dans `.claude/skills/` :
 
 - `add-feature` : ajouter une query ou une commande de bout en bout.
+- `perf-guardrails` : règles de performance de l'API (pagination, filtre et tri côté serveur, lectures EF, index, timeouts) ; les options payantes se proposent, sans jamais s'imposer.
 - `manage-access` : ajouter ou modifier un rôle, un groupe ou une politique.
 <!--#if (EnableAspire) -->
 - `run-local` : démarrer l'environnement local.

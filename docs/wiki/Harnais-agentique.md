@@ -79,6 +79,7 @@ Le fichier `AGENTS.md` d'un projet généré est dérivé de `AGENTS.generated.m
 
 - `ponytail` : réduire le code superflu et les suppositions ; disponible dans `.agents/skills/` pour Codex et `.claude/skills/` pour Claude Code.
 - `add-feature` : ajouter une fonctionnalité en tranche verticale complète (Domain, Infrastructure, Application, Contracts, Api, tests).
+- `perf-guardrails` : règles de performance absolues (pagination, lectures EF, index, timeouts) et recommandations payantes à proposer sans les imposer ; disponible dans `.agents/skills/` pour Codex et `.claude/skills/` pour Claude Code.
 - `manage-access` : ajouter ou modifier un rôle, un groupe ou une politique d'autorisation.
 <!--#if (EnableAspire) -->
 - `run-local` : démarrer l'environnement local, obtenir un token, lancer le smoke test.

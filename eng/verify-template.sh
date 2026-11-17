@@ -40,9 +40,9 @@ if grep -q "dotnet new install" README.md; then
   fail "README.md is the template repository README."
 fi
 for required in AGENTS.md CLAUDE.md .github/copilot-instructions.md \
-  .agents/skills/ponytail/SKILL.md \
+  .agents/skills/ponytail/SKILL.md .agents/skills/perf-guardrails/SKILL.md \
   .claude/skills/add-feature/SKILL.md .claude/skills/manage-access/SKILL.md \
-  .claude/skills/ponytail/SKILL.md \
+  .claude/skills/ponytail/SKILL.md .claude/skills/perf-guardrails/SKILL.md \
   .claude/agents/reviewer.md .github/agents/reviewer.agent.md; do
   [ -f "$required" ] || fail "harness file '$required' is missing."
 done

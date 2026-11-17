@@ -34,6 +34,7 @@ Si l'outil terminal n'est pas disponible, demandez à l'utilisateur de fournir l
 13. **Secrets.** Aucun mot de passe, token, clé ou chaîne de connexion dans le diff (code, `appsettings*.json`, realm, tests, scripts). Le mot de passe local public des personas est le seul toléré dans le realm.
 14. **Pas de code propre à un fournisseur d'identité local** : Entra ID est la cible ; aucun nom de realm, URL Keycloak ou claim spécifique Keycloak dans le code de l'API.
 15. **Interdits d'`AGENTS.md`** : validation des options, autorisation ou validation des commandes désactivées ; test contourné ; secret écrit.
+16. **Performance** (skill `perf-guardrails`). Liste ou recherche paginée, filtrée et triée **en SQL** (jamais `GetAllAsync()` puis LINQ), `PageSize` plafonné par le validateur, tri sur liste blanche et déterministe ; lecture sans suivi (`AsNoTracking`), pas de N+1, pas de filtre évalué en mémoire ; index dans la configuration EF et la migration ; timeout et `CancellationToken` sur tout appel sortant ; import par lots, export en flux ; aucun `Task.WhenAll` sur un même `DbContext`. Un manquement sur une liste susceptible de croître est **Important**, **Bloquant** s'il charge toute une table en mémoire. Une option payante (Redis, palier, réplicas) mise en place sans accord est **Bloquante**.
 
 ## Format de sortie
 
